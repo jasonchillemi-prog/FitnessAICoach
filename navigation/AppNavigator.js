@@ -4,7 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebaseConfig';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
@@ -57,10 +58,27 @@ function MainTabs() {
 export default function AppNavigator() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          const docRef = doc(db, 'users', currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          console.log('Profile data:', JSON.stringify(docSnap.data())); if (docSnap.exists() && docSnap.data().weight) {
+            setHasProfile(true);
+          } else {
+            setHasProfile(false);
+          }
+        } catch (e) {
+          setHasProfile(false);
+        }
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        setHasProfile(false);
+      }
       setLoading(false);
     });
     return unsubscribe;
@@ -74,10 +92,16 @@ export default function AppNavigator() {
     );
   }
 
+  const getInitialRoute = () => {
+    if (!user) return 'Login';
+    if (!hasProfile) return 'Onboarding';
+    return 'Main';
+  };
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={user ? 'Main' : 'Login'}
+        initialRouteName={getInitialRoute()}
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Login" component={LoginScreen} />
