@@ -1,29 +1,45 @@
 {
   "expo": {
-    "name": "FitnessAICoach",
+    "name": "KineticIQ",
     "slug": "FitnessAICoach",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0a0a0a"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kineticiq.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to sign in quickly and securely.",
+        "NSCalendarsUsageDescription": "KineticIQ adds your workout and meal schedule to your calendar.",
+        "NSRemindersUsageDescription": "KineticIQ sets reminders for your meals and workouts."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0a0a0a"
       },
+      "package": "com.kineticiq.app",
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-calendar",
+      "expo-local-authentication"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "bf6df862-ab4c-47c9-b0d1-39fdc2c7ce45"
+      }
     }
   }
 }
