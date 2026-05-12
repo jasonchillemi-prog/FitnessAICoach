@@ -11,6 +11,7 @@ import LoginScreen from '../screens/LoginScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import ProgressScreen from '../screens/ProgressScreen';
+import CoachScreen from '../screens/CoachScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,6 +52,16 @@ function MainTabs() {
           ),
         }}
       />
+      <Tab.Screen
+        name="Coach"
+        component={CoachScreen}
+        options={{
+          tabBarLabel: 'AI Coach',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 20 }}>🤖</Text>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -66,7 +77,7 @@ export default function AppNavigator() {
         try {
           const docRef = doc(db, 'users', currentUser.uid);
           const docSnap = await getDoc(docRef);
-          console.log('Profile data:', JSON.stringify(docSnap.data())); if (docSnap.exists() && docSnap.data().weight) {
+          if (docSnap.exists() && docSnap.data().weight) {
             setHasProfile(true);
           } else {
             setHasProfile(false);
