@@ -25,9 +25,7 @@ export default function ProfileScreen({ navigation }) {
       const user = auth.currentUser;
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUserData(docSnap.data());
-      }
+      if (docSnap.exists()) setUserData(docSnap.data());
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
@@ -36,97 +34,91 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              navigation.replace('Login');
-            } catch (error) {
-              Alert.alert('Error', error.message);
-            }
-          }
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log Out', style: 'destructive', onPress: async () => {
+        try {
+          await signOut(auth);
+          navigation.replace('Login');
+        } catch (error) {
+          Alert.alert('Error', error.message);
         }
-      ]
-    );
+      }}
+    ]);
   };
 
   const handleResetPlan = async () => {
-    Alert.alert(
-      'Reset Plan',
-      'This will clear your current plan so you can generate a new one. Are you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const user = auth.currentUser;
-              await setDoc(doc(db, 'users', user.uid), { savedPlan: null }, { merge: true });
-              Alert.alert('Done!', 'Your plan has been reset. Go to Dashboard to generate a new one.');
-            } catch (error) {
-              Alert.alert('Error', error.message);
-            }
-          }
+    Alert.alert('Reset Plan', 'This will clear your current plan. Are you sure?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Reset', style: 'destructive', onPress: async () => {
+        try {
+          const user = auth.currentUser;
+          await setDoc(doc(db, 'users', user.uid), { savedPlan: null }, { merge: true });
+          Alert.alert('Done!', 'Your plan has been reset. Go to Dashboard to generate a new one.');
+        } catch (error) {
+          Alert.alert('Error', error.message);
         }
-      ]
-    );
+      }}
+    ]);
   };
 
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#00ff88" />
+        <ActivityIndicator size="large" color="#00E5A0" />
       </View>
     );
   }
 
+  const getFirstName = () => {
+    const email = auth.currentUser?.email || '';
+    return email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>My Profile</Text>
-      <View style={styles.avatarContainer}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {auth.currentUser?.email?.charAt(0).toUpperCase()}
-          </Text>
+      <Text style={styles.title}>Profile</Text>
+
+      <View style={styles.profileCard}>
+        <View style={styles.avatarLarge}>
+          <Text style={styles.avatarText}>{auth.currentUser?.email?.charAt(0).toUpperCase()}</Text>
         </View>
-        <Text style={styles.email}>{auth.currentUser?.email}</Text>
+        <Text style={styles.profileName}>{getFirstName()}</Text>
+        <Text style={styles.profileEmail}>{auth.currentUser?.email}</Text>
+        <View style={styles.freeBadge}>
+          <Text style={styles.freeBadgeText}>FREE PLAN</Text>
+        </View>
       </View>
+
       {userData && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>My Stats</Text>
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{userData.weight}</Text>
-              <Text style={styles.statLabel}>lbs</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{userData.height}</Text>
-              <Text style={styles.statLabel}>height</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{userData.age}</Text>
-              <Text style={styles.statLabel}>years old</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{userData.workoutsPerWeek}</Text>
-              <Text style={styles.statLabel}>days/week</Text>
-            </View>
+        <View style={styles.statsGrid}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{userData.weight}</Text>
+            <Text style={styles.statLabel}>lbs</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{userData.height}</Text>
+            <Text style={styles.statLabel}>height</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{userData.age}</Text>
+            <Text style={styles.statLabel}>years old</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{userData.workoutsPerWeek}x</Text>
+            <Text style={styles.statLabel}>per week</Text>
           </View>
         </View>
       )}
-      {userData && (
+
+      {userData && userData.goals && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>My Goals</Text>
           <View style={styles.tagsContainer}>
-            {userData.goals && userData.goals.map((goal, index) => (
+            {userData.goals.map((goal, index) => (
               <View key={index} style={styles.tag}>
                 <Text style={styles.tagText}>{goal}</Text>
               </View>
@@ -134,19 +126,8 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
       )}
-      {userData && userData.allergies && userData.allergies[0] !== 'None' && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Food Allergies</Text>
-          <View style={styles.tagsContainer}>
-            {userData.allergies.map((allergy, index) => (
-              <View key={index} style={[styles.tag, styles.tagRed]}>
-                <Text style={styles.tagText}>{allergy}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-      {userData && userData.workoutTimes && (
+
+      {userData && userData.workoutTimes && userData.workoutTimes.length > 0 && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Preferred Workout Times</Text>
           <View style={styles.tagsContainer}>
@@ -158,6 +139,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
       )}
+
       {userData && userData.busyDays && userData.busyDays.length > 0 && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Busy Days</Text>
@@ -170,69 +152,94 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
       )}
-      <View style={styles.actionsCard}>
-        <Text style={styles.cardTitle}>Settings</Text>
-        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('EditProfile')}>
-          <Text style={styles.actionIcon}>✏️</Text>
-          <Text style={styles.actionText}>Edit Profile</Text>
-          <Text style={styles.actionArrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={handleResetPlan}>
-          <Text style={styles.actionIcon}>🔄</Text>
-          <Text style={styles.actionText}>Reset My Plan</Text>
-          <Text style={styles.actionArrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionIcon}>🔔</Text>
-          <Text style={styles.actionText}>Notifications</Text>
-          <Text style={styles.actionArrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionIcon}>⭐</Text>
-          <Text style={styles.actionText}>Upgrade to Pro</Text>
-          <Text style={styles.actionArrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionIcon}>📞</Text>
-          <Text style={styles.actionText}>Contact Support</Text>
-          <Text style={styles.actionArrow}>›</Text>
+
+      <View style={styles.upgradeCard}>
+        <View>
+          <Text style={styles.upgradeTitle}>Upgrade to Pro 🚀</Text>
+          <Text style={styles.upgradeSub}>Unlimited AI coaching, Apple Watch sync, advanced analytics</Text>
+        </View>
+        <TouchableOpacity style={styles.upgradeButton}>
+          <Text style={styles.upgradeButtonText}>$12/mo</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.settingsCard}>
+        <Text style={styles.cardTitle}>Settings</Text>
+        <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('EditProfile')}>
+          <View style={styles.settingLeft}>
+            <Text style={styles.settingIcon}>✏️</Text>
+            <Text style={styles.settingText}>Edit Profile</Text>
+          </View>
+          <Text style={styles.settingArrow}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingRow} onPress={handleResetPlan}>
+          <View style={styles.settingLeft}>
+            <Text style={styles.settingIcon}>🔄</Text>
+            <Text style={styles.settingText}>Reset My Plan</Text>
+          </View>
+          <Text style={styles.settingArrow}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingRow}>
+          <View style={styles.settingLeft}>
+            <Text style={styles.settingIcon}>🔔</Text>
+            <Text style={styles.settingText}>Notifications</Text>
+          </View>
+          <Text style={styles.settingArrow}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingRow}>
+          <View style={styles.settingLeft}>
+            <Text style={styles.settingIcon}>📞</Text>
+            <Text style={styles.settingText}>Contact Support</Text>
+          </View>
+          <Text style={styles.settingArrow}>›</Text>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
+
       <Text style={styles.version}>KineticIQ v1.0.0</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  content: { padding: 24, paddingTop: 60, paddingBottom: 40 },
-  centered: { flex: 1, backgroundColor: '#0a0a0a', alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#ffffff', marginBottom: 24 },
-  avatarContainer: { alignItems: 'center', marginBottom: 24 },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#003322', borderWidth: 2, borderColor: '#00ff88', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  avatarText: { fontSize: 32, fontWeight: 'bold', color: '#00ff88' },
-  email: { fontSize: 15, color: '#888888' },
-  card: { backgroundColor: '#1a1a1a', borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#333333' },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#00ff88', marginBottom: 16 },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  statItem: { flex: 1, minWidth: '40%', backgroundColor: '#0a0a0a', borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: '#333333' },
-  statValue: { fontSize: 22, fontWeight: 'bold', color: '#ffffff' },
-  statLabel: { fontSize: 12, color: '#888888', marginTop: 4 },
+  container: { flex: 1, backgroundColor: '#080C10' },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
+  centered: { flex: 1, backgroundColor: '#080C10', alignItems: 'center', justifyContent: 'center' },
+  title: { fontSize: 32, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.5, marginBottom: 24 },
+  profileCard: { backgroundColor: '#111820', borderRadius: 14, padding: 24, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  avatarLarge: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(0,229,160,0.12)', borderWidth: 2, borderColor: 'rgba(0,229,160,0.25)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  avatarText: { fontSize: 32, fontWeight: '800', color: '#00E5A0' },
+  profileName: { fontSize: 22, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.3, marginBottom: 4 },
+  profileEmail: { fontSize: 14, color: '#8A9BB0', marginBottom: 12 },
+  freeBadge: { backgroundColor: '#1A2330', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  freeBadgeText: { fontSize: 11, fontWeight: '700', color: '#8A9BB0', letterSpacing: 0.5 },
+  statsGrid: { backgroundColor: '#111820', borderRadius: 14, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', flexDirection: 'row', alignItems: 'center' },
+  statItem: { flex: 1, alignItems: 'center' },
+  statValue: { fontSize: 18, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.3 },
+  statLabel: { fontSize: 11, color: '#8A9BB0', marginTop: 4 },
+  statDivider: { width: 1, height: 40, backgroundColor: 'rgba(255,255,255,0.07)' },
+  card: { backgroundColor: '#111820', borderRadius: 14, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  cardTitle: { fontSize: 13, fontWeight: '700', color: '#8A9BB0', letterSpacing: 0.5, marginBottom: 12 },
   tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tag: { backgroundColor: '#003322', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#00ff88' },
-  tagRed: { backgroundColor: '#2a0a0a', borderColor: '#ff4444' },
-  tagBlue: { backgroundColor: '#0a1a2a', borderColor: '#4488ff' },
-  tagGray: { backgroundColor: '#1a1a1a', borderColor: '#555555' },
-  tagText: { color: '#ffffff', fontSize: 13, fontWeight: '500' },
-  actionsCard: { backgroundColor: '#1a1a1a', borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#333333' },
-  actionButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#333333' },
-  actionIcon: { fontSize: 20, marginRight: 14 },
-  actionText: { flex: 1, fontSize: 15, color: '#ffffff' },
-  actionArrow: { fontSize: 20, color: '#888888' },
-  logoutButton: { width: '100%', backgroundColor: '#1a1a1a', borderRadius: 12, padding: 18, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#ff4444' },
-  logoutText: { color: '#ff4444', fontSize: 16, fontWeight: 'bold' },
-  version: { textAlign: 'center', color: '#555555', fontSize: 12 },
+  tag: { backgroundColor: 'rgba(0,229,160,0.08)', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(0,229,160,0.2)' },
+  tagBlue: { backgroundColor: 'rgba(77,159,255,0.08)', borderColor: 'rgba(77,159,255,0.2)' },
+  tagGray: { backgroundColor: '#1A2330', borderColor: 'rgba(255,255,255,0.07)' },
+  tagText: { color: '#F0F4F8', fontSize: 13, fontWeight: '500' },
+  upgradeCard: { backgroundColor: 'rgba(0,229,160,0.08)', borderRadius: 14, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(0,229,160,0.2)', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  upgradeTitle: { fontSize: 15, fontWeight: '700', color: '#F0F4F8', marginBottom: 4 },
+  upgradeSub: { fontSize: 12, color: '#8A9BB0', maxWidth: 200 },
+  upgradeButton: { backgroundColor: '#00E5A0', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10 },
+  upgradeButtonText: { color: '#040A07', fontWeight: '700', fontSize: 14 },
+  settingsCard: { backgroundColor: '#111820', borderRadius: 14, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  settingLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  settingIcon: { fontSize: 18 },
+  settingText: { fontSize: 15, color: '#F0F4F8' },
+  settingArrow: { fontSize: 20, color: '#4A5A6A' },
+  logoutButton: { backgroundColor: '#111820', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,77,106,0.3)' },
+  logoutText: { color: '#FF4D6A', fontSize: 15, fontWeight: '700' },
+  version: { textAlign: 'center', color: '#4A5A6A', fontSize: 12 },
 });
