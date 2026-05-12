@@ -12,6 +12,7 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import CoachScreen from '../screens/CoachScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -32,36 +33,10 @@ function MainTabs() {
         tabBarInactiveTintColor: '#888888',
       }}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: 'Dashboard',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ color, fontSize: 20 }}>🏠</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Progress"
-        component={ProgressScreen}
-        options={{
-          tabBarLabel: 'Progress',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ color, fontSize: 20 }}>📈</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Coach"
-        component={CoachScreen}
-        options={{
-          tabBarLabel: 'AI Coach',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ color, fontSize: 20 }}>🤖</Text>
-          ),
-        }}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: 'Dashboard', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text> }} />
+      <Tab.Screen name="Progress" component={ProgressScreen} options={{ tabBarLabel: 'Progress', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📈</Text> }} />
+      <Tab.Screen name="Coach" component={CoachScreen} options={{ tabBarLabel: 'AI Coach', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🤖</Text> }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Profile', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text> }} />
     </Tab.Navigator>
   );
 }
@@ -111,10 +86,7 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={getInitialRoute()}
-        screenOptions={{ headerShown: false }}
-      >
+      <Stack.Navigator initialRouteName={getInitialRoute()} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
