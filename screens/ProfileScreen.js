@@ -172,7 +172,7 @@ export default function ProfileScreen({ navigation }) {
       )}
       <View style={styles.actionsCard}>
         <Text style={styles.cardTitle}>Settings</Text>
-        <TouchableOpacity style={styles.actionButton} onPress={() => Alert.alert('Coming Soon', 'Profile editing coming soon!')}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('EditProfile')}>
           <Text style={styles.actionIcon}>✏️</Text>
           <Text style={styles.actionText}>Edit Profile</Text>
           <Text style={styles.actionArrow}>›</Text>

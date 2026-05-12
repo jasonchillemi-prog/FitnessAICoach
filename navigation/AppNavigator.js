@@ -14,6 +14,7 @@ import ProgressScreen from '../screens/ProgressScreen';
 import CoachScreen from '../screens/CoachScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import StoreScreen from '../screens/StoreScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -93,6 +94,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
