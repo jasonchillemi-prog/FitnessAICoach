@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
+import { Keyboard,
   View,
   Text,
   TextInput,
@@ -154,7 +154,7 @@ export default function EditProfileScreen({ navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" onScrollBeginDrag={Keyboard.dismiss}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>← Back</Text>

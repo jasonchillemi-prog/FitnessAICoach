@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -16,9 +17,11 @@ export default function ProfileScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadUserData();
+    }, [])
+  );
 
   const loadUserData = async () => {
     try {
