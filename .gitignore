@@ -42,3 +42,4 @@ yarn-error.*
 .env
 screens/DashboardScreen.js
 screens/CoachScreen.js
+screens/OnboardingScreen.js
