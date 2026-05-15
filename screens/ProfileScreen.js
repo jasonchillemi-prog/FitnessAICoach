@@ -106,7 +106,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{userData.birthday ? new Date().getFullYear() - parseInt(userData.birthday.split('/')[2]) : userData.age}</Text>
+            <Text style={styles.statValue}>{userData.birthday ? (() => { const p = userData.birthday.split('/'); const bm = parseInt(p[0]); const bd = parseInt(p[1]); const by = parseInt(p[2]); const t = new Date(); let a = t.getFullYear() - by; if (t.getMonth()+1 < bm || (t.getMonth()+1 === bm && t.getDate() < bd)) a--; return a; })() : userData.age}</Text>
             <Text style={styles.statLabel}>years old</Text>
           </View>
           <View style={styles.statDivider} />
