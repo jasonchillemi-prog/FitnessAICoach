@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback
+  Platform
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
@@ -20,9 +17,9 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const passwordRef = useRef(null);
 
   const handleLogin = async () => {
-    Keyboard.dismiss();
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -47,83 +44,79 @@ export default function LoginScreen({ navigation }) {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.logoContainer}>
-            <View style={styles.logoBox}>
-              <Text style={styles.logoK}>K</Text>
-            </View>
-            <Text style={styles.logoText}>Kinetic<Text style={styles.logoAccent}>IQ</Text></Text>
-            <Text style={styles.logoTagline}>Your AI-powered fitness coach</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.inner}>
+        <View style={styles.logoContainer}>
+          <View style={styles.logoBox}>
+            <Text style={styles.logoK}>K</Text>
           </View>
+          <Text style={styles.logoText}>Kinetic<Text style={styles.logoAccent}>IQ</Text></Text>
+          <Text style={styles.logoTagline}>Your AI-powered fitness coach</Text>
+        </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Welcome back</Text>
-            <Text style={styles.cardSub}>Sign in to continue your fitness journey</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Welcome back</Text>
+          <Text style={styles.cardSub}>Sign in to continue your fitness journey</Text>
 
-            <Text style={styles.label}>EMAIL ADDRESS</Text>
-            <TextInput
-  style={styles.input}
-  placeholder="you@example.com"
-  placeholderTextColor="#4A5A6A"
-  value={email}
-  onChangeText={(text) => {
-    setEmail(text);
-    if (text.length > 5) Keyboard.dismiss();
-  }}
-  keyboardType="email-address"
-  autoCapitalize="none"
-  autoCorrect={false}
-/>
+          <Text style={styles.label}>EMAIL ADDRESS</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="you@example.com"
+            placeholderTextColor="#4A5A6A"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="emailAddress"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            blurOnSubmit={false}
+          />
 
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Your password"
-              placeholderTextColor="#4A5A6A"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (text.length > 5) Keyboard.dismiss();
-              }}
-              secureTextEntry
-            />
+          <Text style={styles.label}>PASSWORD</Text>
+          <TextInput
+            ref={passwordRef}
+            style={styles.input}
+            placeholder="Your password"
+            placeholderTextColor="#4A5A6A"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            textContentType="password"
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
+          />
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
-              <Text style={styles.loginButtonText}>Sign In →</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+            <Text style={styles.loginButtonText}>Sign In →</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-              <Text style={styles.footerLink}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+            <Text style={styles.footerLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.trustRow}>
-            <Text style={styles.trustItem}>🔒 Secure</Text>
-            <Text style={styles.trustItem}>🚫 No spam</Text>
-            <Text style={styles.trustItem}>⭐ Free to start</Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+        <View style={styles.trustRow}>
+          <Text style={styles.trustItem}>🔒 Secure</Text>
+          <Text style={styles.trustItem}>🚫 No spam</Text>
+          <Text style={styles.trustItem}>⭐ Free to start</Text>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#080C10' },
   centered: { flex: 1, backgroundColor: '#080C10', alignItems: 'center', justifyContent: 'center' },
-  content: { flexGrow: 1, padding: 24, justifyContent: 'center', paddingTop: 80, paddingBottom: 40 },
+  inner: { flex: 1, padding: 24, justifyContent: 'center' },
   logoContainer: { alignItems: 'center', marginBottom: 40 },
   logoBox: { width: 72, height: 72, borderRadius: 20, backgroundColor: 'rgba(0,229,160,0.12)', borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   logoK: { fontSize: 36, fontWeight: '800', color: '#00E5A0' },
