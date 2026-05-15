@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,37 @@ import {
   Alert,
   ActivityIndicator
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { auth, db } from '../firebaseConfig';
-import { doc, setDoc, getDoc, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, getDocs, query } from 'firebase/firestore';
+
+function HistorySection({ history, getMoodEmoji }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <View style={styles.card}>
+      <TouchableOpacity style={styles.historyHeaderRow} onPress={() => setExpanded(!expanded)}>
+        <Text style={styles.cardTitle}>Recent History</Text>
+        <Text style={styles.collapseArrow}>{expanded ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
+      {expanded && history.slice(0, 7).map((item, index) => (
+        <View key={index} style={styles.historyItem}>
+          <View style={styles.historyLeft}>
+            <Text style={styles.historyDate}>{item.date}</Text>
+            <Text style={styles.historyMood}>{getMoodEmoji(item.moodLevel)}</Text>
+          </View>
+          <View style={styles.historyRight}>
+            <View style={[styles.historyBadge, item.workedOut ? styles.badgeGreen : styles.badgeRed]}>
+              <Text style={styles.historyBadgeText}>{item.workedOut ? '💪 Workout' : '❌ Rest'}</Text>
+            </View>
+            <View style={[styles.historyBadge, item.followedMeals ? styles.badgeGreen : styles.badgeRed]}>
+              <Text style={styles.historyBadgeText}>{item.followedMeals ? '🥗 On track' : '❌ Off plan'}</Text>
+            </View>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 export default function ProgressScreen() {
   const [loading, setLoading] = useState(true);
@@ -23,9 +52,11 @@ export default function ProgressScreen() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  useEffect(() => {
-    loadProgress();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadProgress();
+    }, [])
+  );
 
   const loadProgress = async () => {
     try {
@@ -38,6 +69,11 @@ export default function ProgressScreen() {
         setWorkedOut(data.workedOut);
         setFollowedMeals(data.followedMeals);
         setMoodLevel(data.moodLevel);
+      } else {
+        setTodayCheckin(null);
+        setWorkedOut(null);
+        setFollowedMeals(null);
+        setMoodLevel(null);
       }
       const checkinsRef = collection(db, 'checkins');
       const q = query(checkinsRef);
@@ -48,7 +84,6 @@ export default function ProgressScreen() {
           allCheckins.push(doc.data());
         }
       });
-      console.log('Total checkins found:', allCheckins.length);
       allCheckins.sort((a, b) => new Date(b.date) - new Date(a.date));
       setHistory(allCheckins);
       calculateStreak(allCheckins);
@@ -142,7 +177,6 @@ export default function ProgressScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Today's Check-in</Text>
-
         {todayCheckin ? (
           <View style={styles.completedContainer}>
             <View style={styles.completedBadge}>
@@ -167,84 +201,43 @@ export default function ProgressScreen() {
           <>
             <Text style={styles.question}>Did you workout today?</Text>
             <View style={styles.optionRow}>
-              <TouchableOpacity
-                style={[styles.optionButton, workedOut === true && styles.optionSelected]}
-                onPress={() => setWorkedOut(true)}
-              >
+              <TouchableOpacity style={[styles.optionButton, workedOut === true && styles.optionSelected]} onPress={() => setWorkedOut(true)}>
                 <Text style={styles.optionEmoji}>💪</Text>
                 <Text style={[styles.optionText, workedOut === true && styles.optionTextSelected]}>Yes</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.optionButton, workedOut === false && styles.optionSelectedRed]}
-                onPress={() => setWorkedOut(false)}
-              >
+              <TouchableOpacity style={[styles.optionButton, workedOut === false && styles.optionSelectedRed]} onPress={() => setWorkedOut(false)}>
                 <Text style={styles.optionEmoji}>❌</Text>
                 <Text style={[styles.optionText, workedOut === false && styles.optionTextSelected]}>No</Text>
               </TouchableOpacity>
             </View>
-
             <Text style={styles.question}>Did you follow your meal plan?</Text>
             <View style={styles.optionRow}>
-              <TouchableOpacity
-                style={[styles.optionButton, followedMeals === true && styles.optionSelected]}
-                onPress={() => setFollowedMeals(true)}
-              >
+              <TouchableOpacity style={[styles.optionButton, followedMeals === true && styles.optionSelected]} onPress={() => setFollowedMeals(true)}>
                 <Text style={styles.optionEmoji}>🥗</Text>
                 <Text style={[styles.optionText, followedMeals === true && styles.optionTextSelected]}>Yes</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.optionButton, followedMeals === false && styles.optionSelectedRed]}
-                onPress={() => setFollowedMeals(false)}
-              >
+              <TouchableOpacity style={[styles.optionButton, followedMeals === false && styles.optionSelectedRed]} onPress={() => setFollowedMeals(false)}>
                 <Text style={styles.optionEmoji}>❌</Text>
                 <Text style={[styles.optionText, followedMeals === false && styles.optionTextSelected]}>No</Text>
               </TouchableOpacity>
             </View>
-
             <Text style={styles.question}>How are you feeling today?</Text>
             <View style={styles.moodRow}>
               {[1, 2, 3, 4, 5].map((level) => (
-                <TouchableOpacity
-                  key={level}
-                  style={[styles.moodButton, moodLevel === level && styles.moodSelected]}
-                  onPress={() => setMoodLevel(level)}
-                >
+                <TouchableOpacity key={level} style={[styles.moodButton, moodLevel === level && styles.moodSelected]} onPress={() => setMoodLevel(level)}>
                   <Text style={styles.moodEmoji}>{getMoodEmoji(level)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-
             <TouchableOpacity style={styles.saveButton} onPress={saveCheckin} disabled={saving}>
-              {saving ? (
-                <ActivityIndicator color="#040A07" />
-              ) : (
-                <Text style={styles.saveButtonText}>Save Check-in</Text>
-              )}
+              {saving ? <ActivityIndicator color="#040A07" /> : <Text style={styles.saveButtonText}>Save Check-in</Text>}
             </TouchableOpacity>
           </>
         )}
       </View>
 
       {history.length > 0 && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Recent History</Text>
-          {history.slice(0, 7).map((item, index) => (
-            <View key={index} style={styles.historyItem}>
-              <View style={styles.historyLeft}>
-                <Text style={styles.historyDate}>{item.date}</Text>
-                <Text style={styles.historyMood}>{getMoodEmoji(item.moodLevel)}</Text>
-              </View>
-              <View style={styles.historyRight}>
-                <View style={[styles.historyBadge, item.workedOut ? styles.badgeGreen : styles.badgeRed]}>
-                  <Text style={styles.historyBadgeText}>{item.workedOut ? '💪 Workout' : '❌ Rest'}</Text>
-                </View>
-                <View style={[styles.historyBadge, item.followedMeals ? styles.badgeGreen : styles.badgeRed]}>
-                  <Text style={styles.historyBadgeText}>{item.followedMeals ? '🥗 On track' : '❌ Off plan'}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
+        <HistorySection history={history} getMoodEmoji={getMoodEmoji} />
       )}
     </ScrollView>
   );
@@ -285,6 +278,8 @@ const styles = StyleSheet.create({
   moodEmoji: { fontSize: 26 },
   saveButton: { width: '100%', backgroundColor: '#00E5A0', borderRadius: 12, padding: 16, alignItems: 'center' },
   saveButtonText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
+  historyHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  collapseArrow: { color: '#00E5A0', fontSize: 12 },
   historyItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   historyLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   historyDate: { fontSize: 13, color: '#8A9BB0' },
