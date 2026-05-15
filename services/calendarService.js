@@ -12,7 +12,7 @@ export const requestPermissions = async () => {
 
 export const getOrCreateCalendar = async () => {
   const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-  const existing = calendars.filter(c => c.title === 'KineticIQ Coach');
+  const existing = calendars.filter(c => c.title === 'KineticIQ Coach' || c.title === 'FitnessAI Coach');
 
   for (const cal of existing) {
     await Calendar.deleteCalendarAsync(cal.id);
