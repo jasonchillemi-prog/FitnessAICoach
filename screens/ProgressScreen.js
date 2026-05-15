@@ -40,7 +40,7 @@ export default function ProgressScreen() {
         setMoodLevel(data.moodLevel);
       }
       const checkinsRef = collection(db, 'checkins');
-      const q = query(checkinsRef, orderBy('date', 'desc'));
+      const q = query(checkinsRef);
       const querySnap = await getDocs(q);
       const allCheckins = [];
       querySnap.forEach(doc => {
@@ -48,6 +48,8 @@ export default function ProgressScreen() {
           allCheckins.push(doc.data());
         }
       });
+      console.log('Total checkins found:', allCheckins.length);
+      allCheckins.sort((a, b) => new Date(b.date) - new Date(a.date));
       setHistory(allCheckins);
       calculateStreak(allCheckins);
     } catch (error) {
