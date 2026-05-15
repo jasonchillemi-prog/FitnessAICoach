@@ -35,7 +35,7 @@ function MainTabs() {
         tabBarInactiveTintColor: '#888888',
       }}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: 'Home', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text> }} />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: 'Dashboard', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text> }} />
       <Tab.Screen name="Progress" component={ProgressScreen} options={{ tabBarLabel: 'Progress', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📈</Text> }} />
       <Tab.Screen name="Coach" component={CoachScreen} options={{ tabBarLabel: 'AI Coach', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🤖</Text> }} />
       <Tab.Screen name="Store" component={StoreScreen} options={{ tabBarLabel: 'Store', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🛒</Text> }} />
