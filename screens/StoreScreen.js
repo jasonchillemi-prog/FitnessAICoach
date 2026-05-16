@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,28 +6,68 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Modal
+  Modal,
+  ActivityIndicator
 } from 'react-native';
+import { auth, db } from '../firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
-const products = [
-  { id: 1, emoji: '🥤', badge: 'BEST FOR YOUR PLAN', name: 'Whey Isolate Protein', desc: '25g protein per scoop, low carb, fast absorbing. Perfect post-workout recovery.', price: 49.99, category: 'Protein' },
-  { id: 2, emoji: '🍫', badge: 'HIGH PROTEIN SNACK', name: 'Protein Bars (12-pack)', desc: '20g protein, low sugar. Perfect mid-day snack to hit your macros.', price: 32.99, category: 'Snacks' },
-  { id: 3, emoji: '💊', badge: 'RECOVERY', name: 'Creatine Monohydrate', desc: 'Pure micronized creatine for strength and endurance gains.', price: 24.99, category: 'Supplements' },
-  { id: 4, emoji: '🧃', badge: 'PRE-WORKOUT', name: 'Clean Pre-Workout', desc: 'No artificial dyes. Caffeine + beta-alanine for focus and performance.', price: 39.99, category: 'Supplements' },
-  { id: 5, emoji: '🐟', badge: 'ESSENTIAL', name: 'Omega-3 Fish Oil', desc: 'Heart health, inflammation reduction, and joint recovery support.', price: 18.99, category: 'Supplements' },
-  { id: 6, emoji: '🥜', badge: 'MEAL PREP', name: 'Mixed Nut Variety Pack', desc: 'Healthy fats and protein for on-the-go snacking.', price: 22.99, category: 'Snacks' },
-  { id: 7, emoji: '🌿', badge: 'IMMUNITY', name: 'Multivitamin Pack', desc: 'Complete daily vitamins and minerals to support your active lifestyle.', price: 29.99, category: 'Supplements' },
-  { id: 8, emoji: '🍵', badge: 'RECOVERY', name: 'Magnesium & ZMA', desc: 'Improves sleep quality and muscle recovery overnight.', price: 19.99, category: 'Supplements' },
+const ALL_PRODUCTS = [
+  { id: 1, emoji: '🥤', badge: 'PROTEIN', name: 'Whey Isolate Protein', desc: '25g protein per scoop, low carb, fast absorbing.', price: 49.99, category: 'Protein', tags: ['lose weight', 'build muscle', 'gain strength'] },
+  { id: 2, emoji: '🍫', badge: 'SNACK', name: 'Protein Bars (12-pack)', desc: '20g protein, low sugar. Perfect mid-day snack.', price: 32.99, category: 'Snacks', tags: ['lose weight', 'build muscle', 'get fit'] },
+  { id: 3, emoji: '💊', badge: 'RECOVERY', name: 'Creatine Monohydrate', desc: 'Pure micronized creatine for strength and endurance.', price: 24.99, category: 'Supplements', tags: ['build muscle', 'gain strength', 'increase endurance'] },
+  { id: 4, emoji: '🧃', badge: 'PRE-WORKOUT', name: 'Clean Pre-Workout', desc: 'No artificial dyes. Caffeine + beta-alanine.', price: 39.99, category: 'Supplements', tags: ['get fit', 'increase endurance', 'gain strength'] },
+  { id: 5, emoji: '🐟', badge: 'ESSENTIAL', name: 'Omega-3 Fish Oil', desc: 'Heart health, inflammation reduction, joint recovery.', price: 18.99, category: 'Supplements', tags: ['lose weight', 'get fit', 'reduce stress'] },
+  { id: 6, emoji: '🥜', badge: 'MEAL PREP', name: 'Mixed Nut Variety Pack', desc: 'Healthy fats and protein for on-the-go snacking.', price: 22.99, category: 'Snacks', tags: ['eat healthier', 'lose weight'] },
+  { id: 7, emoji: '🌿', badge: 'IMMUNITY', name: 'Multivitamin Pack', desc: 'Complete daily vitamins and minerals.', price: 29.99, category: 'Supplements', tags: ['get fit', 'eat healthier', 'reduce stress'] },
+  { id: 8, emoji: '🍵', badge: 'RECOVERY', name: 'Magnesium & ZMA', desc: 'Improves sleep quality and muscle recovery.', price: 19.99, category: 'Supplements', tags: ['build muscle', 'reduce stress', 'gain strength'] },
+  { id: 9, emoji: '🧴', badge: 'HYDRATION', name: 'Electrolyte Mix', desc: 'Stay hydrated during intense workouts.', price: 24.99, category: 'Supplements', tags: ['increase endurance', 'get fit'] },
+  { id: 10, emoji: '🍃', badge: 'WEIGHT LOSS', name: 'Green Tea Extract', desc: 'Natural metabolism booster and antioxidant.', price: 16.99, category: 'Supplements', tags: ['lose weight', 'eat healthier'] },
+  { id: 11, emoji: '🥛', badge: 'PROTEIN', name: 'Plant-Based Protein', desc: 'Vegan friendly, 22g protein per serving.', price: 44.99, category: 'Protein', tags: ['eat healthier', 'build muscle'] },
+  { id: 12, emoji: '⚡', badge: 'ENERGY', name: 'BCAA Amino Acids', desc: 'Reduces muscle soreness, speeds recovery.', price: 34.99, category: 'Supplements', tags: ['build muscle', 'gain strength', 'increase endurance'] },
 ];
 
 export default function StoreScreen() {
   const [cart, setCart] = useState([]);
   const [cartVisible, setCartVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('For You');
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['All', 'Protein', 'Supplements', 'Snacks'];
+  const categories = ['For You', 'All', 'Protein', 'Supplements', 'Snacks'];
 
-  const filteredProducts = selectedCategory === 'All' ? products : products.filter(p => p.category === selectedCategory);
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const user = auth.currentUser;
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) setUserData(docSnap.data());
+    } catch (e) {
+      console.log('Error loading user:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRecommendedProducts = () => {
+    if (!userData || !userData.goals) return ALL_PRODUCTS.slice(0, 6);
+    const userGoals = userData.goals.map(g => g.toLowerCase());
+    const scored = ALL_PRODUCTS.map(product => {
+      const matchScore = product.tags.filter(tag => userGoals.some(goal => goal.includes(tag) || tag.includes(goal))).length;
+      return { ...product, score: matchScore };
+    });
+    return scored.sort((a, b) => b.score - a.score).slice(0, 6);
+  };
+
+  const getFilteredProducts = () => {
+    if (selectedCategory === 'For You') return getRecommendedProducts();
+    if (selectedCategory === 'All') return ALL_PRODUCTS;
+    return ALL_PRODUCTS.filter(p => p.category === selectedCategory);
+  };
 
   const addToCart = (product) => {
     const existing = cart.find(item => item.id === product.id);
@@ -39,10 +79,7 @@ export default function StoreScreen() {
     Alert.alert('Added! 🛒', `${product.name} added to cart.`);
   };
 
-  const removeFromCart = (productId) => {
-    setCart(cart.filter(item => item.id !== productId));
-  };
-
+  const removeFromCart = (productId) => setCart(cart.filter(item => item.id !== productId));
   const getCartTotal = () => cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
   const getCartCount = () => cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -53,13 +90,19 @@ export default function StoreScreen() {
     );
   };
 
+  const filteredProducts = getFilteredProducts();
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Store</Text>
-            <Text style={styles.subtitle}>Curated for your fitness goals</Text>
+            <Text style={styles.subtitle}>
+              {selectedCategory === 'For You' && userData?.goals
+                ? `Based on your goals: ${userData.goals.slice(0, 2).join(', ')}`
+                : 'Curated for your fitness goals'}
+            </Text>
           </View>
           <TouchableOpacity style={styles.cartButton} onPress={() => setCartVisible(true)}>
             <Text style={styles.cartIcon}>🛒</Text>
@@ -71,14 +114,13 @@ export default function StoreScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.banner}>
-          <View>
-            <Text style={styles.bannerTag}>KINETICIQ PICKS 🏆</Text>
-            <Text style={styles.bannerTitle}>Recommended for your plan</Text>
-            <Text style={styles.bannerSub}>Free shipping over $50</Text>
+        {selectedCategory === 'For You' && userData?.goals && (
+          <View style={styles.banner}>
+            <Text style={styles.bannerTag}>PERSONALIZED FOR YOU 🎯</Text>
+            <Text style={styles.bannerTitle}>Based on your goals</Text>
+            <Text style={styles.bannerSub}>Products matched to: {userData.goals.join(', ')}</Text>
           </View>
-          <Text style={styles.bannerEmoji}>💪</Text>
-        </View>
+        )}
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
           {categories.map(cat => (
@@ -87,31 +129,42 @@ export default function StoreScreen() {
               style={[styles.categoryTab, selectedCategory === cat && styles.categoryTabActive]}
               onPress={() => setSelectedCategory(cat)}
             >
-              <Text style={[styles.categoryText, selectedCategory === cat && styles.categoryTextActive]}>{cat}</Text>
+              <Text style={[styles.categoryText, selectedCategory === cat && styles.categoryTextActive]}>
+                {cat === 'For You' ? '⭐ For You' : cat}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        <View style={styles.productsGrid}>
-          {filteredProducts.map(product => (
-            <View key={product.id} style={styles.productCard}>
-              <View style={styles.productEmoji}>
-                <Text style={styles.emojiText}>{product.emoji}</Text>
-              </View>
-              <View style={styles.productBody}>
-                <Text style={styles.productBadge}>{product.badge}</Text>
-                <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.productDesc}>{product.desc}</Text>
-                <View style={styles.productFooter}>
-                  <Text style={styles.productPrice}>${product.price}</Text>
-                  <TouchableOpacity style={styles.addButton} onPress={() => addToCart(product)}>
-                    <Text style={styles.addButtonText}>Add to Cart</Text>
-                  </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator color="#00E5A0" style={{ marginTop: 40 }} />
+        ) : (
+          <View style={styles.productsGrid}>
+            {filteredProducts.map(product => (
+              <View key={product.id} style={styles.productCard}>
+                <View style={styles.productEmoji}>
+                  <Text style={styles.emojiText}>{product.emoji}</Text>
+                  {selectedCategory === 'For You' && product.score > 0 && (
+                    <View style={styles.matchBadge}>
+                      <Text style={styles.matchBadgeText}>✓ Matches your goals</Text>
+                    </View>
+                  )}
+                </View>
+                <View style={styles.productBody}>
+                  <Text style={styles.productBadge}>{product.badge}</Text>
+                  <Text style={styles.productName}>{product.name}</Text>
+                  <Text style={styles.productDesc}>{product.desc}</Text>
+                  <View style={styles.productFooter}>
+                    <Text style={styles.productPrice}>${product.price}</Text>
+                    <TouchableOpacity style={styles.addButton} onPress={() => addToCart(product)}>
+                      <Text style={styles.addButtonText}>Add to Cart</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       <Modal visible={cartVisible} animationType="slide" transparent={true} onRequestClose={() => setCartVisible(false)}>
@@ -167,16 +220,15 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
   title: { fontSize: 32, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.5 },
-  subtitle: { fontSize: 13, color: '#8A9BB0', marginTop: 4 },
+  subtitle: { fontSize: 13, color: '#8A9BB0', marginTop: 4, maxWidth: 250 },
   cartButton: { position: 'relative', padding: 8 },
   cartIcon: { fontSize: 26 },
   cartBadge: { position: 'absolute', top: 0, right: 0, backgroundColor: '#00E5A0', borderRadius: 10, width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
   cartBadgeText: { color: '#040A07', fontSize: 11, fontWeight: '800' },
-  banner: { backgroundColor: '#111820', borderRadius: 14, padding: 18, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(0,229,160,0.2)', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  banner: { backgroundColor: '#111820', borderRadius: 14, padding: 18, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(0,229,160,0.2)' },
   bannerTag: { fontSize: 10, fontWeight: '700', color: '#00E5A0', letterSpacing: 1, marginBottom: 6 },
   bannerTitle: { fontSize: 18, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.3 },
   bannerSub: { fontSize: 12, color: '#8A9BB0', marginTop: 4 },
-  bannerEmoji: { fontSize: 40 },
   categoryScroll: { marginBottom: 20 },
   categoryTab: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#111820', marginRight: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
   categoryTabActive: { backgroundColor: 'rgba(0,229,160,0.12)', borderColor: 'rgba(0,229,160,0.25)' },
@@ -186,6 +238,8 @@ const styles = StyleSheet.create({
   productCard: { backgroundColor: '#111820', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
   productEmoji: { height: 110, backgroundColor: '#1A2330', alignItems: 'center', justifyContent: 'center' },
   emojiText: { fontSize: 52 },
+  matchBadge: { position: 'absolute', bottom: 8, backgroundColor: 'rgba(0,229,160,0.2)', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: 'rgba(0,229,160,0.3)' },
+  matchBadgeText: { color: '#00E5A0', fontSize: 10, fontWeight: '700' },
   productBody: { padding: 14 },
   productBadge: { fontSize: 10, fontWeight: '700', color: '#00E5A0', letterSpacing: 0.8, marginBottom: 6 },
   productName: { fontSize: 15, fontWeight: '700', color: '#F0F4F8', marginBottom: 6 },
