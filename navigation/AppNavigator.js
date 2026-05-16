@@ -13,6 +13,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import CoachScreen from '../screens/CoachScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import WorkoutDetailScreen from '../screens/WorkoutDetailScreen';
 import StoreScreen from '../screens/StoreScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 
@@ -94,6 +95,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
