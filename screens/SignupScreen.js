@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,34 +8,36 @@ import {
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback
+  Platform
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 
 export default function SignupScreen({ navigation }) {
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const passwordRef = useRef(null);
+  const confirmRef = useRef(null);
 
   const handleSignup = async () => {
-    Keyboard.dismiss();
-    if (!email || !phone || !password) {
+    if (!email || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-    if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigation.navigate('Onboarding');
+      navigation.replace('Onboarding');
     } catch (error) {
       Alert.alert('Signup Error', error.message);
     } finally {
@@ -52,91 +54,91 @@ export default function SignupScreen({ navigation }) {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.logoContainer}>
-            <View style={styles.logoBox}>
-              <Text style={styles.logoK}>K</Text>
-            </View>
-            <Text style={styles.logoText}>Kinetic<Text style={styles.logoAccent}>IQ</Text></Text>
-            <Text style={styles.logoTagline}>Your AI-powered fitness coach</Text>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={styles.inner}>
+        <View style={styles.logoContainer}>
+          <View style={styles.logoBox}>
+            <Text style={styles.logoK}>K</Text>
           </View>
+          <Text style={styles.logoText}>Kinetic<Text style={styles.logoAccent}>IQ</Text></Text>
+          <Text style={styles.logoTagline}>Start your fitness journey today</Text>
+        </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Create your account</Text>
-            <Text style={styles.cardSub}>Start free — no credit card required</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Create your account</Text>
+          <Text style={styles.cardSub}>Free to start — no credit card required</Text>
 
-            <Text style={styles.label}>EMAIL ADDRESS</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="you@example.com"
-              placeholderTextColor="#4A5A6A"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+          <Text style={styles.label}>EMAIL ADDRESS</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="you@example.com"
+            placeholderTextColor="#4A5A6A"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="emailAddress"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            blurOnSubmit={false}
+          />
 
-            <Text style={styles.label}>PHONE NUMBER</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="(555) 000-0000"
-              placeholderTextColor="#4A5A6A"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
+          <Text style={styles.label}>PASSWORD</Text>
+          <TextInput
+            ref={passwordRef}
+            style={styles.input}
+            placeholder="At least 6 characters"
+            placeholderTextColor="#4A5A6A"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            textContentType="newPassword"
+            returnKeyType="next"
+            onSubmitEditing={() => confirmRef.current?.focus()}
+            blurOnSubmit={false}
+          />
 
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Min. 8 characters"
-              placeholderTextColor="#4A5A6A"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+          <Text style={styles.label}>CONFIRM PASSWORD</Text>
+          <TextInput
+            ref={confirmRef}
+            style={styles.input}
+            placeholder="Re-enter your password"
+            placeholderTextColor="#4A5A6A"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            textContentType="newPassword"
+            returnKeyType="done"
+            onSubmitEditing={handleSignup}
+          />
 
-            <Text style={styles.terms}>
-              By creating an account you agree to our <Text style={styles.termsLink}>Terms of Service</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
-            </Text>
+          <TouchableOpacity style={styles.signupButton} onPress={handleSignup} disabled={loading}>
+            <Text style={styles.signupButtonText}>Create Account →</Text>
+          </TouchableOpacity>
+        </View>
 
-            <TouchableOpacity style={styles.signupButton} onPress={handleSignup} disabled={loading}>
-              <Text style={styles.signupButtonText}>Create Account & Start Free →</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.footerLink}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.footerLink}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.trustRow}>
-            <Text style={styles.trustItem}>🔒 256-bit encrypted</Text>
-            <Text style={styles.trustItem}>🚫 No spam</Text>
-            <Text style={styles.trustItem}>⭐ Free to start</Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+        <View style={styles.trustRow}>
+          <Text style={styles.trustItem}>🔒 Secure</Text>
+          <Text style={styles.trustItem}>🚫 No spam</Text>
+          <Text style={styles.trustItem}>⭐ Free to start</Text>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#080C10' },
   centered: { flex: 1, backgroundColor: '#080C10', alignItems: 'center', justifyContent: 'center' },
-  content: { flexGrow: 1, padding: 24, justifyContent: 'center', paddingTop: 60, paddingBottom: 40 },
+  inner: { flex: 1, padding: 24, justifyContent: 'center' },
   logoContainer: { alignItems: 'center', marginBottom: 32 },
   logoBox: { width: 72, height: 72, borderRadius: 20, backgroundColor: 'rgba(0,229,160,0.12)', borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   logoK: { fontSize: 36, fontWeight: '800', color: '#00E5A0' },
@@ -148,13 +150,11 @@ const styles = StyleSheet.create({
   cardSub: { fontSize: 14, color: '#8A9BB0', marginBottom: 24 },
   label: { fontSize: 11, fontWeight: '700', color: '#8A9BB0', letterSpacing: 0.5, marginBottom: 8 },
   input: { backgroundColor: '#1A2330', borderRadius: 10, padding: 14, color: '#F0F4F8', fontSize: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', marginBottom: 16 },
-  terms: { fontSize: 12, color: '#8A9BB0', lineHeight: 18, marginBottom: 20 },
-  termsLink: { color: '#00E5A0' },
-  signupButton: { backgroundColor: '#00E5A0', borderRadius: 10, padding: 16, alignItems: 'center' },
-  signupButtonText: { color: '#040A07', fontSize: 15, fontWeight: '700' },
+  signupButton: { backgroundColor: '#00E5A0', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 4 },
+  signupButtonText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 24 },
   footerText: { fontSize: 14, color: '#8A9BB0' },
   footerLink: { fontSize: 14, color: '#00E5A0', fontWeight: '600' },
-  trustRow: { flexDirection: 'row', justifyContent: 'center', gap: 16, flexWrap: 'wrap' },
+  trustRow: { flexDirection: 'row', justifyContent: 'center', gap: 20 },
   trustItem: { fontSize: 12, color: '#4A5A6A' },
 });
