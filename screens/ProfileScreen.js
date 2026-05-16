@@ -198,6 +198,10 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity style={styles.proButton} onPress={() => navigation.navigate('Paywall')}>
+        <Text style={styles.proButtonText}>⚡ Upgrade to Pro</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
@@ -242,6 +246,8 @@ const styles = StyleSheet.create({
   settingIcon: { fontSize: 18 },
   settingText: { fontSize: 15, color: '#F0F4F8' },
   settingArrow: { fontSize: 20, color: '#4A5A6A' },
+  proButton: { backgroundColor: 'rgba(0,229,160,0.12)', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
+  proButtonText: { color: '#00E5A0', fontSize: 16, fontWeight: '700' },
   logoutButton: { backgroundColor: '#111820', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,77,106,0.3)' },
   logoutText: { color: '#FF4D6A', fontSize: 15, fontWeight: '700' },
   version: { textAlign: 'center', color: '#4A5A6A', fontSize: 12 },
