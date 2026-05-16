@@ -40,7 +40,3 @@ yarn-error.*
 /ios
 /android
 .env
-screens/DashboardScreen.js
-screens/CoachScreen.js
-screens/OnboardingScreen.js
-screens/WorkoutDetailScreen.js
