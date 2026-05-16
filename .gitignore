@@ -43,3 +43,4 @@ yarn-error.*
 screens/DashboardScreen.js
 screens/CoachScreen.js
 screens/OnboardingScreen.js
+screens/WorkoutDetailScreen.js
