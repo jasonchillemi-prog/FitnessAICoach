@@ -86,13 +86,10 @@ export default function OnboardingScreen({ navigation }) {
     if (!goalDescription.trim()) return;
     setAnalyzingGoals(true);
     try {
+      console.log('Starting goal analysis...');
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': 'KINETICIQ_API_KEY',
-  'anthropic-version': '2023-06-01'
-},
+        headers: { 'Content-Type': 'application/json', 'x-api-key': 'KINETICIQ_API_KEY', 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
           max_tokens: 500,
@@ -103,10 +100,14 @@ export default function OnboardingScreen({ navigation }) {
         })
       });
       const data = await response.json();
+      console.log('API response:', JSON.stringify(data).substring(0, 200));
+      if (data.error) { Alert.alert('API Error', data.error.message); return; }
       const text = data.content[0].text;
-      const parsed = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim());
+      const t = text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
       setAnalyzedGoals(parsed);
     } catch (error) {
+      console.log('Goal analysis error:', error.message);
       Alert.alert('Error', 'Could not analyze goals. Please try again.');
     } finally {
       setAnalyzingGoals(false);
