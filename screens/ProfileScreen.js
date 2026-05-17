@@ -156,16 +156,6 @@ export default function ProfileScreen({ navigation }) {
         </View>
       )}
 
-      <View style={styles.upgradeCard}>
-        <View>
-          <Text style={styles.upgradeTitle}>Upgrade to Pro 🚀</Text>
-          <Text style={styles.upgradeSub}>Unlimited AI coaching, Apple Watch sync, advanced analytics</Text>
-        </View>
-        <TouchableOpacity style={styles.upgradeButton}>
-          <Text style={styles.upgradeButtonText}>$12/mo</Text>
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.settingsCard}>
         <Text style={styles.cardTitle}>Settings</Text>
         <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('EditProfile')}>
