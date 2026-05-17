@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
@@ -143,7 +143,7 @@ const groceryStyles = StyleSheet.create({
   text: { fontSize: 14, color: '#8A9BB0', flex: 1 },
   textDone: { textDecorationLine: 'line-through', color: '#4A5A6A' },
 });
-export default function DashboardScreen({ navigation }) {
+export default function DashboardScreen({ navigation, route }) {
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -157,6 +157,12 @@ export default function DashboardScreen({ navigation }) {
     }, [])
   );
 
+  useEffect(() => {
+    if (route?.params?.planGenerated) {
+      loadUserData();
+    }
+  }, [route?.params?.planGenerated]);
+
   const loadUserData = async () => {
     try {
       const user = auth.currentUser;
@@ -164,6 +170,7 @@ export default function DashboardScreen({ navigation }) {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
+        console.log('Has savedPlan:', !!data.savedPlan);
         setUserData(data);
         setPlan(data.savedPlan || null);
         if (data.groceryChecked) setGroceryChecked(data.groceryChecked);
