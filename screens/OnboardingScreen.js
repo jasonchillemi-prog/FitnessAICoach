@@ -90,7 +90,7 @@ export default function OnboardingScreen({ navigation }) {
         method: 'POST',
         headers: {
   'Content-Type': 'application/json',
-  'x-api-key': 'REDACTED_API_KEY',
+  'x-api-key': 'KINETICIQ_API_KEY',
   'anthropic-version': '2023-06-01'
 },
         body: JSON.stringify({
@@ -163,7 +163,7 @@ export default function OnboardingScreen({ navigation }) {
       const busyDaysStr = busyDays.length > 0 ? busyDays.join(', ') : 'None';
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': 'REDACTED_API_KEY', 'anthropic-version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': 'KINETICIQ_API_KEY', 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
           max_tokens: 4000,
