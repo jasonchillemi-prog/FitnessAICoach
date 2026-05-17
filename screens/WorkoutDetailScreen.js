@@ -25,7 +25,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': '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', 'anthropic-version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': 'KINETICIQ_API_KEY', 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
           max_tokens: 2000,
