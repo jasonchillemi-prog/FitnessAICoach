@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert
 } from 'react-native';
-import { auth, db } from '../firebaseConfig';
+import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
 
@@ -267,19 +267,9 @@ export default function DashboardScreen({ navigation, route }) {
           try {
             const busyDays = userData.busyDays && userData.busyDays.length > 0 ? userData.busyDays.join(', ') : 'None';
             const intensityPrompt = intensity === 'increase' ? 'INCREASE workout intensity.' : 'DECREASE workout intensity.';
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY},
-              body: JSON.stringify({
-                model: 'claude-sonnet-4-5',
-                max_tokens: 4000,
-                messages: [{ role: 'user', content: `${intensityPrompt}\nUser: ${userData.weight}lbs, ${userData.height}, Goals: ${userData.goals?.join(', ')}, Busy days: ${busyDays}\nRespond ONLY with valid JSON:\n{"weeklyWorkouts":[{"day":"Monday","workout":"desc","duration":"30 mins"}],"mondayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"tuesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"wednesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"thursdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"fridayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"saturdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"sundayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400}],"groceryList":["item"],"dailyCalories":1800,"coachMessage":"message"}` }]
-              })
-            });
-            const rawText = await response.text();
-            const data = JSON.parse(rawText);
-            const t = data.content[0].text;
-            const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
+            const generatePlanFn = httpsCallable(functions, 'generatePlan');
+            const result = await generatePlanFn({ userData: { ...userData, busyDays: userData.busyDays }, busyDays });
+            const parsed = result.data;
             setPlan(parsed);
             setCompletedWorkouts({});
             setGroceryChecked({});
@@ -308,24 +298,9 @@ export default function DashboardScreen({ navigation, route }) {
         return a;
       })() : userData.age;
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY,
-  'anthropic-version': '2023-06-01'
-},
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 4000,
-          messages: [{ role: 'user', content: `You are a fitness coach. Create a BRIEF personalized plan. Keep descriptions SHORT.\n\nUser:\n- Weight: ${userData.weight} lbs\n- Height: ${userData.height}\n- Age: ${age}\n- Smoker: ${userData.smoker ? 'Yes' : 'No'}\n- Workouts/week: ${userData.workoutsPerWeek}\n- Goals: ${userData.goals ? userData.goals.join(', ') : userData.goal}\n- Allergies: ${userData.allergies ? userData.allergies.join(', ') : 'None'}\n- Workout times: ${userData.workoutTimes ? userData.workoutTimes.join(', ') : 'Any'}\n- Busy days (NO workouts): ${busyDays}\n\nCRITICAL: Never schedule workouts on busy days. Make meals VARIED - different foods each day.\n\nRespond ONLY with valid JSON:\n{"weeklyWorkouts":[{"day":"Monday","workout":"description","duration":"30 mins"}],"mondayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"tuesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"different desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"different desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"different desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"different desc","calories":200}],"wednesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"thursdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"fridayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"saturdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"sundayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"groceryList":["item1","item2"],"dailyCalories":1800,"coachMessage":"personalized message"}` }]
-        })
-      });
-      const rawText = await response.text();
-      const data = JSON.parse(rawText);
-      if (data.error) { Alert.alert('API Error', data.error.message); return; }
-      const t = data.content[0].text;
-      const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
+      const generatePlanFn = httpsCallable(functions, 'generatePlan');
+      const result = await generatePlanFn({ userData, busyDays });
+      const parsed = result.data;
       setPlan(parsed);
       setCompletedWorkouts({});
       setGroceryChecked({});
