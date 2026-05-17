@@ -90,7 +90,7 @@ export default function OnboardingScreen({ navigation }) {
         method: 'POST',
         headers: {
   'Content-Type': 'application/json',
-  'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY,
+  'x-api-key': 'REDACTED_API_KEY',
   'anthropic-version': '2023-06-01'
 },
         body: JSON.stringify({
@@ -151,14 +151,33 @@ export default function OnboardingScreen({ navigation }) {
     setSaving(true);
     try {
       const user = auth.currentUser;
-      await setDoc(doc(db, 'users', user.uid), {
+      const userData = {
         weight, height: `${heightFeet}ft ${heightInches}in`, age, smoker, workoutsPerWeek,
         goals, goalDescription, analyzedGoals,
         allergies: allergies.length > 0 ? allergies : ['None'],
         otherAllergy, workoutTimes, busyDays,
         createdAt: new Date().toISOString()
+      };
+      await setDoc(doc(db, 'users', user.uid), userData);
+
+      const busyDaysStr = busyDays.length > 0 ? busyDays.join(', ') : 'None';
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': 'REDACTED_API_KEY', 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 4000,
+          messages: [{ role: 'user', content: `You are a fitness coach. Create a BRIEF personalized plan. Keep descriptions SHORT.\n\nUser:\n- Weight: ${weight} lbs\n- Height: ${heightFeet}ft ${heightInches}in\n- Age: ${age}\n- Goals: ${goals.join(', ')}\n- Allergies: ${allergies.join(', ')}\n- Workout times: ${workoutTimes.join(', ')}\n- Busy days (NO workouts): ${busyDaysStr}\n- Workouts per week: ${workoutsPerWeek}\n\nCRITICAL: Never schedule workouts on busy days. Make meals VARIED.\n\nRespond ONLY with valid JSON:\n{"weeklyWorkouts":[{"day":"Monday","workout":"description","duration":"30 mins"}],"mondayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"tuesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"wednesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"thursdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"fridayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"saturdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"sundayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"groceryList":["item1","item2"],"dailyCalories":1800,"coachMessage":"personalized message"}` }]
+        })
       });
-      navigation.navigate('Main');
+      const rawText = await response.text();
+      const data = JSON.parse(rawText);
+      if (!data.error) {
+        const t = data.content[0].text;
+        const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
+        await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
+      }
+      navigation.navigate('Main', { planGenerated: true });
     } catch (error) {
       Alert.alert('Error saving data', error.message);
       setSaving(false);
