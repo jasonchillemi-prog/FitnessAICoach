@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { auth, db } from '../firebaseConfig';
+import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
 export default function WorkoutDetailScreen({ route, navigation }) {
@@ -23,21 +23,9 @@ export default function WorkoutDetailScreen({ route, navigation }) {
 
   const generateDetailedWorkout = async (user) => {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': 'KINETICIQ_API_KEY', 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 2000,
-          messages: [{ role: 'user', content: `Create a detailed workout. User: ${user?.weight}lbs, Goals: ${user?.goals?.join(', ')}, ${user?.workoutsPerWeek} days/week.\nWorkout: ${workout.workout}\nDuration: ${workout.duration}\nDay: ${workout.day}\nRespond ONLY with valid JSON:\n{"warmup":{"duration":"5 mins","exercises":["ex1","ex2"]},"mainWorkout":[{"name":"Name","sets":3,"reps":"10-12","rest":"60 sec","muscle":"Chest","instructions":"How to do it."}],"cooldown":{"duration":"5 mins","exercises":["stretch1"]},"tips":["tip1"],"estimatedCalories":250}` }]
-        })
-      });
-      const rawText = await response.text();
-      const data = JSON.parse(rawText);
-      if (data.error) { Alert.alert('Error', data.error.message); return; }
-      const t = data.content[0].text;
-      const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
-      setDetailedPlan(parsed);
+      const generateWorkoutFn = httpsCallable(functions, 'generateWorkoutDetail');
+      const result = await generateWorkoutFn({ workout, userData: user });
+      setDetailedPlan(result.data);
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {

@@ -12,7 +12,7 @@ import {
   Keyboard,
   Alert
 } from 'react-native';
-import { auth, db } from '../firebaseConfig';
+import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const SUGGESTED_QUESTIONS = [
@@ -59,28 +59,9 @@ export default function CoachScreen() {
     if (!lastSuggestion || !userData) return;
     setUpdatingPlan(true);
     try {
-      const busyDays = userData.busyDays?.join(', ') || 'None';
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY,
-  'anthropic-version': '2023-06-01'
-},
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 4000,
-          messages: [{
-            role: 'user',
-            content: `You are a fitness coach. Update this user's plan based on the coach suggestion below. Keep descriptions SHORT.\n\nUser:\n- Weight: ${userData.weight} lbs\n- Goals: ${userData.goals?.join(', ')}\n- Allergies: ${userData.allergies?.join(', ') || 'None'}\n- Busy days (NO workouts): ${busyDays}\n\nCoach suggestion to apply: "${lastSuggestion}"\n\nRespond ONLY with valid JSON:\n{"weeklyWorkouts":[{"day":"Monday","workout":"description","duration":"30 mins"}],"mondayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"tuesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"wednesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"thursdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"fridayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"saturdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"sundayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"groceryList":["item1"],"dailyCalories":1800,"coachMessage":"Updated plan based on coach suggestion"}`
-          }]
-        })
-      });
-      const rawText = await response.text();
-      const data = JSON.parse(rawText);
-      if (data.error) { Alert.alert('Error', data.error.message); return; }
-      const t = data.content[0].text;
-      const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
+      const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
+      const result = await applyFn({ suggestion: lastSuggestion, userData });
+      const parsed = result.data;
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
       setPlan(parsed);
@@ -116,26 +97,12 @@ export default function CoachScreen() {
 - Busy days: ${userData.busyDays ? userData.busyDays.join(', ') : 'None'}
 Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you make a specific suggestion that could update their plan, end your response with [SUGGESTION: brief description of the change].` : 'You are KineticIQ, a helpful AI fitness coach.';
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY,
-  'anthropic-version': '2023-06-01'
-},
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: newMessages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-        })
+      const coachChatFn = httpsCallable(functions, 'coachChat');
+      const result = await coachChatFn({ 
+        messages: newMessages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+        userData 
       });
-      const data = await response.json();
-      if (data.error) {
-        setMessages([...newMessages, { role: 'assistant', content: 'Sorry I had trouble responding. Please try again!' }]);
-        return;
-      }
-      const reply = data.content[0].text;
+      const reply = result.data.reply;
       const suggestionMatch = reply.match(/\[SUGGESTION: (.+?)\]/);
       if (suggestionMatch) {
         setLastSuggestion(suggestionMatch[1]);

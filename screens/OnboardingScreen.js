@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import { db, auth } from '../firebaseConfig';
+import { db, auth, functions, httpsCallable } from '../firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 
 const TOTAL_STEPS = 9;
@@ -86,28 +86,10 @@ export default function OnboardingScreen({ navigation }) {
     if (!goalDescription.trim()) return;
     setAnalyzingGoals(true);
     try {
-      console.log('Starting goal analysis...');
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': 'KINETICIQ_API_KEY', 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: `Analyze this fitness goal description and extract specific targets. Respond ONLY with valid JSON:\n\nGoal: "${goalDescription}"\n\n{"targetWeight": "specific weight goal or null", "timeline": "timeline mentioned or null", "energyGoal": "energy related goal or null", "strengthGoal": "strength related goal or null", "otherGoals": "any other specific goals mentioned or null"}`
-          }]
-        })
-      });
-      const data = await response.json();
-      console.log('API response:', JSON.stringify(data).substring(0, 200));
-      if (data.error) { Alert.alert('API Error', data.error.message); return; }
-      const text = data.content[0].text;
-      const t = text.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
-      setAnalyzedGoals(parsed);
+      const analyzeGoalsFn = httpsCallable(functions, 'analyzeGoals');
+      const result = await analyzeGoalsFn({ goalDescription });
+      setAnalyzedGoals(result.data);
     } catch (error) {
-      console.log('Goal analysis error:', error.message);
       Alert.alert('Error', 'Could not analyze goals. Please try again.');
     } finally {
       setAnalyzingGoals(false);
@@ -161,23 +143,9 @@ export default function OnboardingScreen({ navigation }) {
       };
       await setDoc(doc(db, 'users', user.uid), userData);
 
-      const busyDaysStr = busyDays.length > 0 ? busyDays.join(', ') : 'None';
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': 'KINETICIQ_API_KEY', 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 4000,
-          messages: [{ role: 'user', content: `You are a fitness coach. Create a BRIEF personalized plan. Keep descriptions SHORT.\n\nUser:\n- Weight: ${weight} lbs\n- Height: ${heightFeet}ft ${heightInches}in\n- Age: ${age}\n- Goals: ${goals.join(', ')}\n- Allergies: ${allergies.join(', ')}\n- Workout times: ${workoutTimes.join(', ')}\n- Busy days (NO workouts): ${busyDaysStr}\n- Workouts per week: ${workoutsPerWeek}\n\nCRITICAL: Never schedule workouts on busy days. Make meals VARIED.\n\nRespond ONLY with valid JSON:\n{"weeklyWorkouts":[{"day":"Monday","workout":"description","duration":"30 mins"}],"mondayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"tuesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"wednesdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"thursdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"fridayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"saturdayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"sundayMeals":[{"meal":"Breakfast","time":"8:00 AM","food":"desc","calories":400},{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":500},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200}],"groceryList":["item1","item2"],"dailyCalories":1800,"coachMessage":"personalized message"}` }]
-        })
-      });
-      const rawText = await response.text();
-      const data = JSON.parse(rawText);
-      if (!data.error) {
-        const t = data.content[0].text;
-        const parsed = JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
-        await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
-      }
+      const generatePlanFn = httpsCallable(functions, 'generatePlan');
+      const result = await generatePlanFn({ userData, busyDays: busyDays.join(', ') });
+      await setDoc(doc(db, 'users', user.uid), { savedPlan: result.data }, { merge: true });
       navigation.navigate('Main', { planGenerated: true });
     } catch (error) {
       Alert.alert('Error saving data', error.message);
