@@ -39,7 +39,7 @@ const bannerStyles = StyleSheet.create({
   bannerMessage: { fontSize: 13, color: '#8A9BB0', lineHeight: 18 },
   bannerArrow: { color: '#00E5A0', fontSize: 12, marginLeft: 8 },
 });
-function MealsSection({ meals, todayName }) {
+function MealsSection({ meals, todayName, navigation }) {
   const [expanded, setExpanded] = useState(false);
   const totalCals = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
   return (
@@ -55,7 +55,7 @@ function MealsSection({ meals, todayName }) {
         </View>
       </TouchableOpacity>
       {expanded && meals.map((item, index) => (
-        <View key={index} style={mealSectionStyles.mealItem}>
+        <TouchableOpacity key={index} style={mealSectionStyles.mealItem} onPress={() => navigation.navigate('Recipe', { meal: item })}>
           <View style={mealSectionStyles.mealLeft}>
             <Text style={mealSectionStyles.mealName}>{item.meal}</Text>
             <Text style={mealSectionStyles.mealTime}>{item.time}</Text>
@@ -65,7 +65,7 @@ function MealsSection({ meals, todayName }) {
             <Text style={mealSectionStyles.mealCal}>{item.calories}</Text>
             <Text style={mealSectionStyles.mealCalUnit}>kcal</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
     </View>
   );
@@ -406,7 +406,7 @@ export default function DashboardScreen({ navigation, route }) {
             ))}
           </View>
 
-          <MealsSection meals={getTodaysMeals()} todayName={todayName} />
+          <MealsSection meals={getTodaysMeals()} todayName={todayName} navigation={navigation} />
 
           <GroceryListSection groceryList={plan.groceryList} groceryChecked={groceryChecked} toggleGrocery={toggleGrocery} />
 
