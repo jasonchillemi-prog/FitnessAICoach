@@ -8,7 +8,8 @@ import {
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Image
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
@@ -120,6 +121,7 @@ const styles = StyleSheet.create({
   logoContainer: { alignItems: 'center', marginBottom: 40 },
   logoBox: { width: 72, height: 72, borderRadius: 20, backgroundColor: 'rgba(0,229,160,0.12)', borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   logoK: { fontSize: 36, fontWeight: '800', color: '#00E5A0' },
+  logoImage: { width: 260, height: 180, resizeMode: 'contain', marginBottom: 8 },
   logoText: { fontSize: 32, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.5, marginBottom: 8 },
   logoAccent: { color: '#00E5A0' },
   logoTagline: { fontSize: 14, color: '#8A9BB0' },

@@ -307,6 +307,7 @@ export default function DashboardScreen({ navigation, route }) {
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
     } catch (error) {
+      console.log('Generate plan error:', error.code, error.message);
       Alert.alert('Error generating plan', error.message);
     } finally {
       setGeneratingPlan(false);
