@@ -20,7 +20,8 @@
         "NSCalendarsUsageDescription": "KineticIQ adds your workout and meal schedule to your calendar.",
         "NSRemindersUsageDescription": "KineticIQ sets reminders for your meals and workouts.",
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,7 +42,9 @@
     },
     "plugins": [
       "expo-calendar",
-      "expo-local-authentication"
+      "expo-local-authentication",
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics"
     ],
     "extra": {
       "eas": {
