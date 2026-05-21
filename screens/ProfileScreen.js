@@ -10,7 +10,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { auth, db } from '../firebaseConfig';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, getDocs, deleteDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 
 export default function ProfileScreen({ navigation }) {
@@ -56,8 +56,25 @@ export default function ProfileScreen({ navigation }) {
       { text: 'Reset', style: 'destructive', onPress: async () => {
         try {
           const user = auth.currentUser;
-          await setDoc(doc(db, 'users', user.uid), { savedPlan: null }, { merge: true });
-          Alert.alert('Done!', 'Your plan has been reset. Go to Dashboard to generate a new one.');
+          await setDoc(doc(db, 'users', user.uid), { 
+            savedPlan: null,
+            completedWorkouts: {},
+            groceryChecked: {}
+          }, { merge: true });
+          
+          // Delete all checkins for this user
+          const checkinsRef = collection(db, 'checkins');
+          const q = query(checkinsRef);
+          const querySnap = await getDocs(q);
+          const deletePromises = [];
+          querySnap.forEach(docSnap => {
+            if (docSnap.id.startsWith(user.uid)) {
+              deletePromises.push(deleteDoc(doc(db, 'checkins', docSnap.id)));
+            }
+          });
+          await Promise.all(deletePromises);
+          console.log('Deleted checkins:', deletePromises.length);
+          Alert.alert('Done!', 'Your plan and progress have been reset. Go to Dashboard to generate a new one.');
         } catch (error) {
           Alert.alert('Error', error.message);
         }
