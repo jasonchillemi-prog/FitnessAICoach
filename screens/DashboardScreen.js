@@ -157,25 +157,34 @@ export default function DashboardScreen({ navigation, route }) {
   const STEP_GOAL = 10000;
 
   useEffect(() => {
-    const permissions = {
-      permissions: {
-        read: [AppleHealthKit.Constants.Permissions.StepCount],
-        write: [],
-      },
-    };
-    AppleHealthKit.initHealthKit(permissions, (err) => {
-      if (err) {
-        console.log('HealthKit init error:', err);
-        return;
+    const timer = setTimeout(() => {
+      try {
+        const permissions = {
+          permissions: {
+            read: [AppleHealthKit.Constants.Permissions.StepCount],
+            write: [],
+          },
+        };
+        AppleHealthKit.initHealthKit(permissions, (err) => {
+          if (err) {
+            console.log('HealthKit init error:', err);
+            setIsPedometerAvailable(false);
+            return;
+          }
+          setIsPedometerAvailable(true);
+          const start = new Date();
+          start.setHours(0, 0, 0, 0);
+          const options = { startDate: start.toISOString(), endDate: new Date().toISOString() };
+          AppleHealthKit.getStepCount(options, (err, results) => {
+            if (!err && results) setStepCount(results.value || 0);
+          });
+        });
+      } catch (e) {
+        console.log('HealthKit exception:', e);
+        setIsPedometerAvailable(false);
       }
-      setIsPedometerAvailable(true);
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
-      const options = { startDate: start.toISOString(), endDate: new Date().toISOString() };
-      AppleHealthKit.getStepCount(options, (err, results) => {
-        if (!err && results) setStepCount(results.value || 0);
-      });
-    });
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
 
