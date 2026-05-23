@@ -84,9 +84,10 @@ export default function StoreScreen() {
   const getCartCount = () => cart.reduce((total, item) => total + item.quantity, 0);
 
   const handleCheckout = () => {
-    if (cart.length === 0) { Alert.alert('Cart is empty', 'Add some products first!'); return; }
-    Alert.alert('Order Placed! 🎉', `Your order of $${getCartTotal()} has been placed. Expected delivery: 3-5 business days.`,
-      [{ text: 'Great!', onPress: () => { setCart([]); setCartVisible(false); } }]
+    Alert.alert(
+      '🚧 Coming Soon',
+      'Online ordering will be available in a future update. Stay tuned!',
+      [{ text: 'Got it', style: 'default' }]
     );
   };
 

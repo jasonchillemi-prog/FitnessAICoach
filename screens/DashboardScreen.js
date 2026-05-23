@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { Pedometer } from 'expo-sensors';
 import { logScreenView } from '../src/utils/analytics';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -151,6 +152,49 @@ export default function DashboardScreen({ navigation, route }) {
   const [generatingPlan, setGeneratingPlan] = useState(false);
   const [completedWorkouts, setCompletedWorkouts] = useState({});
   const [groceryChecked, setGroceryChecked] = useState({});
+  const [stepCount, setStepCount] = useState(0);
+  const [isPedometerAvailable, setIsPedometerAvailable] = useState(false);
+  const STEP_GOAL = 10000;
+
+  useEffect(() => {
+    let subscription;
+    const subscribe = async () => {
+      const isAvailable = await Pedometer.isAvailableAsync();
+      setIsPedometerAvailable(isAvailable);
+      if (isAvailable) {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const { steps } = await Pedometer.getStepCountAsync(start, new Date());
+        setStepCount(steps);
+        subscription = Pedometer.watchStepCount(result => {
+          setStepCount(prev => prev + result.steps);
+        });
+      }
+    };
+    subscribe();
+    return () => subscription && subscription.remove();
+  }, []);
+
+
+  useEffect(() => {
+    let subscription;
+    const subscribe = async () => {
+      const isAvailable = await Pedometer.isAvailableAsync();
+      setIsPedometerAvailable(isAvailable);
+      if (isAvailable) {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const { steps } = await Pedometer.getStepCountAsync(start, new Date());
+        setStepCount(steps);
+        subscription = Pedometer.watchStepCount(result => {
+          setStepCount(prev => prev + result.steps);
+        });
+      }
+    };
+    subscribe();
+    return () => subscription && subscription.remove();
+  }, []);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -350,9 +394,18 @@ export default function DashboardScreen({ navigation, route }) {
       {userData && plan && (
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>WEIGHT</Text>
-            <Text style={styles.statValue}>{userData.weight}<Text style={styles.statUnit}> lbs</Text></Text>
-            <Text style={styles.statChange}>Current</Text>
+            <Text style={styles.statLabel}>STEPS</Text>
+            {isPedometerAvailable ? (
+              <>
+                <Text style={styles.statValue}>{stepCount.toLocaleString()}</Text>
+                <Text style={styles.statChange}>{Math.round((stepCount / STEP_GOAL) * 100)}% of {STEP_GOAL.toLocaleString()}</Text>
+                <View style={styles.progressBar}>
+                  <View style={[styles.progressFill, { width: `${Math.min((stepCount / STEP_GOAL) * 100, 100)}%` }]} />
+                </View>
+              </>
+            ) : (
+              <Text style={styles.statChange}>Unavailable</Text>
+            )}
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>WORKOUTS</Text>
@@ -487,4 +540,6 @@ const styles = StyleSheet.create({
   actionButtonText: { color: '#F0F4F8', fontSize: 13, fontWeight: '600' },
   regenerateButton: { backgroundColor: '#111820', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
   regenerateText: { color: '#00E5A0', fontSize: 15, fontWeight: '600' },
+  progressBar: { height: 4, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, marginTop: 6 },
+  progressFill: { height: 4, backgroundColor: '#00E5A0', borderRadius: 2 },
 });
