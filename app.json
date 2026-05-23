@@ -45,7 +45,6 @@
       "expo-local-authentication",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
-      "@react-native-firebase/analytics",
       "./plugins/withModularHeaders"
     ],
     "extra": {
