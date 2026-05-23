@@ -19,7 +19,9 @@
         "NSFaceIDUsageDescription": "Use Face ID to sign in quickly and securely.",
         "NSCalendarsUsageDescription": "KineticIQ adds your workout and meal schedule to your calendar.",
         "NSRemindersUsageDescription": "KineticIQ sets reminders for your meals and workouts.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSHealthShareUsageDescription": "KineticIQ reads your step count to match Apple Fitness.",
+        "NSHealthUpdateUsageDescription": "KineticIQ needs health access to display your steps."
       },
       "googleServicesFile": "./GoogleService-Info.plist"
     },
@@ -45,7 +47,8 @@
       "expo-local-authentication",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
-      "./plugins/withModularHeaders"
+      "./plugins/withModularHeaders",
+      "react-native-health"
     ],
     "extra": {
       "eas": {

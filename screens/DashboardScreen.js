@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Pedometer } from 'expo-sensors';
+import AppleHealthKit from 'react-native-health';
 import { logScreenView } from '../src/utils/analytics';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -157,43 +157,29 @@ export default function DashboardScreen({ navigation, route }) {
   const STEP_GOAL = 10000;
 
   useEffect(() => {
-    let subscription;
-    const subscribe = async () => {
-      const isAvailable = await Pedometer.isAvailableAsync();
-      setIsPedometerAvailable(isAvailable);
-      if (isAvailable) {
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-        const { steps } = await Pedometer.getStepCountAsync(start, new Date());
-        setStepCount(steps);
-        subscription = Pedometer.watchStepCount(result => {
-          setStepCount(prev => prev + result.steps);
-        });
-      }
+    const permissions = {
+      permissions: {
+        read: [AppleHealthKit.Constants.Permissions.StepCount],
+        write: [],
+      },
     };
-    subscribe();
-    return () => subscription && subscription.remove();
+    AppleHealthKit.initHealthKit(permissions, (err) => {
+      if (err) {
+        console.log('HealthKit init error:', err);
+        return;
+      }
+      setIsPedometerAvailable(true);
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const options = { startDate: start.toISOString(), endDate: new Date().toISOString() };
+      AppleHealthKit.getStepCount(options, (err, results) => {
+        if (!err && results) setStepCount(results.value || 0);
+      });
+    });
   }, []);
 
 
-  useEffect(() => {
-    let subscription;
-    const subscribe = async () => {
-      const isAvailable = await Pedometer.isAvailableAsync();
-      setIsPedometerAvailable(isAvailable);
-      if (isAvailable) {
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-        const { steps } = await Pedometer.getStepCountAsync(start, new Date());
-        setStepCount(steps);
-        subscription = Pedometer.watchStepCount(result => {
-          setStepCount(prev => prev + result.steps);
-        });
-      }
-    };
-    subscribe();
-    return () => subscription && subscription.remove();
-  }, []);
+
 
 
   useFocusEffect(
