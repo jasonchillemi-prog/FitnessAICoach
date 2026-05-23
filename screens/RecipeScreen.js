@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { logRecipeViewed } from '../src/utils/analytics';
 import {
   View,
   Text,
@@ -39,6 +40,7 @@ export default function RecipeScreen({ route, navigation }) {
       const generateRecipeFn = httpsCallable(functions, 'generateRecipe');
       const result = await generateRecipeFn({ meal, userData });
       setRecipe(result.data);
+      logRecipeViewed(meal?.food || 'unknown');
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {

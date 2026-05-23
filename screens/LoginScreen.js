@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { logLogin, logScreenView } from '../src/utils/analytics';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      await logLogin('email');
       navigation.replace('Main');
     } catch (error) {
       Alert.alert('Login Error', error.message);

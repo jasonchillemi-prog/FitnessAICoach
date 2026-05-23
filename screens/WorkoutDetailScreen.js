@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { logWorkoutStarted, logWorkoutCompleted } from '../src/utils/analytics';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
@@ -26,6 +27,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
       const generateWorkoutFn = httpsCallable(functions, 'generateWorkoutDetail');
       const result = await generateWorkoutFn({ workout, userData: user });
       setDetailedPlan(result.data);
+      logWorkoutStarted(workout?.type || 'unknown');
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {

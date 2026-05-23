@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { logScreenView } from '../src/utils/analytics';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View,

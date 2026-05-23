@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { logSignUp } from '../src/utils/analytics';
 
 export default function SignupScreen({ navigation }) {
   const [email, setEmail] = useState('');
