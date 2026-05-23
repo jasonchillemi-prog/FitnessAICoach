@@ -23,7 +23,11 @@
         "NSHealthShareUsageDescription": "KineticIQ reads your step count to match Apple Fitness.",
         "NSHealthUpdateUsageDescription": "KineticIQ needs health access to display your steps."
       },
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.access": []
+      }
     },
     "android": {
       "adaptiveIcon": {
