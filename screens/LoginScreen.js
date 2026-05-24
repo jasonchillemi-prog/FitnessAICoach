@@ -14,8 +14,9 @@ import {
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { logLogin, logScreenView } from '../src/utils/analytics';
+import ErrorBoundary from './ErrorBoundary';
 
-export default function LoginScreen({ navigation }) {
+function LoginScreenInner({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -140,3 +141,11 @@ const styles = StyleSheet.create({
   trustRow: { flexDirection: 'row', justifyContent: 'center', gap: 20 },
   trustItem: { fontSize: 12, color: '#4A5A6A' },
 });
+
+export default function LoginScreen() {
+  return (
+    <ErrorBoundary screenName="LoginScreen">
+      <LoginScreenInner />
+    </ErrorBoundary>
+  );
+}

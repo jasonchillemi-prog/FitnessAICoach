@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import ErrorBoundary from './ErrorBoundary';
 
 const ALL_PRODUCTS = [
   { id: 1, emoji: '🥤', badge: 'PROTEIN', name: 'Whey Isolate Protein', desc: '25g protein per scoop, low carb, fast absorbing.', price: 49.99, category: 'Protein', tags: ['lose weight', 'build muscle', 'gain strength'] },
@@ -27,7 +28,7 @@ const ALL_PRODUCTS = [
   { id: 12, emoji: '⚡', badge: 'ENERGY', name: 'BCAA Amino Acids', desc: 'Reduces muscle soreness, speeds recovery.', price: 34.99, category: 'Supplements', tags: ['build muscle', 'gain strength', 'increase endurance'] },
 ];
 
-export default function StoreScreen() {
+function StoreScreenInner() {
   const [cart, setCart] = useState([]);
   const [cartVisible, setCartVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('For You');
@@ -273,3 +274,11 @@ const styles = StyleSheet.create({
   checkoutButton: { backgroundColor: '#00E5A0', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 8 },
   checkoutButtonText: { color: '#040A07', fontSize: 17, fontWeight: '700' },
 });
+
+export default function StoreScreen() {
+  return (
+    <ErrorBoundary screenName="StoreScreen">
+      <StoreScreenInner />
+    </ErrorBoundary>
+  );
+}

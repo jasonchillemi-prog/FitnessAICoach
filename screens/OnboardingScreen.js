@@ -14,10 +14,11 @@ import {
 } from 'react-native';
 import { db, auth, functions, httpsCallable } from '../firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
+import ErrorBoundary from './ErrorBoundary';
 
 const TOTAL_STEPS = 9;
 
-export default function OnboardingScreen({ navigation }) {
+function OnboardingScreenInner({ navigation }) {
   const [step, setStep] = useState(1);
   const [weight, setWeight] = useState('');
   const [heightFeet, setHeightFeet] = useState('');
@@ -540,3 +541,11 @@ const styles = StyleSheet.create({
 nextButtonText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
   calculatedAge: { fontSize: 13, color: '#00E5A0', marginTop: -10, marginBottom: 16 },
 });
+
+export default function OnboardingScreen() {
+  return (
+    <ErrorBoundary screenName="OnboardingScreen">
+      <OnboardingScreenInner />
+    </ErrorBoundary>
+  );
+}

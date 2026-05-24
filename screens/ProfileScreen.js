@@ -12,8 +12,9 @@ import {
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc, setDoc, collection, query, getDocs, deleteDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import ErrorBoundary from './ErrorBoundary';
 
-export default function ProfileScreen({ navigation }) {
+function ProfileScreenInner({ navigation }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -259,3 +260,11 @@ const styles = StyleSheet.create({
   logoutText: { color: '#FF4D6A', fontSize: 15, fontWeight: '700' },
   version: { textAlign: 'center', color: '#4A5A6A', fontSize: 12 },
 });
+
+export default function ProfileScreen() {
+  return (
+    <ErrorBoundary screenName="ProfileScreen">
+      <ProfileScreenInner />
+    </ErrorBoundary>
+  );
+}

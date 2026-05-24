@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
+import ErrorBoundary from './ErrorBoundary';
 
 const PRO_FEATURES = [
   { icon: '🤖', title: 'Unlimited AI Coaching', desc: 'Ask your coach anything, anytime' },
@@ -22,7 +23,7 @@ const PRO_FEATURES = [
   { icon: '📅', title: 'Smart Calendar Sync', desc: 'Automatic schedule optimization' },
 ];
 
-export default function PaywallScreen({ navigation }) {
+function PaywallScreenInner({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
 
@@ -174,3 +175,11 @@ const styles = StyleSheet.create({
   socialProofQuote: { fontSize: 14, color: '#F0F4F8', fontWeight: '600', textAlign: 'center', marginBottom: 6, fontStyle: 'italic' },
   socialProofAuthor: { fontSize: 12, color: '#8A9BB0' },
 });
+
+export default function PaywallScreen() {
+  return (
+    <ErrorBoundary screenName="PaywallScreen">
+      <PaywallScreenInner />
+    </ErrorBoundary>
+  );
+}

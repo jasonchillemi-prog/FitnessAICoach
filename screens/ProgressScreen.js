@@ -11,6 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc, getDoc, collection, getDocs, query } from 'firebase/firestore';
+import ErrorBoundary from './ErrorBoundary';
 
 function HistorySection({ history, getMoodEmoji }) {
   const [expanded, setExpanded] = useState(false);
@@ -40,7 +41,7 @@ function HistorySection({ history, getMoodEmoji }) {
   );
 }
 
-export default function ProgressScreen() {
+function ProgressScreenInner() {
   const [loading, setLoading] = useState(true);
   const [todayCheckin, setTodayCheckin] = useState(null);
   const [workedOut, setWorkedOut] = useState(null);
@@ -290,3 +291,11 @@ const styles = StyleSheet.create({
   badgeRed: { backgroundColor: 'rgba(255,77,106,0.08)' },
   historyBadgeText: { fontSize: 11, color: '#F0F4F8', fontWeight: '500' },
 });
+
+export default function ProgressScreen() {
+  return (
+    <ErrorBoundary screenName="ProgressScreen">
+      <ProgressScreenInner />
+    </ErrorBoundary>
+  );
+}

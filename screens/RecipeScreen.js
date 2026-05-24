@@ -11,8 +11,9 @@ import {
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import ErrorBoundary from './ErrorBoundary';
 
-export default function RecipeScreen({ route, navigation }) {
+function RecipeScreenInner({ route, navigation }) {
   const { meal } = route.params;
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -184,3 +185,11 @@ const styles = StyleSheet.create({
   retryButton: { backgroundColor: '#00E5A0', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 20, paddingHorizontal: 32 },
   retryText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
 });
+
+export default function RecipeScreen() {
+  return (
+    <ErrorBoundary screenName="RecipeScreen">
+      <RecipeScreenInner />
+    </ErrorBoundary>
+  );
+}

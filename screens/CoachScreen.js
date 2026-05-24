@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-
+import ErrorBoundary from './ErrorBoundary';
 const SUGGESTED_QUESTIONS = [
   "What should I eat before my workout?",
   "How do I stay motivated?",
@@ -22,7 +22,7 @@ const SUGGESTED_QUESTIONS = [
   "What's the best exercise for weight loss?",
 ];
 
-export default function CoachScreen() {
+function CoachScreenInner() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -249,3 +249,10 @@ const styles = StyleSheet.create({
   sendButtonDisabled: { backgroundColor: '#1A2330' },
   sendButtonText: { color: '#040A07', fontWeight: '800', fontSize: 22 },
 });
+export default function CoachScreen() {
+  return (
+    <ErrorBoundary screenName="CoachScreen">
+      <CoachScreenInner />
+    </ErrorBoundary>
+  );
+}

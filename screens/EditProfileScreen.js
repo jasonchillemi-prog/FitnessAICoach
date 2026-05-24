@@ -11,8 +11,9 @@ import { Keyboard,
 } from 'react-native';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import ErrorBoundary from './ErrorBoundary';
 
-export default function EditProfileScreen({ navigation }) {
+function EditProfileScreenInner({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [weight, setWeight] = useState('');
@@ -342,3 +343,11 @@ const styles = StyleSheet.create({
   saveButton: { width: '100%', backgroundColor: '#00ff88', borderRadius: 12, padding: 18, alignItems: 'center', marginBottom: 40 },
   saveButtonText: { color: '#0a0a0a', fontSize: 18, fontWeight: 'bold' },
 });
+
+export default function EditProfileScreen() {
+  return (
+    <ErrorBoundary screenName="EditProfileScreen">
+      <EditProfileScreenInner />
+    </ErrorBoundary>
+  );
+}

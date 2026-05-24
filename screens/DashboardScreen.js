@@ -14,6 +14,7 @@ import {
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
+import ErrorBoundary from './ErrorBoundary';
 
 function CoachBanner({ message }) {
   const [expanded, setExpanded] = useState(false);
@@ -145,7 +146,7 @@ const groceryStyles = StyleSheet.create({
   text: { fontSize: 14, color: '#8A9BB0', flex: 1 },
   textDone: { textDecorationLine: 'line-through', color: '#4A5A6A' },
 });
-export default function DashboardScreen({ navigation, route }) {
+function DashboardScreenInner({ navigation, route }) {
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -538,3 +539,11 @@ const styles = StyleSheet.create({
   progressBar: { height: 4, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, marginTop: 6 },
   progressFill: { height: 4, backgroundColor: '#00E5A0', borderRadius: 2 },
 });
+
+export default function DashboardScreen() {
+  return (
+    <ErrorBoundary screenName="DashboardScreen">
+      <DashboardScreenInner />
+    </ErrorBoundary>
+  );
+}

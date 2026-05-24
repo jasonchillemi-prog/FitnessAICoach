@@ -13,8 +13,9 @@ import {
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { logSignUp } from '../src/utils/analytics';
+import ErrorBoundary from './ErrorBoundary';
 
-export default function SignupScreen({ navigation }) {
+function SignupScreenInner({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -159,3 +160,11 @@ const styles = StyleSheet.create({
   trustRow: { flexDirection: 'row', justifyContent: 'center', gap: 20 },
   trustItem: { fontSize: 12, color: '#4A5A6A' },
 });
+
+export default function SignupScreen() {
+  return (
+    <ErrorBoundary screenName="SignupScreen">
+      <SignupScreenInner />
+    </ErrorBoundary>
+  );
+}
