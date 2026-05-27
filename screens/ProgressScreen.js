@@ -292,10 +292,10 @@ const styles = StyleSheet.create({
   historyBadgeText: { fontSize: 11, color: '#F0F4F8', fontWeight: '500' },
 });
 
-export default function ProgressScreen() {
+export default function ProgressScreen(props) {
   return (
     <ErrorBoundary screenName="ProgressScreen">
-      <ProgressScreenInner />
+      <ProgressScreenInner {...props} />
     </ErrorBoundary>
   );
 }

@@ -186,10 +186,10 @@ const styles = StyleSheet.create({
   retryText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
 });
 
-export default function RecipeScreen() {
+export default function RecipeScreen(props) {
   return (
     <ErrorBoundary screenName="RecipeScreen">
-      <RecipeScreenInner />
+      <RecipeScreenInner {...props} />
     </ErrorBoundary>
   );
 }

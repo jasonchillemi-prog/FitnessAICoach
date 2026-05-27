@@ -261,10 +261,10 @@ const styles = StyleSheet.create({
   version: { textAlign: 'center', color: '#4A5A6A', fontSize: 12 },
 });
 
-export default function ProfileScreen() {
+export default function ProfileScreen(props) {
   return (
     <ErrorBoundary screenName="ProfileScreen">
-      <ProfileScreenInner />
+      <ProfileScreenInner {...props} />
     </ErrorBoundary>
   );
 }

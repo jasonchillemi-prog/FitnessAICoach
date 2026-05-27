@@ -344,10 +344,10 @@ const styles = StyleSheet.create({
   saveButtonText: { color: '#0a0a0a', fontSize: 18, fontWeight: 'bold' },
 });
 
-export default function EditProfileScreen() {
+export default function EditProfileScreen(props) {
   return (
     <ErrorBoundary screenName="EditProfileScreen">
-      <EditProfileScreenInner />
+      <EditProfileScreenInner {...props} />
     </ErrorBoundary>
   );
 }

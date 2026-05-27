@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
   socialProofAuthor: { fontSize: 12, color: '#8A9BB0' },
 });
 
-export default function PaywallScreen() {
+export default function PaywallScreen(props) {
   return (
     <ErrorBoundary screenName="PaywallScreen">
-      <PaywallScreenInner />
+      <PaywallScreenInner {...props} />
     </ErrorBoundary>
   );
 }

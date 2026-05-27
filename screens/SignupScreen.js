@@ -23,9 +23,17 @@ function SignupScreenInner({ navigation }) {
   const passwordRef = useRef(null);
   const confirmRef = useRef(null);
 
+  const isValidEmail = (emailStr) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailStr.trim());
+  };
+
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address (e.g. you@example.com)');
       return;
     }
     if (password !== confirmPassword) {
@@ -161,10 +169,10 @@ const styles = StyleSheet.create({
   trustItem: { fontSize: 12, color: '#4A5A6A' },
 });
 
-export default function SignupScreen() {
+export default function SignupScreen(props) {
   return (
     <ErrorBoundary screenName="SignupScreen">
-      <SignupScreenInner />
+      <SignupScreenInner {...props} />
     </ErrorBoundary>
   );
 }

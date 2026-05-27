@@ -275,10 +275,10 @@ const styles = StyleSheet.create({
   checkoutButtonText: { color: '#040A07', fontSize: 17, fontWeight: '700' },
 });
 
-export default function StoreScreen() {
+export default function StoreScreen(props) {
   return (
     <ErrorBoundary screenName="StoreScreen">
-      <StoreScreenInner />
+      <StoreScreenInner {...props} />
     </ErrorBoundary>
   );
 }

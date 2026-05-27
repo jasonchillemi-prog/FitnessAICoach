@@ -232,22 +232,17 @@ function OnboardingScreenInner({ navigation }) {
         return (
           <View style={styles.stepContainer}>
             <Text style={styles.stepLabel}>STEP 3 OF {TOTAL_STEPS}</Text>
-            <Text style={styles.stepTitle}>Do you smoke or use tobacco?</Text>
+            <Text style={styles.stepTitle}>Do you smoke or Vape?</Text>
             <Text style={styles.stepSub}>This helps us calibrate your cardio capacity and recovery time</Text>
             <View style={styles.smokerGrid}>
               {[
-                { label: 'Never smoked', sub: 'Never used tobacco', icon: '🚭', value: 'never' },
-                { label: 'Former smoker', sub: 'Quit 6+ months ago', icon: '✅', value: 'former' },
-                { label: 'Occasional', sub: 'Social or light use', icon: '🔥', value: 'occasional' },
-                { label: 'Daily smoker', sub: 'Smoke regularly', icon: '🚬', value: 'daily' },
-                { label: 'Vaping / e-cig', sub: 'Regular vape use', icon: '💨', value: 'vape' },
-                { label: 'Prefer not to say', sub: '', icon: '🤐', value: 'prefer' },
+                { label: 'Yes', icon: '🚬', value: 'yes' },
+                { label: 'No', icon: '🚭', value: 'no' },
               ].map(opt => (
                 <TouchableOpacity key={opt.value} style={[styles.smokerOption, smoker === opt.value && styles.optionActive]} onPress={() => setSmoker(opt.value)}>
                   <Text style={styles.smokerIcon}>{opt.icon}</Text>
                   <View>
                     <Text style={[styles.smokerLabel, smoker === opt.value && styles.optionActiveText]}>{opt.label}</Text>
-                    {opt.sub ? <Text style={styles.smokerSub}>{opt.sub}</Text> : null}
                   </View>
                 </TouchableOpacity>
               ))}
@@ -343,8 +338,8 @@ function OnboardingScreenInner({ navigation }) {
         return (
           <View style={styles.stepContainer}>
             <Text style={styles.stepLabel}>STEP 7 OF {TOTAL_STEPS}</Text>
-            <Text style={styles.stepTitle}>Any food allergies?</Text>
-            <Text style={styles.stepSub}>We'll make sure your meal plan is safe for you</Text>
+            <Text style={styles.stepTitle}>Any Food Allergies or foods you won't eat?</Text>
+            <Text style={styles.stepSub}>We'll make sure your meal plan is safe and enjoyable for you</Text>
 
             <Text style={styles.label}>COMMON ALLERGIES</Text>
             <View style={styles.allergyGrid}>
@@ -542,10 +537,10 @@ nextButtonText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
   calculatedAge: { fontSize: 13, color: '#00E5A0', marginTop: -10, marginBottom: 16 },
 });
 
-export default function OnboardingScreen() {
+export default function OnboardingScreen(props) {
   return (
     <ErrorBoundary screenName="OnboardingScreen">
-      <OnboardingScreenInner />
+      <OnboardingScreenInner {...props} />
     </ErrorBoundary>
   );
 }

@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
   trustItem: { fontSize: 12, color: '#4A5A6A' },
 });
 
-export default function LoginScreen() {
+export default function LoginScreen(props) {
   return (
     <ErrorBoundary screenName="LoginScreen">
-      <LoginScreenInner />
+      <LoginScreenInner {...props} />
     </ErrorBoundary>
   );
 }

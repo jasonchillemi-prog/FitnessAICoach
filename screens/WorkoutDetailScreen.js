@@ -154,10 +154,10 @@ const styles = StyleSheet.create({
   retryText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
 });
 
-export default function WorkoutDetailScreen() {
+export default function WorkoutDetailScreen(props) {
   return (
     <ErrorBoundary screenName="WorkoutDetailScreen">
-      <WorkoutDetailScreenInner />
+      <WorkoutDetailScreenInner {...props} />
     </ErrorBoundary>
   );
 }
