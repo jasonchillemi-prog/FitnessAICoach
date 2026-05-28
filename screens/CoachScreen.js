@@ -249,10 +249,10 @@ const styles = StyleSheet.create({
   sendButtonDisabled: { backgroundColor: '#1A2330' },
   sendButtonText: { color: '#040A07', fontWeight: '800', fontSize: 22 },
 });
-export default function CoachScreen(props) {
+export default function CoachScreen() {
   return (
     <ErrorBoundary screenName="CoachScreen">
-      <CoachScreenInner {...props} />
+      <CoachScreenInner />
     </ErrorBoundary>
   );
 }
