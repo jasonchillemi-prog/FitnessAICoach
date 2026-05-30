@@ -152,6 +152,7 @@ function DashboardScreenInner({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const [generatingPlan, setGeneratingPlan] = useState(false);
   const [completedWorkouts, setCompletedWorkouts] = useState({});
+  const [workoutsExpanded, setWorkoutsExpanded] = useState(true);
   const [groceryChecked, setGroceryChecked] = useState({});
   const [stepCount, setStepCount] = useState(0);
   const [isPedometerAvailable, setIsPedometerAvailable] = useState(false);
@@ -434,13 +435,16 @@ function DashboardScreenInner({ navigation, route }) {
           <CoachBanner message={plan.coachMessage} />
 
           <View style={styles.card}>
-            <View style={styles.workoutHeader}>
-              <Text style={styles.cardTitle}>Weekly Workouts</Text>
-              <View style={styles.progressPill}>
-                <Text style={styles.progressPillText}>{getWorkoutsCompleted()}/{plan.weeklyWorkouts.length} done</Text>
+            <TouchableOpacity style={styles.workoutHeader} onPress={() => setWorkoutsExpanded(!workoutsExpanded)}>
+              <Text style={styles.cardTitle}>Weekly Workouts 💪</Text>
+              <View style={styles.workoutHeaderRight}>
+                <View style={styles.progressPill}>
+                  <Text style={styles.progressPillText}>{getWorkoutsCompleted()}/{plan.weeklyWorkouts.length} done</Text>
+                </View>
+                <Text style={styles.collapseArrow}>{workoutsExpanded ? '▲' : '▼'}</Text>
               </View>
-            </View>
-            {plan.weeklyWorkouts.map((item, index) => (
+            </TouchableOpacity>
+            {workoutsExpanded && plan.weeklyWorkouts.map((item, index) => (
               <TouchableOpacity key={index} style={[styles.workoutItem, completedWorkouts[index] && styles.workoutItemDone]} onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}>
                 <TouchableOpacity style={[styles.workoutNum, completedWorkouts[index] && styles.workoutNumDone]} onPress={() => toggleWorkout(index)}>
                   <Text style={[styles.workoutNumText, completedWorkouts[index] && styles.workoutNumTextDone]}>
@@ -502,6 +506,8 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 15, fontWeight: '700', color: '#F0F4F8', letterSpacing: 0.3 },
   cardIcon: { fontSize: 18 },
   workoutHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  workoutHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  collapseArrow: { color: '#00E5A0', fontSize: 14, fontWeight: '700' },
   progressPill: { backgroundColor: 'rgba(0,229,160,0.12)', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
   progressPillText: { color: '#00E5A0', fontSize: 12, fontWeight: '600' },
   workoutItem: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)', gap: 12 },
