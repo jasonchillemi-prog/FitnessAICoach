@@ -58,7 +58,7 @@ function MealsSection({ meals, todayName, navigation }) {
         </View>
       </TouchableOpacity>
       {expanded && meals.map((item, index) => (
-        <TouchableOpacity key={index} style={mealSectionStyles.mealItem} onPress={() => navigation.navigate('Recipe', { meal: item })}>
+        <TouchableOpacity key={index} style={mealSectionStyles.mealItem} onPress={() => navigation.navigate('Recipe', { meal: { meal: item.meal, food: item.food, calories: item.calories, time: item.time } })}>
           <View style={mealSectionStyles.mealLeft}>
             <Text style={mealSectionStyles.mealName}>{item.meal}</Text>
             <Text style={mealSectionStyles.mealTime}>{item.time}</Text>
@@ -445,7 +445,7 @@ function DashboardScreenInner({ navigation, route }) {
               </View>
             </TouchableOpacity>
             {workoutsExpanded && plan.weeklyWorkouts.map((item, index) => (
-              <TouchableOpacity key={index} style={[styles.workoutItem, completedWorkouts[index] && styles.workoutItemDone]} onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}>
+              <TouchableOpacity key={index} style={[styles.workoutItem, completedWorkouts[index] && styles.workoutItemDone]} onPress={() => navigation.navigate('WorkoutDetail', { workout: { day: item.day, workout: item.workout, duration: item.duration } })}>
                 <TouchableOpacity style={[styles.workoutNum, completedWorkouts[index] && styles.workoutNumDone]} onPress={() => toggleWorkout(index)}>
                   <Text style={[styles.workoutNumText, completedWorkouts[index] && styles.workoutNumTextDone]}>
                     {completedWorkouts[index] ? '✓' : index + 1}
