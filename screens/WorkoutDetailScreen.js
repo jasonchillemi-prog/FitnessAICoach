@@ -6,35 +6,59 @@ import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 
 function WorkoutDetailScreenInner({ route, navigation }) {
-  const { workout } = route.params;
+  const workout = route?.params?.workout || null;
   const [detailedPlan, setDetailedPlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => { loadAndGenerate(); }, []);
+  useEffect(() => {
+    if (!workout) {
+      setError('No workout data provided.');
+      setLoading(false);
+      return;
+    }
+    loadAndGenerate();
+  }, []);
 
   const loadAndGenerate = async () => {
     try {
       const user = auth.currentUser;
+      if (!user) {
+        setError('You must be logged in. Please restart the app.');
+        setLoading(false);
+        return;
+      }
       const docSnap = await getDoc(doc(db, 'users', user.uid));
       await generateDetailedWorkout(docSnap.data());
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (err) {
+      setError(err.message || 'Something went wrong.');
       setLoading(false);
     }
   };
 
-  const generateDetailedWorkout = async (user) => {
+  const generateDetailedWorkout = async (userData) => {
     try {
       const generateWorkoutFn = httpsCallable(functions, 'generateWorkoutDetail');
-      const result = await generateWorkoutFn({ workout, userData: user });
+      const result = await generateWorkoutFn({ workout, userData });
       setDetailedPlan(result.data);
       logWorkoutStarted(workout?.type || 'unknown');
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (err) {
+      setError(err.message || 'Failed to generate workout.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (!workout) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>No workout data found.</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backText}>← Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -42,10 +66,10 @@ function WorkoutDetailScreenInner({ route, navigation }) {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.day}>{workout.day}</Text>
-        <Text style={styles.workoutName}>{workout.workout}</Text>
+        <Text style={styles.day}>{workout.day || ''}</Text>
+        <Text style={styles.workoutName}>{workout.workout || ''}</Text>
         <View style={styles.durationBadge}>
-          <Text style={styles.durationText}>⏱ {workout.duration}</Text>
+          <Text style={styles.durationText}>⏱ {workout.duration || ''}</Text>
         </View>
       </View>
       {loading ? (
@@ -53,17 +77,27 @@ function WorkoutDetailScreenInner({ route, navigation }) {
           <ActivityIndicator size="large" color="#00E5A0" />
           <Text style={styles.loadingText}>Generating your detailed workout...</Text>
         </View>
+      ) : error ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>⚠️ {error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={loadAndGenerate}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.retryButton, { marginTop: 10, backgroundColor: '#333' }]} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryText}>← Go Back</Text>
+          </TouchableOpacity>
+        </View>
       ) : detailedPlan ? (
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>🔥 Warm Up — {detailedPlan.warmup.duration}</Text>
-            {detailedPlan.warmup.exercises.map((ex, i) => (
+            <Text style={styles.cardTitle}>🔥 Warm Up — {detailedPlan.warmup?.duration || ''}</Text>
+            {(detailedPlan.warmup?.exercises || []).map((ex, i) => (
               <View key={i} style={styles.simpleItem}><Text style={styles.bullet}>•</Text><Text style={styles.simpleText}>{ex}</Text></View>
             ))}
           </View>
           <View style={styles.card}>
             <Text style={styles.cardTitle}>💪 Main Workout</Text>
-            {detailedPlan.mainWorkout.map((ex, i) => (
+            {(detailedPlan.mainWorkout || []).map((ex, i) => (
               <View key={i} style={styles.exerciseCard}>
                 <View style={styles.exerciseHeader}>
                   <View style={styles.exerciseNumBadge}><Text style={styles.exerciseNum}>{i + 1}</Text></View>
@@ -85,20 +119,20 @@ function WorkoutDetailScreenInner({ route, navigation }) {
             ))}
           </View>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>🧘 Cool Down — {detailedPlan.cooldown.duration}</Text>
-            {detailedPlan.cooldown.exercises.map((ex, i) => (
+            <Text style={styles.cardTitle}>🧘 Cool Down — {detailedPlan.cooldown?.duration || ''}</Text>
+            {(detailedPlan.cooldown?.exercises || []).map((ex, i) => (
               <View key={i} style={styles.simpleItem}><Text style={styles.bullet}>•</Text><Text style={styles.simpleText}>{ex}</Text></View>
             ))}
           </View>
           <View style={styles.card}>
             <Text style={styles.cardTitle}>💡 Coach Tips</Text>
-            {detailedPlan.tips.map((tip, i) => (
+            {(detailedPlan.tips || []).map((tip, i) => (
               <View key={i} style={styles.tipItem}><Text style={styles.tipNum}>{i + 1}</Text><Text style={styles.tipText}>{tip}</Text></View>
             ))}
           </View>
           <View style={styles.caloriesCard}>
             <Text style={styles.caloriesLabel}>Estimated Calories Burned</Text>
-            <Text style={styles.caloriesValue}>{detailedPlan.estimatedCalories} kcal</Text>
+            <Text style={styles.caloriesValue}>{detailedPlan.estimatedCalories || 0} kcal</Text>
           </View>
         </ScrollView>
       ) : (
@@ -115,6 +149,8 @@ function WorkoutDetailScreenInner({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#080C10' },
+  errorContainer: { flex: 1, backgroundColor: '#080C10', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  errorText: { color: '#F0F4F8', fontSize: 16, textAlign: 'center', marginBottom: 20 },
   header: { padding: 20, paddingTop: 60, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.07)' },
   backButton: { marginBottom: 16 },
   backText: { color: '#00E5A0', fontSize: 16, fontWeight: '600' },

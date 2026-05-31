@@ -546,10 +546,10 @@ const styles = StyleSheet.create({
   progressFill: { height: 4, backgroundColor: '#00E5A0', borderRadius: 2 },
 });
 
-export default function DashboardScreen() {
+export default function DashboardScreen(props) {
   return (
     <ErrorBoundary screenName="DashboardScreen">
-      <DashboardScreenInner />
+      <DashboardScreenInner {...props} />
     </ErrorBoundary>
   );
 }

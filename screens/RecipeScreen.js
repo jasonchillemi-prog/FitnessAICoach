@@ -1,37 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { logRecipeViewed } from '../src/utils/analytics';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert
+  View, Text, StyleSheet, ScrollView,
+  TouchableOpacity, ActivityIndicator
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 
 function RecipeScreenInner({ route, navigation }) {
-  const { meal } = route.params;
+  const meal = route?.params?.meal || null;
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!meal) {
+      setError('No meal data provided.');
+      setLoading(false);
+      return;
+    }
     loadAndGenerate();
   }, []);
 
   const loadAndGenerate = async () => {
     try {
       const user = auth.currentUser;
+      if (!user) {
+        setError('You must be logged in. Please restart the app.');
+        setLoading(false);
+        return;
+      }
       const docSnap = await getDoc(doc(db, 'users', user.uid));
       const data = docSnap.data();
-      setUserData(data);
       await generateRecipe(data);
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (err) {
+      setError(err.message || 'Something went wrong.');
       setLoading(false);
     }
   };
@@ -42,12 +46,23 @@ function RecipeScreenInner({ route, navigation }) {
       const result = await generateRecipeFn({ meal, userData });
       setRecipe(result.data);
       logRecipeViewed(meal?.food || 'unknown');
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (err) {
+      setError(err.message || 'Failed to generate recipe.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (!meal) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>No meal data found.</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backText}>← Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -55,10 +70,10 @@ function RecipeScreenInner({ route, navigation }) {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.mealType}>{meal.meal}</Text>
-        <Text style={styles.mealName}>{meal.food}</Text>
+        <Text style={styles.mealType}>{meal.meal || ''}</Text>
+        <Text style={styles.mealName}>{meal.food || ''}</Text>
         <View style={styles.calBadge}>
-          <Text style={styles.calText}>🔥 {meal.calories} kcal</Text>
+          <Text style={styles.calText}>🔥 {meal.calories || 0} kcal</Text>
         </View>
       </View>
 
@@ -68,58 +83,68 @@ function RecipeScreenInner({ route, navigation }) {
           <Text style={styles.loadingText}>Generating your recipe...</Text>
           <Text style={styles.loadingSubText}>AI is creating a personalized recipe for you</Text>
         </View>
+      ) : error ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>⚠️ {error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={loadAndGenerate}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.retryButton, { marginTop: 10, backgroundColor: '#333' }]} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryText}>← Go Back</Text>
+          </TouchableOpacity>
+        </View>
       ) : recipe ? (
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.metaRow}>
             <View style={styles.metaPill}>
               <Text style={styles.metaIcon}>⏱</Text>
               <Text style={styles.metaLabel}>Prep</Text>
-              <Text style={styles.metaValue}>{recipe.prepTime}</Text>
+              <Text style={styles.metaValue}>{recipe.prepTime || '-'}</Text>
             </View>
             <View style={styles.metaPill}>
               <Text style={styles.metaIcon}>🍳</Text>
               <Text style={styles.metaLabel}>Cook</Text>
-              <Text style={styles.metaValue}>{recipe.cookTime}</Text>
+              <Text style={styles.metaValue}>{recipe.cookTime || '-'}</Text>
             </View>
             <View style={styles.metaPill}>
               <Text style={styles.metaIcon}>🍽️</Text>
               <Text style={styles.metaLabel}>Serves</Text>
-              <Text style={styles.metaValue}>{recipe.servings}</Text>
+              <Text style={styles.metaValue}>{recipe.servings || '-'}</Text>
             </View>
           </View>
 
           <View style={styles.nutritionRow}>
             <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.calories}</Text>
+              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.calories || recipe.calories || '-'}</Text>
               <Text style={styles.nutritionLabel}>Calories</Text>
             </View>
             <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.protein}</Text>
+              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.protein || recipe.macros?.protein || '-'}</Text>
               <Text style={styles.nutritionLabel}>Protein</Text>
             </View>
             <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.carbs}</Text>
+              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.carbs || recipe.macros?.carbs || '-'}</Text>
               <Text style={styles.nutritionLabel}>Carbs</Text>
             </View>
             <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.fat}</Text>
+              <Text style={styles.nutritionValue}>{recipe.nutritionInfo?.fat || recipe.macros?.fat || '-'}</Text>
               <Text style={styles.nutritionLabel}>Fat</Text>
             </View>
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>🛒 Ingredients</Text>
-            {recipe.ingredients.map((ing, i) => (
+            {(recipe.ingredients || []).map((ing, i) => (
               <View key={i} style={styles.ingredientRow}>
-                <Text style={styles.ingredientAmount}>{ing.amount}</Text>
-                <Text style={styles.ingredientItem}>{ing.item}</Text>
+                <Text style={styles.ingredientAmount}>{typeof ing === 'string' ? '' : (ing.amount || '')}</Text>
+                <Text style={styles.ingredientItem}>{typeof ing === 'string' ? ing : (ing.item || '')}</Text>
               </View>
             ))}
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>📋 Instructions</Text>
-            {recipe.instructions.map((step, i) => (
+            {(recipe.instructions || []).map((step, i) => (
               <View key={i} style={styles.stepRow}>
                 <View style={styles.stepNum}>
                   <Text style={styles.stepNumText}>{i + 1}</Text>
@@ -129,12 +154,12 @@ function RecipeScreenInner({ route, navigation }) {
             ))}
           </View>
 
-          {recipe.tips && (
+          {recipe.tips ? (
             <View style={styles.tipsCard}>
               <Text style={styles.tipsTitle}>💡 Chef's Tip</Text>
               <Text style={styles.tipsText}>{recipe.tips}</Text>
             </View>
-          )}
+          ) : null}
         </ScrollView>
       ) : (
         <View style={styles.loadingContainer}>
@@ -150,6 +175,8 @@ function RecipeScreenInner({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#080C10' },
+  errorContainer: { flex: 1, backgroundColor: '#080C10', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  errorText: { color: '#F0F4F8', fontSize: 16, textAlign: 'center', marginBottom: 20 },
   header: { padding: 20, paddingTop: 60, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.07)' },
   backButton: { marginBottom: 16 },
   backText: { color: '#00E5A0', fontSize: 16, fontWeight: '600' },

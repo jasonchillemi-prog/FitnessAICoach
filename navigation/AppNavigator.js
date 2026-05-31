@@ -97,8 +97,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
-        <Stack.Screen name="Recipe" component={RecipeScreen} />
+        <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} options={{ presentation: 'modal' }} />
+        <Stack.Screen name="Recipe" component={RecipeScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
