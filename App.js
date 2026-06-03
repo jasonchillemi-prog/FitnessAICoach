@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppNavigator from './navigation/AppNavigator';
 
-export default function App() {
+function AppInner() {
   const [isOffline, setIsOffline] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -16,7 +18,7 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       {isOffline && (
-        <View style={styles.offlineBanner}>
+        <View style={[styles.offlineBanner, { paddingTop: insets.top + 6 }]}>
           <Text style={styles.offlineText}>⚠️ No internet connection</Text>
         </View>
       )}
@@ -25,10 +27,18 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppInner />
+    </SafeAreaProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   offlineBanner: {
     backgroundColor: '#FF3B30',
-    paddingVertical: 8,
+    paddingBottom: 8,
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
