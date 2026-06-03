@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
+import { loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
@@ -55,17 +56,24 @@ export default function AppNavigator() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        let profileFound = false;
+
+        // Try Firestore first
         try {
-          const docRef = doc(db, 'users', currentUser.uid);
-          const docSnap = await getDoc(docRef);
+          const docSnap = await getDoc(doc(db, 'users', currentUser.uid));
           if (docSnap.exists() && docSnap.data().weight) {
-            setHasProfile(true);
-          } else {
-            setHasProfile(false);
+            profileFound = true;
           }
         } catch (e) {
-          setHasProfile(false);
+          // Firestore unavailable (offline) — fall back to local cache
+          console.log('AppNavigator: Firestore unavailable, checking cache');
+          const cached = await loadCachedUserData();
+          if (cached && cached.weight) {
+            profileFound = true;
+          }
         }
+
+        setHasProfile(profileFound);
         setUser(currentUser);
       } else {
         setUser(null);
