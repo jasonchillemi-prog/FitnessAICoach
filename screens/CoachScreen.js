@@ -12,9 +12,12 @@ import {
   Keyboard,
   Alert
 } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
+import { saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
+
 const SUGGESTED_QUESTIONS = [
   "What should I eat before my workout?",
   "How do I stay motivated?",
@@ -35,7 +38,16 @@ function CoachScreenInner() {
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
   const [lastSuggestion, setLastSuggestion] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
   const scrollRef = useRef(null);
+
+  // Track connectivity
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsOffline(!state.isConnected || state.isInternetReachable === false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     loadUserData();
@@ -47,24 +59,36 @@ function CoachScreenInner() {
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setUserData(docSnap.data());
-        setPlan(docSnap.data().savedPlan);
+        const data = docSnap.data();
+        setUserData(data);
+        setPlan(data.savedPlan);
+        await saveUserData(data); // cache for offline
       }
     } catch (e) {
-      console.log('Error loading user data:', e);
+      console.log('Firestore load failed, trying cache:', e);
+      const cached = await loadCachedUserData();
+      if (cached) {
+        setUserData(cached);
+        setPlan(cached.savedPlan);
+      }
     }
   };
 
   const applyToPlan = async () => {
     if (!lastSuggestion || !userData) return;
+    if (isOffline) {
+      Alert.alert('You\'re offline', 'Applying plan changes requires an internet connection.');
+      return;
+    }
     setUpdatingPlan(true);
     try {
       const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
-      const result = await applyFn({ suggestion: lastSuggestion, userData });
+      const result = await applyFn({ suggestion: lastSuggestion, userData, currentPlan: plan });
       const parsed = result.data;
       const user = auth.currentUser;
-      await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
-      setPlan(parsed);
+      const mergedPlan = { ...plan, ...parsed };
+      await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
+      setPlan(mergedPlan);
       setLastSuggestion(null);
       const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated based on my suggestion. Check your Dashboard to see the changes!' };
       setMessages(prev => [...prev, successMsg]);
@@ -79,6 +103,12 @@ function CoachScreenInner() {
   const sendMessage = async (messageText) => {
     const userMessage = messageText || input.trim();
     if (!userMessage || loading) return;
+
+    if (isOffline) {
+      Alert.alert('You\'re offline', 'Your AI coach requires an internet connection.');
+      return;
+    }
+
     setInput('');
     Keyboard.dismiss();
     const newMessages = [...messages, { role: 'user', content: userMessage }];
@@ -98,9 +128,9 @@ function CoachScreenInner() {
 Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you make a specific suggestion that could update their plan, end your response with [SUGGESTION: brief description of the change].` : 'You are KineticIQ, a helpful AI fitness coach.';
 
       const coachChatFn = httpsCallable(functions, 'coachChat');
-      const result = await coachChatFn({ 
+      const result = await coachChatFn({
         messages: newMessages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
-        userData 
+        userData
       });
       const reply = result.data.reply;
       const suggestionMatch = reply.match(/\[SUGGESTION: (.+?)\]/);
@@ -129,10 +159,16 @@ Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you m
             <Text style={styles.subtitle}>Powered by KineticIQ · Can update your plan</Text>
           </View>
         </View>
-        <View style={styles.onlineDot} />
+        <View style={[styles.onlineDot, isOffline && styles.offlineDot]} />
       </View>
 
-      {messages.length === 1 && (
+      {isOffline && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineBannerText}>📵 You're offline — coach unavailable</Text>
+        </View>
+      )}
+
+      {messages.length === 1 && !isOffline && (
         <View style={styles.suggestionsContainer}>
           <Text style={styles.suggestionsTitle}>QUICK QUESTIONS</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -176,7 +212,7 @@ Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you m
             </View>
           </View>
         )}
-        {lastSuggestion && !loading && (
+        {lastSuggestion && !loading && !isOffline && (
           <TouchableOpacity style={styles.applyButton} onPress={applyToPlan} disabled={updatingPlan}>
             {updatingPlan ? (
               <ActivityIndicator color="#040A07" />
@@ -190,20 +226,21 @@ Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you m
         )}
       </ScrollView>
 
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, isOffline && styles.inputContainerDisabled]}>
         <TextInput
-          style={styles.input}
-          placeholder="Ask your coach anything..."
+          style={[styles.input, isOffline && styles.inputDisabled]}
+          placeholder={isOffline ? 'Connect to internet to chat...' : 'Ask your coach anything...'}
           placeholderTextColor="#4A5A6A"
           value={input}
           onChangeText={setInput}
           multiline
           maxLength={500}
+          editable={!isOffline}
         />
         <TouchableOpacity
-          style={[styles.sendButton, (!input.trim() || loading) && styles.sendButtonDisabled]}
+          style={[styles.sendButton, (!input.trim() || loading || isOffline) && styles.sendButtonDisabled]}
           onPress={() => sendMessage()}
-          disabled={!input.trim() || loading}
+          disabled={!input.trim() || loading || isOffline}
         >
           <Text style={styles.sendButtonText}>→</Text>
         </TouchableOpacity>
@@ -221,6 +258,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.3 },
   subtitle: { fontSize: 12, color: '#8A9BB0', marginTop: 2 },
   onlineDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#00E5A0' },
+  offlineDot: { backgroundColor: '#FF3B30' },
+  offlineBanner: { backgroundColor: 'rgba(255,59,48,0.08)', paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,59,48,0.15)', alignItems: 'center' },
+  offlineBannerText: { color: '#FF3B30', fontSize: 13, fontWeight: '600' },
   suggestionsContainer: { padding: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   suggestionsTitle: { fontSize: 11, fontWeight: '700', color: '#8A9BB0', letterSpacing: 0.5, marginBottom: 10 },
   suggestionChip: { backgroundColor: '#111820', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, borderWidth: 1, borderColor: 'rgba(0,229,160,0.2)' },
@@ -244,11 +284,14 @@ const styles = StyleSheet.create({
   applyButtonIcon: { fontSize: 18 },
   applyButtonText: { color: '#00E5A0', fontSize: 15, fontWeight: '700' },
   inputContainer: { flexDirection: 'row', padding: 16, paddingBottom: 32, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.07)', gap: 10, alignItems: 'flex-end' },
+  inputContainerDisabled: { opacity: 0.5 },
   input: { flex: 1, backgroundColor: '#111820', borderRadius: 12, padding: 14, color: '#F0F4F8', fontSize: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', maxHeight: 100 },
+  inputDisabled: { color: '#4A5A6A' },
   sendButton: { backgroundColor: '#00E5A0', borderRadius: 12, width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   sendButtonDisabled: { backgroundColor: '#1A2330' },
   sendButtonText: { color: '#040A07', fontWeight: '800', fontSize: 22 },
 });
+
 export default function CoachScreen() {
   return (
     <ErrorBoundary screenName="CoachScreen">
