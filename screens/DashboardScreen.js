@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import AppleHealthKit from 'react-native-health';
 import { logScreenView } from '../src/utils/analytics';
 import { useFocusEffect } from '@react-navigation/native';
+import NetInfo from '@react-native-community/netinfo';
 import {
   View,
   Text,
@@ -15,6 +16,7 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
 import ErrorBoundary from './ErrorBoundary';
+import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
 
 function CoachBanner({ message }) {
   const [expanded, setExpanded] = useState(false);
@@ -42,6 +44,7 @@ const bannerStyles = StyleSheet.create({
   bannerMessage: { fontSize: 13, color: '#8A9BB0', lineHeight: 18 },
   bannerArrow: { color: '#00E5A0', fontSize: 12, marginLeft: 8 },
 });
+
 function MealsSection({ meals, todayName, navigation }) {
   const [expanded, setExpanded] = useState(false);
   const totalCals = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
@@ -146,6 +149,7 @@ const groceryStyles = StyleSheet.create({
   text: { fontSize: 14, color: '#8A9BB0', flex: 1 },
   textDone: { textDecorationLine: 'line-through', color: '#4A5A6A' },
 });
+
 function DashboardScreenInner({ navigation, route }) {
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
@@ -156,7 +160,17 @@ function DashboardScreenInner({ navigation, route }) {
   const [groceryChecked, setGroceryChecked] = useState({});
   const [stepCount, setStepCount] = useState(0);
   const [isPedometerAvailable, setIsPedometerAvailable] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const [fromCache, setFromCache] = useState(false);
   const STEP_GOAL = 10000;
+
+  // Track connectivity
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsOffline(!state.isConnected || state.isInternetReachable === false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -189,10 +203,6 @@ function DashboardScreenInner({ navigation, route }) {
     return () => clearTimeout(timer);
   }, []);
 
-
-
-
-
   useFocusEffect(
     useCallback(() => {
       loadUserData();
@@ -204,15 +214,15 @@ function DashboardScreenInner({ navigation, route }) {
       loadUserData();
     }
   }, [route?.params?.planGenerated]);
-
+  
   const loadUserData = async () => {
-    try {
-      const user = auth.currentUser;
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
+  try {
+    const user = auth.currentUser;
+    if (!user) { console.log('=== BUILD 51: auth.currentUser is NULL ==='); setLoading(false); return; }
+    console.log('=== BUILD 51: UID =', user.uid, ' EMAIL =', user.email, ' ===');
+    const docRef = doc(db, 'users', user.uid);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log('Has savedPlan:', !!data.savedPlan);
         setUserData(data);
         setPlan(data.savedPlan || null);
         if (data.groceryChecked) setGroceryChecked(data.groceryChecked);
@@ -220,9 +230,26 @@ function DashboardScreenInner({ navigation, route }) {
           const weekKey = getWeekKey();
           setCompletedWorkouts(data.completedWorkouts[weekKey] || {});
         }
+        // Cache fresh data for offline use
+        await saveUserData(data);
+        if (data.savedPlan) await savePlan(data.savedPlan);
+        setFromCache(false);
       }
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Firestore failed — try local cache
+      console.log('Firestore load failed, trying cache:', error.message);
+      const cachedUserData = await loadCachedUserData();
+      const cachedPlan = await loadPlan();
+      if (cachedUserData) {
+        setUserData(cachedUserData);
+        if (cachedPlan) setPlan(cachedPlan);
+        if (cachedUserData.groceryChecked) setGroceryChecked(cachedUserData.groceryChecked);
+        if (cachedUserData.completedWorkouts) {
+          const weekKey = getWeekKey();
+          setCompletedWorkouts(cachedUserData.completedWorkouts[weekKey] || {});
+        }
+        setFromCache(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -251,6 +278,7 @@ function DashboardScreenInner({ navigation, route }) {
   const toggleWorkout = async (index) => {
     const newCompleted = { ...completedWorkouts, [index]: !completedWorkouts[index] };
     setCompletedWorkouts(newCompleted);
+    if (isOffline) return; // skip Firestore write when offline
     try {
       const user = auth.currentUser;
       const weekKey = getWeekKey();
@@ -263,6 +291,7 @@ function DashboardScreenInner({ navigation, route }) {
   const toggleGrocery = async (index) => {
     const newChecked = { ...groceryChecked, [index]: !groceryChecked[index] };
     setGroceryChecked(newChecked);
+    if (isOffline) return; // skip Firestore write when offline
     try {
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { groceryChecked: newChecked }, { merge: true });
@@ -291,6 +320,10 @@ function DashboardScreenInner({ navigation, route }) {
 
   const analyzeAndAdaptPlan = async () => {
     if (!plan) return;
+    if (isOffline) {
+      Alert.alert('You\'re offline', 'Plan analysis requires an internet connection.');
+      return;
+    }
     const completed = getWorkoutsCompleted();
     const total = plan.weeklyWorkouts.length;
     const rate = total > 0 ? (completed / total) * 100 : 0;
@@ -308,7 +341,6 @@ function DashboardScreenInner({ navigation, route }) {
           setGeneratingPlan(true);
           try {
             const busyDays = userData.busyDays && userData.busyDays.length > 0 ? userData.busyDays.join(', ') : 'None';
-            const intensityPrompt = intensity === 'increase' ? 'INCREASE workout intensity.' : 'DECREASE workout intensity.';
             const generatePlanFn = httpsCallable(functions, 'generatePlan');
             const result = await generatePlanFn({ userData: { ...userData, busyDays: userData.busyDays }, busyDays });
             const parsed = result.data;
@@ -317,6 +349,7 @@ function DashboardScreenInner({ navigation, route }) {
             setGroceryChecked({});
             const user = auth.currentUser;
             await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
+            await savePlan(parsed);
             Alert.alert('Plan Updated!', 'Your plan has been adapted.');
           } catch (error) {
             Alert.alert('Error', error.message);
@@ -329,17 +362,13 @@ function DashboardScreenInner({ navigation, route }) {
   };
 
   const generatePlan = async () => {
+    if (isOffline) {
+      Alert.alert('You\'re offline', 'Generating a new plan requires an internet connection.');
+      return;
+    }
     setGeneratingPlan(true);
     try {
       const busyDays = userData.busyDays && userData.busyDays.length > 0 ? userData.busyDays.join(', ') : 'None';
-      const age = userData.birthday ? (() => {
-        const p = userData.birthday.split('/');
-        const bm = parseInt(p[0]); const bd = parseInt(p[1]); const by = parseInt(p[2]);
-        const t = new Date(); let a = t.getFullYear() - by;
-        if (t.getMonth()+1 < bm || (t.getMonth()+1 === bm && t.getDate() < bd)) a--;
-        return a;
-      })() : userData.age;
-
       const generatePlanFn = httpsCallable(functions, 'generatePlan');
       const result = await generatePlanFn({ userData, busyDays });
       const parsed = result.data;
@@ -348,6 +377,8 @@ function DashboardScreenInner({ navigation, route }) {
       setGroceryChecked({});
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
+      await savePlan(parsed);
+      setFromCache(false);
     } catch (error) {
       console.log('Generate plan error:', error.code, error.message);
       Alert.alert('Error generating plan', error.message);
@@ -357,6 +388,10 @@ function DashboardScreenInner({ navigation, route }) {
   };
 
   const addToCalendar = async () => {
+    if (isOffline) {
+      Alert.alert('You\'re offline', 'Adding to calendar requires an internet connection.');
+      return;
+    }
     try {
       const permissions = await requestPermissions();
       if (!permissions.calendar) { Alert.alert('Permission Required', 'Please allow calendar access.'); return; }
@@ -388,6 +423,12 @@ function DashboardScreenInner({ navigation, route }) {
         <Text style={styles.dateText}>{today}</Text>
       </View>
 
+      {fromCache && (
+        <View style={styles.cacheBanner}>
+          <Text style={styles.cacheBannerText}>📦 Showing cached plan — connect to sync</Text>
+        </View>
+      )}
+
       {userData && plan && (
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -418,16 +459,24 @@ function DashboardScreenInner({ navigation, route }) {
       )}
 
       {!plan && (
-        <TouchableOpacity style={styles.generateButton} onPress={generatePlan} disabled={generatingPlan}>
-          {generatingPlan ? (
-            <View style={styles.generatingContainer}>
-              <ActivityIndicator color="#040A07" />
-              <Text style={styles.generatingText}>Building your plan...</Text>
-            </View>
-          ) : (
-            <Text style={styles.generateButtonText}>Generate My AI Plan 🤖</Text>
-          )}
-        </TouchableOpacity>
+        isOffline ? (
+          <View style={styles.offlineCard}>
+            <Text style={styles.offlineCardIcon}>📵</Text>
+            <Text style={styles.offlineCardTitle}>No plan available offline</Text>
+            <Text style={styles.offlineCardText}>Connect to the internet to generate your AI plan.</Text>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.generateButton} onPress={generatePlan} disabled={generatingPlan}>
+            {generatingPlan ? (
+              <View style={styles.generatingContainer}>
+                <ActivityIndicator color="#040A07" />
+                <Text style={styles.generatingText}>Building your plan...</Text>
+              </View>
+            ) : (
+              <Text style={styles.generateButtonText}>Generate My AI Plan 🤖</Text>
+            )}
+          </TouchableOpacity>
+        )
       )}
 
       {plan && (
@@ -465,17 +514,31 @@ function DashboardScreenInner({ navigation, route }) {
           <GroceryListSection groceryList={plan.groceryList} groceryChecked={groceryChecked} toggleGrocery={toggleGrocery} />
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.actionButtonOrange} onPress={analyzeAndAdaptPlan}>
+            <TouchableOpacity
+              style={[styles.actionButtonOrange, isOffline && styles.actionButtonDisabled]}
+              onPress={analyzeAndAdaptPlan}
+              disabled={isOffline}
+            >
               <Text style={styles.actionButtonText}>📊 Analyze Week</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButtonBlue} onPress={addToCalendar}>
+            <TouchableOpacity
+              style={[styles.actionButtonBlue, isOffline && styles.actionButtonDisabled]}
+              onPress={addToCalendar}
+              disabled={isOffline}
+            >
               <Text style={styles.actionButtonText}>📅 Add to Calendar</Text>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.regenerateButton} onPress={() => { setPlan(null); generatePlan(); }}>
-            <Text style={styles.regenerateText}>Regenerate Plan</Text>
-          </TouchableOpacity>
+          {isOffline ? (
+            <View style={styles.offlineRegenNotice}>
+              <Text style={styles.offlineRegenNoticeText}>🔌 Regenerate plan available when online</Text>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.regenerateButton} onPress={() => { setPlan(null); generatePlan(); }}>
+              <Text style={styles.regenerateText}>Regenerate Plan</Text>
+            </TouchableOpacity>
+          )}
         </>
       )}
     </ScrollView>
@@ -490,6 +553,14 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 22, fontWeight: '700', color: '#F0F4F8', marginBottom: 4 },
   greetingName: { color: '#00E5A0' },
   dateText: { fontSize: 12, color: '#4A5A6A', textAlign: 'right' },
+  cacheBanner: { backgroundColor: 'rgba(255,179,0,0.08)', borderRadius: 10, padding: 10, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,179,0,0.2)', alignItems: 'center' },
+  cacheBannerText: { color: '#FFB300', fontSize: 13, fontWeight: '600' },
+  offlineCard: { backgroundColor: '#111820', borderRadius: 14, padding: 24, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', alignItems: 'center' },
+  offlineCardIcon: { fontSize: 32, marginBottom: 10 },
+  offlineCardTitle: { fontSize: 16, fontWeight: '700', color: '#F0F4F8', marginBottom: 6 },
+  offlineCardText: { fontSize: 13, color: '#8A9BB0', textAlign: 'center' },
+  offlineRegenNotice: { backgroundColor: '#111820', borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  offlineRegenNoticeText: { color: '#4A5A6A', fontSize: 14, fontWeight: '500' },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
   statCard: { flex: 1, backgroundColor: '#111820', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
   statLabel: { fontSize: 9, fontWeight: '700', color: '#8A9BB0', letterSpacing: 0.5, marginBottom: 8 },
@@ -539,6 +610,7 @@ const styles = StyleSheet.create({
   actionsRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
   actionButtonOrange: { flex: 1, backgroundColor: '#1A2330', borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: '#FFB547' },
   actionButtonBlue: { flex: 1, backgroundColor: '#1A2330', borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: '#4D9FFF' },
+  actionButtonDisabled: { opacity: 0.4 },
   actionButtonText: { color: '#F0F4F8', fontSize: 13, fontWeight: '600' },
   regenerateButton: { backgroundColor: '#111820', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
   regenerateText: { color: '#00E5A0', fontSize: 15, fontWeight: '600' },
