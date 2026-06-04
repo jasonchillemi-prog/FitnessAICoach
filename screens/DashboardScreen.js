@@ -218,9 +218,9 @@ function DashboardScreenInner({ navigation, route }) {
   const loadUserData = async () => {
   try {
     const user = auth.currentUser;
-    if (!user) { console.log('=== BUILD 51: auth.currentUser is NULL ==='); setLoading(false); return; }
-    console.log('=== BUILD 51: UID =', user.uid, ' EMAIL =', user.email, ' ===');
+    if (!user) { setLoading(false); return; }
     const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
         setUserData(data);
