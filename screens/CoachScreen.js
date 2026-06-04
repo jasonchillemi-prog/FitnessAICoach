@@ -16,7 +16,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
-import { saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
+import { savePlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
 
 const SUGGESTED_QUESTIONS = [
   "What should I eat before my workout?",
@@ -85,9 +85,11 @@ function CoachScreenInner() {
       const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
       const result = await applyFn({ suggestion: lastSuggestion, userData, currentPlan: plan });
       const parsed = result.data;
+      console.log('=== BUILD 51 applyCoachSuggestion result keys:', Object.keys(parsed));
       const user = auth.currentUser;
       const mergedPlan = { ...plan, ...parsed };
       await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
+      await savePlan(mergedPlan);
       setPlan(mergedPlan);
       setLastSuggestion(null);
       const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated based on my suggestion. Check your Dashboard to see the changes!' };
