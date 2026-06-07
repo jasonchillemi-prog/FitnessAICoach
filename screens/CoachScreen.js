@@ -29,7 +29,7 @@ function CoachScreenInner() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hey! 👋 I'm your KineticIQ AI coach. I know your full plan — goals, workouts, meals, and progress. Ask me anything or say 'update my plan' and I'll make changes for you!"
+      content: "What can I help you with today? Ask me about your workouts, meals, or say 'update my plan' and I'll make changes for you! 💪"
     }
   ]);
   const [input, setInput] = useState('');
@@ -37,7 +37,6 @@ function CoachScreenInner() {
   const [updatingPlan, setUpdatingPlan] = useState(false);
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
-  const [lastSuggestion, setLastSuggestion] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
   const scrollRef = useRef(null);
 
@@ -62,7 +61,7 @@ function CoachScreenInner() {
         const data = docSnap.data();
         setUserData(data);
         setPlan(data.savedPlan);
-        await saveUserData(data); // cache for offline
+        await saveUserData(data);
       }
     } catch (e) {
       console.log('Firestore load failed, trying cache:', e);
@@ -74,29 +73,32 @@ function CoachScreenInner() {
     }
   };
 
-  const applyToPlan = async () => {
-    if (!lastSuggestion || !userData) return;
+  const applyToPlan = async (suggestion, currentPlan, currentMessages) => {
+    if (!suggestion || !userData) return;
     if (isOffline) {
       Alert.alert('You\'re offline', 'Applying plan changes requires an internet connection.');
       return;
     }
     setUpdatingPlan(true);
+    // Show applying toast in chat
+    const applyingMsg = { role: 'assistant', content: '⏳ Applying your plan update...' };
+    const messagesWithApplying = [...currentMessages, applyingMsg];
+    setMessages(messagesWithApplying);
     try {
       const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
-      const result = await applyFn({ suggestion: lastSuggestion, userData, currentPlan: plan });
+      const result = await applyFn({ suggestion, userData, currentPlan });
       const parsed = result.data;
-      console.log('=== BUILD 51 applyCoachSuggestion result keys:', Object.keys(parsed));
       const user = auth.currentUser;
-      const mergedPlan = { ...plan, ...parsed };
+      const mergedPlan = { ...currentPlan, ...parsed };
       await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
       await savePlan(mergedPlan);
       setPlan(mergedPlan);
-      setLastSuggestion(null);
-      const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated based on my suggestion. Check your Dashboard to see the changes!' };
-      setMessages(prev => [...prev, successMsg]);
-      Alert.alert('Plan Updated! 🎉', 'Your Dashboard has been updated with the changes.');
+      // Replace applying message with success message
+      const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated. Check your Dashboard to see the changes!' };
+      setMessages(prev => [...prev.slice(0, -1), successMsg]);
     } catch (error) {
-      Alert.alert('Error updating plan', error.message);
+      const errorMsg = { role: 'assistant', content: '❌ Sorry, I couldn\'t update your plan right now. Please try again.' };
+      setMessages(prev => [...prev.slice(0, -1), errorMsg]);
     } finally {
       setUpdatingPlan(false);
     }
@@ -117,18 +119,6 @@ function CoachScreenInner() {
     setMessages(newMessages);
     setLoading(true);
     try {
-      const systemPrompt = userData ? `You are KineticIQ, a personalized AI fitness and nutrition coach. Here is your client's profile:
-- Weight: ${userData.weight} lbs
-- Height: ${userData.height}
-- Age: ${userData.age}
-- Smoker: ${userData.smoker ? 'Yes' : 'No'}
-- Goals: ${userData.goals ? userData.goals.join(', ') : 'Not specified'}
-- Workouts per week: ${userData.workoutsPerWeek}
-- Allergies: ${userData.allergies ? userData.allergies.join(', ') : 'None'}
-- Preferred workout times: ${userData.workoutTimes ? userData.workoutTimes.join(', ') : 'Any'}
-- Busy days: ${userData.busyDays ? userData.busyDays.join(', ') : 'None'}
-Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you make a specific suggestion that could update their plan, end your response with [SUGGESTION: brief description of the change].` : 'You are KineticIQ, a helpful AI fitness coach.';
-
       const coachChatFn = httpsCallable(functions, 'coachChat');
       const result = await coachChatFn({
         messages: newMessages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
@@ -136,13 +126,17 @@ Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you m
       });
       const reply = result.data.reply;
       const suggestionMatch = reply.match(/\[SUGGESTION: (.+?)\]/);
-      if (suggestionMatch) {
-        setLastSuggestion(suggestionMatch[1]);
-      }
       const cleanReply = reply.replace(/\[SUGGESTION: .+?\]/, '').trim();
-      setMessages([...newMessages, { role: 'assistant', content: cleanReply }]);
+      const messagesWithReply = [...newMessages, { role: 'assistant', content: cleanReply }];
+      setMessages(messagesWithReply);
+      // Auto-apply if suggestion detected
+      if (suggestionMatch) {
+        setTimeout(() => {
+          applyToPlan(suggestionMatch[1], plan, messagesWithReply);
+        }, 800);
+      }
     } catch (error) {
-      setMessages([...newMessages, { role: 'assistant', content: 'Sorry I had trouble responding. Please try again!' }]);
+      setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I had trouble responding. Please try again!' }]);
     } finally {
       setLoading(false);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
@@ -214,17 +208,16 @@ Be encouraging, specific, and concise. Keep responses to 3-5 sentences. If you m
             </View>
           </View>
         )}
-        {lastSuggestion && !loading && !isOffline && (
-          <TouchableOpacity style={styles.applyButton} onPress={applyToPlan} disabled={updatingPlan}>
-            {updatingPlan ? (
-              <ActivityIndicator color="#040A07" />
-            ) : (
-              <>
-                <Text style={styles.applyButtonIcon}>✨</Text>
-                <Text style={styles.applyButtonText}>Apply suggestion to my plan</Text>
-              </>
-            )}
-          </TouchableOpacity>
+        {updatingPlan && (
+          <View style={styles.assistantRow}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>K</Text>
+            </View>
+            <View style={[styles.assistantBubble, styles.typingBubble]}>
+              <Text style={styles.typingText}>Updating your plan...</Text>
+              <ActivityIndicator size="small" color="#00E5A0" style={{ marginLeft: 8 }} />
+            </View>
+          </View>
         )}
       </ScrollView>
 
@@ -282,9 +275,6 @@ const styles = StyleSheet.create({
   userText: { color: '#F0F4F8' },
   typingBubble: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14 },
   typingText: { color: '#8A9BB0', fontSize: 14 },
-  applyButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: 'rgba(0,229,160,0.12)', borderRadius: 12, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)', marginHorizontal: 16 },
-  applyButtonIcon: { fontSize: 18 },
-  applyButtonText: { color: '#00E5A0', fontSize: 15, fontWeight: '700' },
   inputContainer: { flexDirection: 'row', padding: 16, paddingBottom: 32, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.07)', gap: 10, alignItems: 'flex-end' },
   inputContainerDisabled: { opacity: 0.5 },
   input: { flex: 1, backgroundColor: '#111820', borderRadius: 12, padding: 14, color: '#F0F4F8', fontSize: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', maxHeight: 100 },
