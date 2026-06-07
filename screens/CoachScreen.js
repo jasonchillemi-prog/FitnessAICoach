@@ -29,7 +29,7 @@ function CoachScreenInner() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "What can I help you with today? Ask me about your workouts, meals, or say 'update my plan' and I'll make changes for you! 💪"
+      content: "Hey! 👋 I'm your KineticIQ AI coach. I know your full plan — goals, workouts, meals, and progress. Ask me anything or say 'update my plan' and I'll make changes for you!"
     }
   ]);
   const [input, setInput] = useState('');
