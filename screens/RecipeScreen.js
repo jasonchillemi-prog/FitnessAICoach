@@ -8,7 +8,10 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 
-const isRateLimited = (e) => e?.code === 'functions/resource-exhausted';
+const isRateLimited = (e) =>
+  e?.code === 'functions/resource-exhausted' ||
+  e?.code === 'resource-exhausted' ||
+  /resource|limit/i.test(e?.message);
 
 function RecipeScreenInner({ route, navigation }) {
   const meal = route?.params?.meal || null;

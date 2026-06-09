@@ -18,7 +18,10 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
 
-const isRateLimited = (e) => e?.code === 'functions/resource-exhausted';
+const isRateLimited = (e) =>
+  e?.code === 'functions/resource-exhausted' ||
+  e?.code === 'resource-exhausted' ||
+  /resource|limit/i.test(e?.message);
 
 const SUGGESTED_QUESTIONS = [
   "What should I eat before my workout?",
