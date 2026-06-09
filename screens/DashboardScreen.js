@@ -18,6 +18,8 @@ import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkout
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
 
+const isRateLimited = (e) => e?.code === 'functions/resource-exhausted';
+
 function CoachBanner({ message }) {
   const [expanded, setExpanded] = useState(false);
   const preview = message.length > 80 ? message.substring(0, 80) + '...' : message;
@@ -352,7 +354,12 @@ function DashboardScreenInner({ navigation, route }) {
             await savePlan(parsed);
             Alert.alert('Plan Updated!', 'Your plan has been adapted.');
           } catch (error) {
-            Alert.alert('Error', error.message);
+            Alert.alert(
+              isRateLimited(error) ? 'Daily Limit Reached' : 'Error',
+              isRateLimited(error)
+                ? "You've reached your daily plan generation limit. It resets at midnight UTC — try again tomorrow!"
+                : error.message
+            );
           } finally {
             setGeneratingPlan(false);
           }
@@ -381,7 +388,12 @@ function DashboardScreenInner({ navigation, route }) {
       setFromCache(false);
     } catch (error) {
       console.log('Generate plan error:', error.code, error.message);
-      Alert.alert('Error generating plan', error.message);
+      Alert.alert(
+        isRateLimited(error) ? 'Daily Limit Reached' : 'Error generating plan',
+        isRateLimited(error)
+          ? "You've reached your daily plan generation limit. It resets at midnight UTC — try again tomorrow!"
+          : error.message
+      );
     } finally {
       setGeneratingPlan(false);
     }

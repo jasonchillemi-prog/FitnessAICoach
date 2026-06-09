@@ -1,26 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { logWorkoutStarted, logWorkoutCompleted } from '../src/utils/analytics';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
+import { saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
+
+const isRateLimited = (e) => e?.code === 'functions/resource-exhausted';
 
 function WorkoutDetailScreenInner({ route, navigation }) {
   const workout = route?.params?.workout || null;
   const [detailedPlan, setDetailedPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
 
+  // Check connectivity once on mount
   useEffect(() => {
-    if (!workout) {
-      setError('No workout data provided.');
-      setLoading(false);
-      return;
-    }
-    loadAndGenerate();
+    NetInfo.fetch().then(state => {
+      const offline = !state.isConnected || state.isInternetReachable === false;
+      setIsOffline(offline);
+      if (!workout) {
+        setError('No workout data provided.');
+        setLoading(false);
+        return;
+      }
+      if (offline) {
+        setLoading(false);
+        return;
+      }
+      loadAndGenerate();
+    });
   }, []);
 
   const loadAndGenerate = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -28,8 +44,16 @@ function WorkoutDetailScreenInner({ route, navigation }) {
         setLoading(false);
         return;
       }
-      const docSnap = await getDoc(doc(db, 'users', user.uid));
-      await generateDetailedWorkout(docSnap.data());
+      let userData = null;
+      try {
+        const docSnap = await getDoc(doc(db, 'users', user.uid));
+        userData = docSnap.data();
+        await saveUserData(userData); // cache fresh data
+      } catch (firestoreErr) {
+        console.log('Firestore failed, using cache:', firestoreErr.message);
+        userData = await loadCachedUserData();
+      }
+      await generateDetailedWorkout(userData);
     } catch (err) {
       setError(err.message || 'Something went wrong.');
       setLoading(false);
@@ -43,7 +67,11 @@ function WorkoutDetailScreenInner({ route, navigation }) {
       setDetailedPlan(result.data);
       logWorkoutStarted(workout?.type || 'unknown');
     } catch (err) {
-      setError(err.message || 'Failed to generate workout.');
+      setError(
+        isRateLimited(err)
+          ? "You've reached your daily workout detail limit. It resets at midnight UTC — try again tomorrow!"
+          : err.message || 'Failed to generate workout.'
+      );
     } finally {
       setLoading(false);
     }
@@ -72,7 +100,18 @@ function WorkoutDetailScreenInner({ route, navigation }) {
           <Text style={styles.durationText}>⏱ {workout.duration || ''}</Text>
         </View>
       </View>
-      {loading ? (
+
+      {/* Offline state */}
+      {isOffline && !detailedPlan ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.offlineIcon}>📵</Text>
+          <Text style={styles.loadingText}>You're offline</Text>
+          <Text style={styles.offlineSubtext}>Detailed workout generation requires an internet connection.</Text>
+          <TouchableOpacity style={[styles.retryButton, { marginTop: 24 }]} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryText}>← Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      ) : loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00E5A0" />
           <Text style={styles.loadingText}>Generating your detailed workout...</Text>
@@ -159,7 +198,9 @@ const styles = StyleSheet.create({
   durationBadge: { backgroundColor: 'rgba(0,229,160,0.12)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
   durationText: { color: '#00E5A0', fontSize: 13, fontWeight: '600' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  offlineIcon: { fontSize: 48, marginBottom: 12 },
   loadingText: { fontSize: 18, fontWeight: '700', color: '#F0F4F8', marginTop: 20, marginBottom: 8, textAlign: 'center' },
+  offlineSubtext: { fontSize: 14, color: '#8A9BB0', textAlign: 'center', lineHeight: 20 },
   content: { padding: 20, paddingBottom: 40 },
   card: { backgroundColor: '#111820', borderRadius: 14, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
   cardTitle: { fontSize: 16, fontWeight: '700', color: '#F0F4F8', marginBottom: 14 },

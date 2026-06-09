@@ -8,6 +8,8 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 
+const isRateLimited = (e) => e?.code === 'functions/resource-exhausted';
+
 function RecipeScreenInner({ route, navigation }) {
   const meal = route?.params?.meal || null;
   const [recipe, setRecipe] = useState(null);
@@ -47,7 +49,11 @@ function RecipeScreenInner({ route, navigation }) {
       setRecipe(result.data);
       logRecipeViewed(meal?.food || 'unknown');
     } catch (err) {
-      setError(err.message || 'Failed to generate recipe.');
+      setError(
+        isRateLimited(err)
+          ? "You've reached your daily recipe limit. It resets at midnight UTC — try again tomorrow!"
+          : err.message || 'Failed to generate recipe.'
+      );
     } finally {
       setLoading(false);
     }

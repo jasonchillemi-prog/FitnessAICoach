@@ -18,6 +18,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
 
+const isRateLimited = (e) => e?.code === 'functions/resource-exhausted';
+
 const SUGGESTED_QUESTIONS = [
   "What should I eat before my workout?",
   "How do I stay motivated?",
@@ -97,7 +99,10 @@ function CoachScreenInner() {
       const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated. Check your Dashboard to see the changes!' };
       setMessages(prev => [...prev.slice(0, -1), successMsg]);
     } catch (error) {
-      const errorMsg = { role: 'assistant', content: '❌ Sorry, I couldn\'t update your plan right now. Please try again.' };
+      const errorContent = isRateLimited(error)
+        ? "You've reached your daily plan update limit. It resets at midnight UTC — try again tomorrow! 🌙"
+        : "❌ Sorry, I couldn't update your plan right now. Please try again.";
+      const errorMsg = { role: 'assistant', content: errorContent };
       setMessages(prev => [...prev.slice(0, -1), errorMsg]);
     } finally {
       setUpdatingPlan(false);
@@ -136,7 +141,10 @@ function CoachScreenInner() {
         }, 800);
       }
     } catch (error) {
-      setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I had trouble responding. Please try again!' }]);
+      const errorContent = isRateLimited(error)
+        ? "You've reached your daily chat limit. It resets at midnight UTC — try again tomorrow! 🌙"
+        : 'Sorry, I had trouble responding. Please try again!';
+      setMessages([...newMessages, { role: 'assistant', content: errorContent }]);
     } finally {
       setLoading(false);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
