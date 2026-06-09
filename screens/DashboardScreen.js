@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import AppleHealthKit from 'react-native-health';
 import { logScreenView } from '../src/utils/analytics';
 import { useFocusEffect } from '@react-navigation/native';
@@ -16,7 +16,7 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
 import ErrorBoundary from './ErrorBoundary';
-import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
+import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData, savePendingWorkouts, loadPendingWorkouts, clearPendingWorkouts, savePendingGrocery, loadPendingGrocery, clearPendingGrocery } from '../src/utils/offlineCache';
 
 const isRateLimited = (e) =>
   e?.code === 'functions/resource-exhausted' ||
@@ -168,11 +168,36 @@ function DashboardScreenInner({ navigation, route }) {
   const [isOffline, setIsOffline] = useState(false);
   const [fromCache, setFromCache] = useState(false);
   const STEP_GOAL = 10000;
+  const wasOfflineRef = useRef(false);
 
-  // Track connectivity
+  const syncPendingWrites = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const pendingWorkouts = await loadPendingWorkouts();
+    const pendingGrocery = await loadPendingGrocery();
+    if (!pendingWorkouts && !pendingGrocery) return;
+    try {
+      const updates = {};
+      if (pendingWorkouts) updates.completedWorkouts = { [pendingWorkouts.weekKey]: pendingWorkouts.data };
+      if (pendingGrocery) updates.groceryChecked = pendingGrocery;
+      await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
+      if (pendingWorkouts) await clearPendingWorkouts();
+      if (pendingGrocery) await clearPendingGrocery();
+      console.log('syncPendingWrites: offline changes synced to Firestore');
+    } catch (e) {
+      console.log('syncPendingWrites: failed', e);
+    }
+  };
+
+  // Track connectivity and sync pending writes on reconnect
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      setIsOffline(!state.isConnected || state.isInternetReachable === false);
+    const unsubscribe = NetInfo.addEventListener(async state => {
+      const offline = !state.isConnected || state.isInternetReachable === false;
+      setIsOffline(offline);
+      if (wasOfflineRef.current && !offline) {
+        await syncPendingWrites();
+      }
+      wasOfflineRef.current = offline;
     });
     return () => unsubscribe();
   }, []);
@@ -256,6 +281,13 @@ function DashboardScreenInner({ navigation, route }) {
         setFromCache(true);
       }
     } finally {
+      // Apply any pending offline writes on top of whatever was loaded
+      const pendingWorkouts = await loadPendingWorkouts();
+      if (pendingWorkouts && pendingWorkouts.weekKey === getWeekKey()) {
+        setCompletedWorkouts(pendingWorkouts.data);
+      }
+      const pendingGrocery = await loadPendingGrocery();
+      if (pendingGrocery) setGroceryChecked(pendingGrocery);
       setLoading(false);
     }
   };
@@ -283,11 +315,15 @@ function DashboardScreenInner({ navigation, route }) {
   const toggleWorkout = async (index) => {
     const newCompleted = { ...completedWorkouts, [index]: !completedWorkouts[index] };
     setCompletedWorkouts(newCompleted);
-    if (isOffline) return; // skip Firestore write when offline
+    const weekKey = getWeekKey();
+    if (isOffline) {
+      await savePendingWorkouts(weekKey, newCompleted);
+      return;
+    }
     try {
       const user = auth.currentUser;
-      const weekKey = getWeekKey();
       await setDoc(doc(db, 'users', user.uid), { completedWorkouts: { [weekKey]: newCompleted } }, { merge: true });
+      await clearPendingWorkouts();
     } catch (error) {
       console.log('Error saving workout:', error);
     }
@@ -296,10 +332,14 @@ function DashboardScreenInner({ navigation, route }) {
   const toggleGrocery = async (index) => {
     const newChecked = { ...groceryChecked, [index]: !groceryChecked[index] };
     setGroceryChecked(newChecked);
-    if (isOffline) return; // skip Firestore write when offline
+    if (isOffline) {
+      await savePendingGrocery(newChecked);
+      return;
+    }
     try {
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { groceryChecked: newChecked }, { merge: true });
+      await clearPendingGrocery();
     } catch (error) {
       console.log('Error saving grocery:', error);
     }
