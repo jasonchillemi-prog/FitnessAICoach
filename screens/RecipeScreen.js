@@ -4,6 +4,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, ActivityIndicator
 } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
@@ -18,17 +19,36 @@ function RecipeScreenInner({ route, navigation }) {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    if (!meal) {
-      setError('No meal data provided.');
-      setLoading(false);
-      return;
-    }
-    loadAndGenerate();
+    NetInfo.fetch().then(state => {
+      const offline = !state.isConnected || state.isInternetReachable === false;
+      setIsOffline(offline);
+      if (!meal) {
+        setError('No meal data provided.');
+        setLoading(false);
+        return;
+      }
+      if (offline) {
+        setLoading(false);
+        return;
+      }
+      loadAndGenerate();
+    });
   }, []);
 
   const loadAndGenerate = async () => {
+    const state = await NetInfo.fetch();
+    const offline = !state.isConnected || state.isInternetReachable === false;
+    if (offline) {
+      setIsOffline(true);
+      setLoading(false);
+      return;
+    }
+    setIsOffline(false);
+    setLoading(true);
+    setError(null);
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -86,7 +106,19 @@ function RecipeScreenInner({ route, navigation }) {
         </View>
       </View>
 
-      {loading ? (
+      {isOffline && !recipe ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.offlineIcon}>📵</Text>
+          <Text style={styles.loadingText}>You're offline</Text>
+          <Text style={styles.offlineSubtext}>Recipe generation requires an internet connection.</Text>
+          <TouchableOpacity style={[styles.retryButton, { marginTop: 24 }]} onPress={loadAndGenerate}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.retryButton, { marginTop: 10, backgroundColor: '#333' }]} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryText}>← Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      ) : loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00E5A0" />
           <Text style={styles.loadingText}>Generating your recipe...</Text>
@@ -194,8 +226,10 @@ const styles = StyleSheet.create({
   calBadge: { backgroundColor: 'rgba(0,229,160,0.12)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
   calText: { color: '#00E5A0', fontSize: 13, fontWeight: '600' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  offlineIcon: { fontSize: 48, marginBottom: 12 },
   loadingText: { fontSize: 18, fontWeight: '700', color: '#F0F4F8', marginTop: 20, marginBottom: 8, textAlign: 'center' },
   loadingSubText: { fontSize: 14, color: '#8A9BB0', textAlign: 'center' },
+  offlineSubtext: { fontSize: 14, color: '#8A9BB0', textAlign: 'center', lineHeight: 20 },
   content: { padding: 20, paddingBottom: 40 },
   metaRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   metaPill: { flex: 1, backgroundColor: '#111820', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
