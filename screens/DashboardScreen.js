@@ -10,7 +10,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert
+  Alert,
+  Animated
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -103,7 +104,37 @@ const mealSectionStyles = StyleSheet.create({
 
 function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
   const [expanded, setExpanded] = useState(false);
+  const [dismissed, setDismissed] = useState({});
+  const fadeAnims = useRef({});
+  const scheduledRef = useRef({});
+
+  // Reset when a new plan brings a new grocery list
+  useEffect(() => {
+    setDismissed({});
+    scheduledRef.current = {};
+    fadeAnims.current = {};
+  }, [groceryList]);
+
+  // Schedule fade-out 1.5s after an item is checked
+  useEffect(() => {
+    Object.keys(groceryChecked).forEach(key => {
+      const idx = Number(key);
+      if (groceryChecked[key] && !scheduledRef.current[idx]) {
+        scheduledRef.current[idx] = true;
+        if (!fadeAnims.current[idx]) fadeAnims.current[idx] = new Animated.Value(1);
+        setTimeout(() => {
+          Animated.timing(fadeAnims.current[idx], {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }).start(() => setDismissed(prev => ({ ...prev, [idx]: true })));
+        }, 1500);
+      }
+    });
+  }, [groceryChecked]);
+
   const checkedCount = Object.values(groceryChecked).filter(Boolean).length;
+
   return (
     <View style={groceryStyles.card}>
       <TouchableOpacity style={groceryStyles.header} onPress={() => setExpanded(!expanded)}>
@@ -122,14 +153,20 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
       </TouchableOpacity>
       {expanded && (
         <View style={groceryStyles.list}>
-          {groceryList.map((item, index) => (
-            <TouchableOpacity key={index} style={groceryStyles.row} onPress={() => toggleGrocery(index)}>
-              <View style={[groceryStyles.checkbox, groceryChecked[index] && groceryStyles.checkboxDone]}>
-                {groceryChecked[index] && <Text style={groceryStyles.checkmark}>✓</Text>}
-              </View>
-              <Text style={[groceryStyles.text, groceryChecked[index] && groceryStyles.textDone]}>{item}</Text>
-            </TouchableOpacity>
-          ))}
+          {groceryList.map((item, index) => {
+            if (dismissed[index]) return null;
+            if (!fadeAnims.current[index]) fadeAnims.current[index] = new Animated.Value(1);
+            return (
+              <Animated.View key={index} style={{ opacity: fadeAnims.current[index] }}>
+                <TouchableOpacity style={groceryStyles.row} onPress={() => toggleGrocery(index)}>
+                  <View style={[groceryStyles.checkbox, groceryChecked[index] && groceryStyles.checkboxDone]}>
+                    {groceryChecked[index] && <Text style={groceryStyles.checkmark}>✓</Text>}
+                  </View>
+                  <Text style={[groceryStyles.text, groceryChecked[index] && groceryStyles.textDone]}>{item}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
         </View>
       )}
     </View>
