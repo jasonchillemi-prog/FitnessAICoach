@@ -316,10 +316,8 @@ function DashboardScreenInner({ navigation, route }) {
     const newCompleted = { ...completedWorkouts, [index]: !completedWorkouts[index] };
     setCompletedWorkouts(newCompleted);
     const weekKey = getWeekKey();
-    if (isOffline) {
-      await savePendingWorkouts(weekKey, newCompleted);
-      return;
-    }
+    await savePendingWorkouts(weekKey, newCompleted);
+    if (isOffline) return;
     try {
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { completedWorkouts: { [weekKey]: newCompleted } }, { merge: true });
@@ -332,10 +330,8 @@ function DashboardScreenInner({ navigation, route }) {
   const toggleGrocery = async (index) => {
     const newChecked = { ...groceryChecked, [index]: !groceryChecked[index] };
     setGroceryChecked(newChecked);
-    if (isOffline) {
-      await savePendingGrocery(newChecked);
-      return;
-    }
+    await savePendingGrocery(newChecked);
+    if (isOffline) return;
     try {
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), { groceryChecked: newChecked }, { merge: true });
