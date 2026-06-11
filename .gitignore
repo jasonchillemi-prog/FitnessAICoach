@@ -41,3 +41,5 @@ yarn-error.*
 /android
 .env
 functions/index.js
+jarvis/
+functions/index.js.bak
