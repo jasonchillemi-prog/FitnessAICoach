@@ -107,6 +107,7 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
   const [dismissed, setDismissed] = useState({});
   const fadeAnims = useRef({});
   const scheduledRef = useRef({});
+  const timeoutRefs = useRef({});
 
   // Reset when a new plan brings a new grocery list
   useEffect(() => {
@@ -115,20 +116,29 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
     fadeAnims.current = {};
   }, [groceryList]);
 
-  // Schedule fade-out 1.5s after an item is checked
+  // Schedule fade-out 1.5s after an item is checked; reset if unchecked
   useEffect(() => {
     Object.keys(groceryChecked).forEach(key => {
       const idx = Number(key);
       if (groceryChecked[key] && !scheduledRef.current[idx]) {
+        // Item just checked — schedule fade
         scheduledRef.current[idx] = true;
         if (!fadeAnims.current[idx]) fadeAnims.current[idx] = new Animated.Value(1);
-        setTimeout(() => {
-          Animated.timing(fadeAnims.current[idx], {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }).start(() => setDismissed(prev => ({ ...prev, [idx]: true })));
+        timeoutRefs.current[idx] = setTimeout(() => {
+          if (scheduledRef.current[idx]) {
+            Animated.timing(fadeAnims.current[idx], {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }).start(() => setDismissed(prev => ({ ...prev, [idx]: true })));
+          }
         }, 1500);
+      } else if (!groceryChecked[key] && scheduledRef.current[idx]) {
+        // Item unchecked — cancel fade and reset
+        clearTimeout(timeoutRefs.current[idx]);
+        scheduledRef.current[idx] = false;
+        if (fadeAnims.current[idx]) fadeAnims.current[idx].setValue(1);
+        setDismissed(prev => { const next = { ...prev }; delete next[idx]; return next; });
       }
     });
   }, [groceryChecked]);
