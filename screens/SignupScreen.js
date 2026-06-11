@@ -28,6 +28,11 @@ function SignupScreenInner({ navigation }) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,3}$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
