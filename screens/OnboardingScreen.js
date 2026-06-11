@@ -103,6 +103,22 @@ function OnboardingScreenInner({ navigation }) {
       case 1:
         if (!firstName.trim()) { Alert.alert('Please enter your first name'); return false; }
         if (!weight || !heightFeet || !heightInches || !age) { Alert.alert('Please fill in all fields'); return false; }
+        if (birthday) {
+          const parts = birthday.split('/');
+          if (parts.length !== 3 || parts[2].length !== 4) {
+            Alert.alert('Invalid Date', 'Please enter your full date of birth (MM/DD/YYYY)'); return false;
+          }
+          const month = parseInt(parts[0]);
+          const day = parseInt(parts[1]);
+          const year = parseInt(parts[2]);
+          const dateObj = new Date(year, month - 1, day);
+          if (dateObj.getFullYear() !== year || dateObj.getMonth() + 1 !== month || dateObj.getDate() !== day) {
+            Alert.alert('Invalid Date', 'Please enter a real date of birth'); return false;
+          }
+          const ageNum = parseInt(age);
+          if (ageNum < 13) { Alert.alert('Invalid Date', 'You must be at least 13 to use KineticIQ'); return false; }
+          if (ageNum > 100) { Alert.alert('Invalid Date', 'Please enter a valid date of birth'); return false; }
+        }
         return true;
       case 2:
         if (!workoutsPerWeek) { Alert.alert('Please select how many days you workout'); return false; }
