@@ -161,10 +161,10 @@ const styles = StyleSheet.create({
   trustItem: { fontSize: 12, color: '#4A5A6A' },
 });
 
-export default function SignupScreen() {
+export default function SignupScreen(props) {
   return (
     <ErrorBoundary screenName="SignupScreen">
-      <SignupScreenInner />
+      <SignupScreenInner {...props} />
     </ErrorBoundary>
   );
 }

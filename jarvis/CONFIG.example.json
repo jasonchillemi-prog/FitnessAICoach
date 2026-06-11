@@ -1,0 +1,61 @@
+{
+  "_comment": "Copy this file to CONFIG.json and fill in your values. CONFIG.json is gitignored — never commit real keys.",
+
+  "aiProvider": {
+    "_comment": "Set 'provider' to one of: 'anthropic', 'openai', 'google', 'local'",
+    "provider": "anthropic",
+
+    "anthropic": {
+      "apiKey": "YOUR_ANTHROPIC_API_KEY",
+      "model": "claude-sonnet-4-6",
+      "_modelOptions": [
+        "claude-fable-5",
+        "claude-opus-4-8",
+        "claude-sonnet-4-6",
+        "claude-haiku-4-5-20251001"
+      ],
+      "maxTokens": 4096,
+      "temperature": 0.3
+    },
+
+    "openai": {
+      "apiKey": "YOUR_OPENAI_API_KEY",
+      "model": "gpt-4o",
+      "_modelOptions": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
+      "maxTokens": 4096,
+      "temperature": 0.3
+    },
+
+    "google": {
+      "apiKey": "YOUR_GOOGLE_AI_API_KEY",
+      "model": "gemini-2.0-flash",
+      "_modelOptions": ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"],
+      "maxTokens": 4096,
+      "temperature": 0.3
+    },
+
+    "local": {
+      "_comment": "For Ollama or other local inference servers",
+      "baseUrl": "http://localhost:11434",
+      "model": "llama3",
+      "maxTokens": 4096,
+      "temperature": 0.3
+    }
+  },
+
+  "jarvis": {
+    "systemPromptVersion": "1.0",
+    "maxContextFiles": 5,
+    "enableVoiceMode": false,
+    "logLevel": "info",
+    "_logLevelOptions": ["debug", "info", "warn", "error"]
+  },
+
+  "firebase": {
+    "_comment": "These are already in .env and firebaseConfig.js — do not duplicate real keys here",
+    "projectId": "YOUR_FIREBASE_PROJECT_ID",
+    "useEmulator": false,
+    "emulatorHost": "localhost",
+    "emulatorPort": 5001
+  }
+}

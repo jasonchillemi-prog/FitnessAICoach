@@ -16,6 +16,7 @@ import ErrorBoundary from './ErrorBoundary';
 function EditProfileScreenInner({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [firstName, setFirstName] = useState('');
   const [weight, setWeight] = useState('');
   const [heightFeet, setHeightFeet] = useState('');
   const [heightInches, setHeightInches] = useState('');
@@ -55,6 +56,7 @@ function EditProfileScreenInner({ navigation }) {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
+        setFirstName(data.firstName || '');
         setWeight(data.weight || '');
         setAge(data.age || '');
         setWorkoutsPerWeek(data.workoutsPerWeek || '');
@@ -125,6 +127,7 @@ function EditProfileScreenInner({ navigation }) {
     try {
       const user = auth.currentUser;
       await setDoc(doc(db, 'users', user.uid), {
+        firstName: firstName.trim(),
         weight,
         height: `${heightFeet}ft ${heightInches}in`,
         age,
@@ -163,6 +166,16 @@ function EditProfileScreenInner({ navigation }) {
         <Text style={styles.title}>Edit Profile</Text>
       </View>
 
+      <Text style={styles.label}>First Name</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g. Jason"
+        placeholderTextColor="#888888"
+        value={firstName}
+        onChangeText={setFirstName}
+        autoCapitalize="words"
+        returnKeyType="next"
+      />
       <Text style={styles.label}>Weight (lbs)</Text>
       <TextInput
         style={styles.input}

@@ -21,6 +21,7 @@ const TOTAL_STEPS = 9;
 function OnboardingScreenInner({ navigation }) {
   const [step, setStep] = useState(1);
   const [weight, setWeight] = useState('');
+    const [firstName, setFirstName] = useState('');
   const [heightFeet, setHeightFeet] = useState('');
   const [heightInches, setHeightInches] = useState('');
   const [age, setAge] = useState('');
@@ -100,6 +101,7 @@ function OnboardingScreenInner({ navigation }) {
   const validateStep = () => {
     switch (step) {
       case 1:
+        if (!firstName.trim()) { Alert.alert('Please enter your first name'); return false; }
         if (!weight || !heightFeet || !heightInches || !age) { Alert.alert('Please fill in all fields'); return false; }
         return true;
       case 2:
@@ -137,6 +139,7 @@ function OnboardingScreenInner({ navigation }) {
       const user = auth.currentUser;
       const userData = {
         weight, height: `${heightFeet}ft ${heightInches}in`, age, smoker, workoutsPerWeek,
+        firstName: firstName.trim(),
         goals, goalDescription, analyzedGoals,
         allergies: allergies.length > 0 ? allergies : ['None'],
         otherAllergy, workoutTimes, busyDays,
@@ -170,6 +173,16 @@ function OnboardingScreenInner({ navigation }) {
             <Text style={styles.stepLabel}>STEP 1 OF {TOTAL_STEPS}</Text>
             <Text style={styles.stepTitle}>Let's start with the basics</Text>
             <Text style={styles.stepSub}>Tell us about yourself so we can build your perfect plan</Text>
+            <Text style={styles.label}>FIRST NAME</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Jason"
+              placeholderTextColor="#4A5A6A"
+              value={firstName}
+              onChangeText={setFirstName}
+              autoCapitalize="words"
+              returnKeyType="next"
+            />
             <Text style={styles.label}>WEIGHT (LBS)</Text>
             <TextInput style={styles.input} placeholder="e.g. 185" placeholderTextColor="#4A5A6A" value={weight} onChangeText={setWeight} keyboardType="numeric" />
             <Text style={styles.label}>HEIGHT</Text>
@@ -315,11 +328,7 @@ function OnboardingScreenInner({ navigation }) {
                 </TouchableOpacity>
               </View>
             )}
-            {!analyzedGoals && !analyzingGoals && goalDescription.length > 20 && (
-              <TouchableOpacity style={styles.analyzeButton} onPress={analyzeGoals}>
-                <Text style={styles.analyzeButtonText}>🤖 Analyze My Goals</Text>
-              </TouchableOpacity>
-            )}
+
           </View>
         );
       case 6:
@@ -542,10 +551,10 @@ nextButtonText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
   calculatedAge: { fontSize: 13, color: '#00E5A0', marginTop: -10, marginBottom: 16 },
 });
 
-export default function OnboardingScreen() {
+export default function OnboardingScreen(props) {
   return (
     <ErrorBoundary screenName="OnboardingScreen">
-      <OnboardingScreenInner />
+      <OnboardingScreenInner {...props} />
     </ErrorBoundary>
   );
 }

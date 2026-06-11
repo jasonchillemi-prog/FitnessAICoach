@@ -344,9 +344,10 @@ function DashboardScreenInner({ navigation, route }) {
   };
 
   const getFirstName = () => {
-    const email = auth.currentUser?.email || '';
-    const name = email.split('@')[0].split('.')[0];
-    return name.charAt(0).toUpperCase() + name.slice(1);
+    if (userData?.firstName && userData.firstName.trim()) {
+      return userData.firstName.trim();
+    }
+    return '';
   };
 
   const toggleWorkout = async (index) => {
