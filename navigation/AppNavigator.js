@@ -19,6 +19,7 @@ import RecipeScreen from '../screens/RecipeScreen';
 import PaywallScreen from '../screens/PaywallScreen';
 import StoreScreen from '../screens/StoreScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -109,6 +110,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Recipe" component={RecipeScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

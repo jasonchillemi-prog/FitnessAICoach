@@ -92,6 +92,7 @@ function ProfileScreenInner({ navigation }) {
   }
 
   const getFirstName = () => {
+    if (userData?.firstName && userData.firstName.trim()) return userData.firstName.trim();
     const email = auth.currentUser?.email || '';
     return email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
   };
@@ -201,6 +202,13 @@ function ProfileScreenInner({ navigation }) {
           <View style={styles.settingLeft}>
             <Text style={styles.settingIcon}>📞</Text>
             <Text style={styles.settingText}>Contact Support</Text>
+          </View>
+          <Text style={styles.settingArrow}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('PrivacyPolicy')}>
+          <View style={styles.settingLeft}>
+            <Text style={styles.settingIcon}>🔒</Text>
+            <Text style={styles.settingText}>Privacy Policy</Text>
           </View>
           <Text style={styles.settingArrow}>›</Text>
         </TouchableOpacity>
