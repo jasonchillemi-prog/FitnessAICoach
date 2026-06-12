@@ -43,3 +43,4 @@ yarn-error.*
 functions/index.js
 jarvis/
 functions/index.js.bak
+*.bak
