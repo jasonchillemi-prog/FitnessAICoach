@@ -6,12 +6,16 @@ import NetInfo from '@react-native-community/netinfo';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Animated
+  Animated,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -102,18 +106,28 @@ const mealSectionStyles = StyleSheet.create({
   mealCalUnit: { fontSize: 11, color: '#4A5A6A' },
 });
 
-function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
+function GroceryListSection({ groceryList, groceryChecked, toggleGrocery, addGroceryItem }) {
   const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState({});
+  const [showAddInput, setShowAddInput] = useState(false);
+  const [newItemText, setNewItemText] = useState('');
   const fadeAnims = useRef({});
   const scheduledRef = useRef({});
   const timeoutRefs = useRef({});
 
-  // Reset when a new plan brings a new grocery list
+  const prevGroceryListRef = useRef([]);
+
+  // Reset only when a new plan replaces the list (not when items are appended)
   useEffect(() => {
-    setDismissed({});
-    scheduledRef.current = {};
-    fadeAnims.current = {};
+    const prev = prevGroceryListRef.current;
+    const isNewPlan = groceryList.length < prev.length ||
+      (prev.length > 0 && groceryList[0] !== prev[0]);
+    if (isNewPlan) {
+      setDismissed({});
+      scheduledRef.current = {};
+      fadeAnims.current = {};
+    }
+    prevGroceryListRef.current = groceryList;
   }, [groceryList]);
 
   // Schedule fade-out 1.5s after an item is checked; reset if unchecked
@@ -165,6 +179,7 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
         <View style={groceryStyles.list}>
           {groceryList.map((item, index) => {
             if (dismissed[index]) return null;
+            if (showAddInput && groceryChecked[index]) return null;
             if (!fadeAnims.current[index]) fadeAnims.current[index] = new Animated.Value(1);
             return (
               <Animated.View key={index} style={{ opacity: fadeAnims.current[index] }}>
@@ -177,6 +192,38 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery }) {
               </Animated.View>
             );
           })}
+          {expanded && (
+            <View style={groceryStyles.addRow}>
+              {showAddInput ? (
+                <View style={groceryStyles.addInputRow}>
+                  <TextInput
+                    style={groceryStyles.addInput}
+                    placeholder="e.g. 2 lbs chicken breast"
+                    placeholderTextColor="#4A5A6A"
+                    value={newItemText}
+                    onChangeText={setNewItemText}
+                    autoFocus
+                    returnKeyType="done"
+                    onSubmitEditing={() => {
+                      if (newItemText.trim()) { addGroceryItem(newItemText.trim()); setNewItemText(''); setShowAddInput(false); }
+                    }}
+                  />
+                  <TouchableOpacity onPress={() => {
+                    if (newItemText.trim()) { addGroceryItem(newItemText.trim()); setNewItemText(''); setShowAddInput(false); }
+                  }} style={groceryStyles.addConfirmBtn}>
+                    <Text style={groceryStyles.addConfirmText}>Add</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => { setShowAddInput(false); setNewItemText(''); }} style={groceryStyles.cancelBtn}>
+                    <Text style={groceryStyles.cancelText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={groceryStyles.addItemBtn} onPress={() => setShowAddInput(true)}>
+                  <Text style={groceryStyles.addItemText}>+ Add Item</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -193,7 +240,16 @@ const groceryStyles = StyleSheet.create({
   badge: { backgroundColor: 'rgba(0,229,160,0.12)', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2, borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)' },
   badgeText: { color: '#00E5A0', fontSize: 12, fontWeight: '600' },
   arrow: { color: '#00E5A0', fontSize: 12 },
-  list: { paddingHorizontal: 18, paddingBottom: 18, gap: 8 },
+  list: { paddingHorizontal: 18, paddingBottom: 4, gap: 8 },
+  addRow: { paddingHorizontal: 18, paddingBottom: 14, paddingTop: 4 },
+  addInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  addInput: { flex: 1, backgroundColor: '#1A2330', borderRadius: 8, padding: 10, color: '#F0F4F8', fontSize: 14, borderWidth: 1, borderColor: 'rgba(0,229,160,0.3)' },
+  addConfirmBtn: { backgroundColor: '#00E5A0', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 10 },
+  addConfirmText: { color: '#040A07', fontWeight: '700', fontSize: 14 },
+  cancelBtn: { padding: 10 },
+  cancelText: { color: '#8A9BB0', fontSize: 16 },
+  addItemBtn: { paddingVertical: 8 },
+  addItemText: { color: '#00E5A0', fontSize: 14, fontWeight: '600' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
   checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: '#00E5A0', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   checkboxDone: { backgroundColor: '#00E5A0' },
@@ -216,6 +272,7 @@ function DashboardScreenInner({ navigation, route }) {
   const [fromCache, setFromCache] = useState(false);
   const STEP_GOAL = 10000;
   const wasOfflineRef = useRef(false);
+  const scrollRef = useRef(null);
 
   const syncPendingWrites = async () => {
     const user = auth.currentUser;
@@ -375,6 +432,19 @@ function DashboardScreenInner({ navigation, route }) {
     }
   };
 
+  const addGroceryItem = async (item) => {
+    const newList = [...(plan.groceryList || []), item];
+    const newPlan = { ...plan, groceryList: newList };
+    setPlan(newPlan);
+    await savePlan(newPlan);
+    try {
+      const user = auth.currentUser;
+      await setDoc(doc(db, 'users', user.uid), { savedPlan: newPlan }, { merge: true });
+    } catch (error) {
+      console.log('Error saving grocery item:', error);
+    }
+  };
+
   const toggleGrocery = async (index) => {
     const newChecked = { ...groceryChecked, [index]: !groceryChecked[index] };
     setGroceryChecked(newChecked);
@@ -514,7 +584,8 @@ function DashboardScreenInner({ navigation, route }) {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <ScrollView ref={scrollRef} style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>{getGreeting()}, <Text style={styles.greetingName}>{getFirstName()}</Text></Text>
@@ -610,7 +681,7 @@ function DashboardScreenInner({ navigation, route }) {
 
           <MealsSection meals={getTodaysMeals()} todayName={todayName} navigation={navigation} />
 
-          <GroceryListSection groceryList={plan.groceryList} groceryChecked={groceryChecked} toggleGrocery={toggleGrocery} />
+          <GroceryListSection groceryList={plan.groceryList} groceryChecked={groceryChecked} toggleGrocery={toggleGrocery} addGroceryItem={addGroceryItem} scrollRef={scrollRef} />
 
           <View style={styles.actionsRow}>
             <TouchableOpacity
@@ -641,6 +712,7 @@ function DashboardScreenInner({ navigation, route }) {
         </>
       )}
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
