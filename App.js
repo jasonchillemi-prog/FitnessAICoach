@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppNavigator from './navigation/AppNavigator';
 
@@ -28,6 +29,11 @@ function AppInner() {
 }
 
 export default function App() {
+  useEffect(() => {
+    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+    Purchases.configure({ apiKey: 'appl_ykrBksacUShlXABXVBMTWCfKoFr' });
+  }, []);
+
   return (
     <SafeAreaProvider>
       <AppInner />
