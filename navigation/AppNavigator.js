@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { onAuthStateChanged } from 'firebase/auth';
+import Purchases from 'react-native-purchases';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import { loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
@@ -57,6 +58,12 @@ export default function AppNavigator() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        try {
+          await Purchases.logIn(currentUser.uid);
+        } catch (e) {
+          console.log('RevenueCat logIn error:', e);
+        }
+
         let profileFound = false;
 
         // Try Firestore first
@@ -77,6 +84,11 @@ export default function AppNavigator() {
         setHasProfile(profileFound);
         setUser(currentUser);
       } else {
+        try {
+          await Purchases.logOut();
+        } catch (e) {
+          console.log('RevenueCat logOut error:', e);
+        }
         setUser(null);
         setHasProfile(false);
       }
