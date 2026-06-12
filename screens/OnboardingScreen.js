@@ -263,21 +263,10 @@ function OnboardingScreenInner({ navigation }) {
             <Text style={styles.stepLabel}>STEP 3 OF {TOTAL_STEPS}</Text>
             <Text style={styles.stepTitle}>Do you smoke or use tobacco?</Text>
             <Text style={styles.stepSub}>This helps us calibrate your cardio capacity and recovery time</Text>
-            <View style={styles.smokerGrid}>
-              {[
-                { label: 'Never smoked', sub: 'Never used tobacco', icon: '🚭', value: 'never' },
-                { label: 'Former smoker', sub: 'Quit 6+ months ago', icon: '✅', value: 'former' },
-                { label: 'Occasional', sub: 'Social or light use', icon: '🔥', value: 'occasional' },
-                { label: 'Daily smoker', sub: 'Smoke regularly', icon: '🚬', value: 'daily' },
-                { label: 'Vaping / e-cig', sub: 'Regular vape use', icon: '💨', value: 'vape' },
-                { label: 'Prefer not to say', sub: '', icon: '🤐', value: 'prefer' },
-              ].map(opt => (
-                <TouchableOpacity key={opt.value} style={[styles.smokerOption, smoker === opt.value && styles.optionActive]} onPress={() => setSmoker(opt.value)}>
-                  <Text style={styles.smokerIcon}>{opt.icon}</Text>
-                  <View>
-                    <Text style={[styles.smokerLabel, smoker === opt.value && styles.optionActiveText]}>{opt.label}</Text>
-                    {opt.sub ? <Text style={styles.smokerSub}>{opt.sub}</Text> : null}
-                  </View>
+            <View style={styles.row}>
+              {[{ label: 'Yes', value: true }, { label: 'No', value: false }].map(opt => (
+                <TouchableOpacity key={String(opt.value)} style={[styles.workoutOption, { flex: 1, justifyContent: 'center' }, smoker === opt.value && styles.optionActive]} onPress={() => setSmoker(opt.value)}>
+                  <Text style={[styles.workoutOptionLabel, { fontSize: 16, fontWeight: '700' }, smoker === opt.value && styles.optionActiveText]}>{opt.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
