@@ -90,6 +90,10 @@ export default function PaywallScreen({ navigation }) {
   );
 
   return (
+    <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
+      <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.closeButtonText}>✕</Text>
+      </TouchableOpacity>
     <ScrollView
       style={{ flex: 1, backgroundColor: '#0a0a0a' }}
       contentContainerStyle={styles.container}
@@ -192,10 +196,26 @@ export default function PaywallScreen({ navigation }) {
         </TouchableOpacity>
       )}
     </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  closeButton: {
+    position: 'absolute',
+    top: 56,
+    right: 20,
+    zIndex: 10,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButtonText: {
+    color: '#aaaaaa',
+    fontSize: 20,
+    fontWeight: '600',
+  },
   centered: {
     flex: 1,
     backgroundColor: '#0a0a0a',

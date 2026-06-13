@@ -120,7 +120,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Main" component={MainTabs} />
         <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="Recipe" component={RecipeScreen} options={{ presentation: 'modal' }} />
-        <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'modal' }} />
+        <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       </Stack.Navigator>

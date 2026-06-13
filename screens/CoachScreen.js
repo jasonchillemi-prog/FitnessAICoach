@@ -31,12 +31,7 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 function CoachScreenInner() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: "Hey! 👋 I'm your KineticIQ AI coach. I know your full plan — goals, workouts, meals, and progress. Ask me anything or say 'update my plan' and I'll make changes for you!"
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [updatingPlan, setUpdatingPlan] = useState(false);
@@ -175,7 +170,7 @@ function CoachScreenInner() {
         </View>
       )}
 
-      {messages.length === 1 && !isOffline && (
+      {messages.length === 0 && !isOffline && (
         <View style={styles.suggestionsContainer}>
           <Text style={styles.suggestionsTitle}>QUICK QUESTIONS</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -194,6 +189,16 @@ function CoachScreenInner() {
         contentContainerStyle={styles.messagesContent}
         onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
       >
+        <View style={[styles.messageRow, styles.assistantRow]}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>K</Text>
+          </View>
+          <View style={[styles.bubble, styles.assistantBubble]}>
+            <Text style={[styles.bubbleText, styles.assistantText]}>
+              {"Hey! 👋 I'm your KineticIQ AI coach. I know your full plan — goals, workouts, meals, and progress. Ask me anything or say 'update my plan' and I'll make changes for you!"}
+            </Text>
+          </View>
+        </View>
         {messages.map((msg, index) => (
           <View key={index} style={[styles.messageRow, msg.role === 'user' ? styles.userRow : styles.assistantRow]}>
             {msg.role === 'assistant' && (
