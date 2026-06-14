@@ -17,7 +17,7 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import usePro from '../hooks/usePro';
 
 const isRateLimited = (e) =>
@@ -62,9 +62,11 @@ function CoachScreenInner() {
 
   useEffect(() => { planRef.current = plan; }, [plan]);
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUserData();
+    }, [])
+  );
 
   const loadUserData = async () => {
     try {
