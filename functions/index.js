@@ -169,7 +169,7 @@ exports.applyCoachSuggestion = onCall({ secrets: [ANTHROPIC_API_KEY] }, async (r
 
   const updateWorkout = wantsWorkout || (!wantsMeals && !wantsGrocery);
   const updateMeals = wantsMeals || (!wantsWorkout && !wantsGrocery);
-  const updateGrocery = wantsGrocery || wantsMeals;
+  const updateGrocery = true;
 
   const workoutSection = updateWorkout ? `"weeklyWorkouts": [{"day": "Monday", "workout": "description", "duration": "30 mins"}, ...all 7 days],` : '';
   const mealSection = updateMeals ? `"mondayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}], "tuesdayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}], "wednesdayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}], "thursdayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}], "fridayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}], "saturdayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}], "sundayMeals": [{"meal":"Lunch","time":"12:00 PM","food":"desc","calories":400},{"meal":"Snack","time":"3:00 PM","food":"desc","calories":200},{"meal":"Dinner","time":"6:00 PM","food":"desc","calories":600},{"meal":"Snack","time":"8:00 PM","food":"desc","calories":200}],` : '';
@@ -212,7 +212,6 @@ IMPORTANT:
 - Respect all user food preferences and restrictions across every meal and grocery item.
 - Budget-friendly meals only (under $5 per meal, common ingredients).
 - Grocery list MUST include specific quantities for every single item (e.g. "2 lbs chicken breast").
-- If updating the grocery list, KEEP all existing items and only ADD new items needed for the changes. Never remove existing items.
 - If updating meals, return ALL 7 days.
 - ONLY include the sections listed above — do not include other sections.
 
