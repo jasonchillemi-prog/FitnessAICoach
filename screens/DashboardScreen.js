@@ -107,7 +107,7 @@ const mealSectionStyles = StyleSheet.create({
   mealCalUnit: { fontSize: 11, color: '#4A5A6A' },
 });
 
-function GroceryListSection({ groceryList, groceryChecked, toggleGrocery, addGroceryItem }) {
+function GroceryListSection({ groceryList, groceryChecked, toggleGrocery, addGroceryItem, scrollRef }) {
   const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState({});
   const [showAddInput, setShowAddInput] = useState(false);
@@ -204,6 +204,7 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery, addGro
                     value={newItemText}
                     onChangeText={setNewItemText}
                     autoFocus
+                    onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150)}
                     returnKeyType="done"
                     onSubmitEditing={() => {
                       if (newItemText.trim()) { addGroceryItem(newItemText.trim()); setNewItemText(''); setShowAddInput(false); }
