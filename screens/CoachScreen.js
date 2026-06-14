@@ -17,6 +17,8 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
+import { useNavigation } from '@react-navigation/native';
+import usePro from '../hooks/usePro';
 
 const isRateLimited = (e) =>
   e?.code === 'functions/resource-exhausted' ||
@@ -31,6 +33,15 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 function CoachScreenInner() {
+  const navigation = useNavigation();
+  const { isPro, loading: proLoading } = usePro();
+
+  useEffect(() => {
+    if (!proLoading && !isPro) {
+      navigation.replace('Paywall');
+    }
+  }, [isPro, proLoading]);
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
