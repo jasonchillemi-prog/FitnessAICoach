@@ -434,7 +434,8 @@ function DashboardScreenInner({ navigation, route }) {
     }
   };
 
-  const addGroceryItem = async (item) => {
+  const addGroceryItem = useCallback(async (item) => {
+    if (!isPro) { navigation.navigate('Paywall'); return; }
     const newList = [...(plan.groceryList || []), item];
     const newPlan = { ...plan, groceryList: newList };
     setPlan(newPlan);
@@ -445,9 +446,10 @@ function DashboardScreenInner({ navigation, route }) {
     } catch (error) {
       console.log('Error saving grocery item:', error);
     }
-  };
+  }, [plan, isPro]);
 
-  const toggleGrocery = async (index) => {
+  const toggleGrocery = useCallback(async (index) => {
+    if (!isPro) { navigation.navigate('Paywall'); return; }
     const newChecked = { ...groceryChecked, [index]: !groceryChecked[index] };
     setGroceryChecked(newChecked);
     await savePendingGrocery(newChecked);
@@ -459,7 +461,7 @@ function DashboardScreenInner({ navigation, route }) {
     } catch (error) {
       console.log('Error saving grocery:', error);
     }
-  };
+  }, [groceryChecked, isOffline, isPro]);
 
   const getWorkoutsCompleted = () => Object.values(completedWorkouts).filter(Boolean).length;
 
