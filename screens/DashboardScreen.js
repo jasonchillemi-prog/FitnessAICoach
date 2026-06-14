@@ -439,7 +439,8 @@ function DashboardScreenInner({ navigation, route }) {
     if (!isPro) { navigation.navigate('Paywall'); return; }
     if (!plan) return;
     const newList = [...(plan.groceryList || []), item];
-    const newPlan = { ...plan, groceryList: newList };
+    const newUserItems = [...(plan.userGroceryItems || []), item];
+    const newPlan = { ...plan, groceryList: newList, userGroceryItems: newUserItems };
     setPlan(newPlan);
     await savePlan(newPlan);
     try {
@@ -544,7 +545,7 @@ function DashboardScreenInner({ navigation, route }) {
       const generatePlanFn = httpsCallable(functions, 'generatePlan');
       const result = await generatePlanFn({ userData, busyDays });
       const parsed = result.data;
-      setPlan(parsed);
+      setPlan({ ...parsed, userGroceryItems: [] });
       setCompletedWorkouts({});
       setGroceryChecked({});
       const user = auth.currentUser;
