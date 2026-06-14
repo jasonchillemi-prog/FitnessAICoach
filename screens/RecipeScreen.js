@@ -8,6 +8,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
+import usePro from '../hooks/usePro';
 
 const isRateLimited = (e) =>
   e?.code === 'functions/resource-exhausted' ||
@@ -15,6 +16,14 @@ const isRateLimited = (e) =>
   /resource|limit/i.test(e?.message);
 
 function RecipeScreenInner({ route, navigation }) {
+  const { isPro, loading: proLoading } = usePro();
+
+  useEffect(() => {
+    if (!proLoading && !isPro) {
+      navigation.replace('Paywall');
+    }
+  }, [isPro, proLoading]);
+
   const meal = route?.params?.meal || null;
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
