@@ -89,36 +89,38 @@ function CoachScreenInner() {
     }
   };
 
-  const applyToPlan = async (suggestion, currentPlan, currentMessages) => {
+  const applyToPlan = async (suggestion, currentMessages) => {
     if (!suggestion || !userData) return;
     if (isOffline) {
       Alert.alert('You\'re offline', 'Applying plan changes requires an internet connection.');
       return;
     }
     setUpdatingPlan(true);
-    // Show applying toast in chat
     const applyingMsg = { role: 'assistant', content: '⏳ Applying your plan update...' };
     const messagesWithApplying = [...currentMessages, applyingMsg];
     setMessages(messagesWithApplying);
     try {
-      const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
-      const result = await applyFn({ suggestion, userData, currentPlan });
-      const parsed = result.data;
       const user = auth.currentUser;
-      const mergedPlan = { ...currentPlan, ...parsed };
-      if (parsed.groceryList && currentPlan.userGroceryItems?.length) {
+      const docSnap = await getDoc(doc(db, 'users', user.uid));
+      const freshPlan = docSnap.exists() ? docSnap.data().savedPlan : planRef.current;
+      const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
+      const result = await applyFn({ suggestion, userData, currentPlan: freshPlan });
+      const parsed = result.data;
+      const mergedPlan = { ...freshPlan, ...parsed };
+      if (parsed.groceryList) {
+        const userItems = freshPlan.userGroceryItems || [];
         const existingItems = new Set(parsed.groceryList.map(i => i.toLowerCase().trim()));
-        const userAddedItems = currentPlan.userGroceryItems.filter(i => !existingItems.has(i.toLowerCase().trim()));
+        const userAddedItems = userItems.filter(i => !existingItems.has(i.toLowerCase().trim()));
         const combined = [...parsed.groceryList, ...userAddedItems];
         mergedPlan.groceryList = combined.filter((item, index) =>
           combined.findIndex(i => i.toLowerCase().trim() === item.toLowerCase().trim()) === index
         );
-        mergedPlan.userGroceryItems = currentPlan.userGroceryItems;
+        mergedPlan.userGroceryItems = userItems;
       }
       await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
       await savePlan(mergedPlan);
       setPlan(mergedPlan);
-      // Replace applying message with success message
+      planRef.current = mergedPlan;
       const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated. Check your Dashboard to see the changes!' };
       setMessages(prev => [...prev.slice(0, -1), successMsg]);
     } catch (error) {
@@ -160,7 +162,7 @@ function CoachScreenInner() {
       // Auto-apply if suggestion detected
       if (suggestionMatch) {
         setTimeout(() => {
-          applyToPlan(suggestionMatch[1], planRef.current, messagesWithReply);
+          applyToPlan(suggestionMatch[1], messagesWithReply);
         }, 800);
       }
     } catch (error) {
