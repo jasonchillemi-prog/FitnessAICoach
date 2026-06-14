@@ -48,6 +48,7 @@ function CoachScreenInner() {
   const [updatingPlan, setUpdatingPlan] = useState(false);
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
+  const planRef = useRef(null);
   const [isOffline, setIsOffline] = useState(false);
   const scrollRef = useRef(null);
 
@@ -58,6 +59,8 @@ function CoachScreenInner() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => { planRef.current = plan; }, [plan]);
 
   useEffect(() => {
     loadUserData();
@@ -151,7 +154,7 @@ function CoachScreenInner() {
       // Auto-apply if suggestion detected
       if (suggestionMatch) {
         setTimeout(() => {
-          applyToPlan(suggestionMatch[1], plan, messagesWithReply);
+          applyToPlan(suggestionMatch[1], planRef.current, messagesWithReply);
         }, 800);
       }
     } catch (error) {
