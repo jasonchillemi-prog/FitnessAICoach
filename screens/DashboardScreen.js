@@ -441,6 +441,7 @@ function DashboardScreenInner({ navigation, route }) {
   const addGroceryItem = useCallback(async (item) => {
     if (!isPro) { navigation.navigate('Paywall'); return; }
     const currentPlan = planRef.current;
+    if (!currentPlan) { console.log('addGroceryItem: planRef.current is null'); return; }
     const newList = [...(currentPlan.groceryList || []), item];
     const newPlan = { ...currentPlan, groceryList: newList };
     setPlan(newPlan);
@@ -596,7 +597,7 @@ function DashboardScreenInner({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-    <ScrollView ref={scrollRef} style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView ref={scrollRef} style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps='handled'>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>{getGreeting()}, <Text style={styles.greetingName}>{getFirstName()}</Text></Text>
