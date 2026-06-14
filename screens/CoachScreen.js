@@ -17,7 +17,7 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import usePro from '../hooks/usePro';
 
 const isRateLimited = (e) =>
@@ -48,7 +48,6 @@ function CoachScreenInner() {
   const [updatingPlan, setUpdatingPlan] = useState(false);
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
-  const planRef = useRef(null);
   const [isOffline, setIsOffline] = useState(false);
   const scrollRef = useRef(null);
 
@@ -60,13 +59,9 @@ function CoachScreenInner() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => { planRef.current = plan; }, [plan]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      loadUserData();
-    }, [])
-  );
+  useEffect(() => {
+    loadUserData();
+  }, []);
 
   const loadUserData = async () => {
     try {
@@ -89,38 +84,27 @@ function CoachScreenInner() {
     }
   };
 
-  const applyToPlan = async (suggestion, currentMessages) => {
+  const applyToPlan = async (suggestion, currentPlan, currentMessages) => {
     if (!suggestion || !userData) return;
     if (isOffline) {
       Alert.alert('You\'re offline', 'Applying plan changes requires an internet connection.');
       return;
     }
     setUpdatingPlan(true);
+    // Show applying toast in chat
     const applyingMsg = { role: 'assistant', content: '⏳ Applying your plan update...' };
     const messagesWithApplying = [...currentMessages, applyingMsg];
     setMessages(messagesWithApplying);
     try {
-      const user = auth.currentUser;
-      const docSnap = await getDoc(doc(db, 'users', user.uid));
-      const freshPlan = docSnap.exists() ? docSnap.data().savedPlan : planRef.current;
       const applyFn = httpsCallable(functions, 'applyCoachSuggestion');
-      const result = await applyFn({ suggestion, userData, currentPlan: freshPlan });
+      const result = await applyFn({ suggestion, userData, currentPlan });
       const parsed = result.data;
-      const mergedPlan = { ...freshPlan, ...parsed };
-      if (parsed.groceryList) {
-        const userItems = freshPlan.userGroceryItems || [];
-        const existingItems = new Set(parsed.groceryList.map(i => i.toLowerCase().trim()));
-        const userAddedItems = userItems.filter(i => !existingItems.has(i.toLowerCase().trim()));
-        const combined = [...parsed.groceryList, ...userAddedItems];
-        mergedPlan.groceryList = combined.filter((item, index) =>
-          combined.findIndex(i => i.toLowerCase().trim() === item.toLowerCase().trim()) === index
-        );
-        mergedPlan.userGroceryItems = userItems;
-      }
+      const user = auth.currentUser;
+      const mergedPlan = { ...currentPlan, ...parsed };
       await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
       await savePlan(mergedPlan);
       setPlan(mergedPlan);
-      planRef.current = mergedPlan;
+      // Replace applying message with success message
       const successMsg = { role: 'assistant', content: '✅ Done! Your plan has been updated. Check your Dashboard to see the changes!' };
       setMessages(prev => [...prev.slice(0, -1), successMsg]);
     } catch (error) {
@@ -162,7 +146,7 @@ function CoachScreenInner() {
       // Auto-apply if suggestion detected
       if (suggestionMatch) {
         setTimeout(() => {
-          applyToPlan(suggestionMatch[1], messagesWithReply);
+          applyToPlan(suggestionMatch[1], plan, messagesWithReply);
         }, 800);
       }
     } catch (error) {
