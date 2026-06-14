@@ -6,6 +6,7 @@ import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import ErrorBoundary from './ErrorBoundary';
 import { saveUserData, loadUserData as loadCachedUserData } from '../src/utils/offlineCache';
+import usePro from '../hooks/usePro';
 
 const isRateLimited = (e) =>
   e?.code === 'functions/resource-exhausted' ||
@@ -13,6 +14,14 @@ const isRateLimited = (e) =>
   /resource|limit/i.test(e?.message);
 
 function WorkoutDetailScreenInner({ route, navigation }) {
+  const { isPro, loading: proLoading } = usePro();
+
+  useEffect(() => {
+    if (!proLoading && !isPro) {
+      navigation.replace('Paywall');
+    }
+  }, [isPro, proLoading]);
+
   const workout = route?.params?.workout || null;
   const [detailedPlan, setDetailedPlan] = useState(null);
   const [loading, setLoading] = useState(true);
