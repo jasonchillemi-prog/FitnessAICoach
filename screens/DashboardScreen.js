@@ -22,6 +22,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData, savePendingWorkouts, loadPendingWorkouts, clearPendingWorkouts, savePendingGrocery, loadPendingGrocery, clearPendingGrocery } from '../src/utils/offlineCache';
+import usePro from '../hooks/usePro';
 
 const isRateLimited = (e) =>
   e?.code === 'functions/resource-exhausted' ||
@@ -259,6 +260,7 @@ const groceryStyles = StyleSheet.create({
 });
 
 function DashboardScreenInner({ navigation, route }) {
+  const { isPro } = usePro();
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -478,6 +480,7 @@ function DashboardScreenInner({ navigation, route }) {
   };
 
   const analyzeAndAdaptPlan = async () => {
+    if (!isPro) { navigation.navigate('Paywall'); return; }
     if (!plan) return;
     if (isOffline) {
       Alert.alert('You\'re offline', 'Plan analysis requires an internet connection.');
@@ -526,6 +529,7 @@ function DashboardScreenInner({ navigation, route }) {
   };
 
   const generatePlan = async () => {
+    if (!isPro) { navigation.navigate('Paywall'); return; }
     if (isOffline) {
       Alert.alert('You\'re offline', 'Generating a new plan requires an internet connection.');
       return;

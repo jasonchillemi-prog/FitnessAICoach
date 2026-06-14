@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import Purchases from 'react-native-purchases';
 
+const BETA_OVERRIDE_PRO = true; // TODO: flip to false before App Store launch
+
 export default function usePro() {
-  const [isPro, setIsPro] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isPro, setIsPro] = useState(BETA_OVERRIDE_PRO || false);
+  const [loading, setLoading] = useState(!BETA_OVERRIDE_PRO);
 
   useEffect(() => {
-    checkProStatus();
+    if (!BETA_OVERRIDE_PRO) {
+      checkProStatus();
+    }
   }, []);
 
   async function checkProStatus() {
@@ -21,5 +25,5 @@ export default function usePro() {
     }
   }
 
-  return { isPro, loading, refreshPro: checkProStatus };
+  return { isPro, loading, refreshPro: BETA_OVERRIDE_PRO ? () => {} : checkProStatus };
 }
