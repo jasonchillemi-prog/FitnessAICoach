@@ -101,6 +101,11 @@ function CoachScreenInner() {
       const parsed = result.data;
       const user = auth.currentUser;
       const mergedPlan = { ...currentPlan, ...parsed };
+      if (parsed.groceryList && currentPlan.groceryList) {
+        const existingItems = new Set(parsed.groceryList.map(i => i.toLowerCase().trim()));
+        const userAddedItems = currentPlan.groceryList.filter(i => !existingItems.has(i.toLowerCase().trim()));
+        mergedPlan.groceryList = [...parsed.groceryList, ...userAddedItems];
+      }
       await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
       await savePlan(mergedPlan);
       setPlan(mergedPlan);
