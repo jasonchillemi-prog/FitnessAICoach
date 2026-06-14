@@ -264,6 +264,7 @@ function DashboardScreenInner({ navigation, route }) {
   const { isPro } = usePro();
   const [userData, setUserData] = useState(null);
   const [plan, setPlan] = useState(null);
+  const planRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [generatingPlan, setGeneratingPlan] = useState(false);
   const [completedWorkouts, setCompletedWorkouts] = useState({});
@@ -352,6 +353,8 @@ function DashboardScreenInner({ navigation, route }) {
     }
   }, [route?.params?.planGenerated]);
   
+  useEffect(() => { planRef.current = plan; }, [plan]);
+
   const loadUserData = async () => {
   try {
     const user = auth.currentUser;
@@ -437,8 +440,9 @@ function DashboardScreenInner({ navigation, route }) {
 
   const addGroceryItem = useCallback(async (item) => {
     if (!isPro) { navigation.navigate('Paywall'); return; }
-    const newList = [...(plan.groceryList || []), item];
-    const newPlan = { ...plan, groceryList: newList };
+    const currentPlan = planRef.current;
+    const newList = [...(currentPlan.groceryList || []), item];
+    const newPlan = { ...currentPlan, groceryList: newList };
     setPlan(newPlan);
     await savePlan(newPlan);
     try {
@@ -447,7 +451,7 @@ function DashboardScreenInner({ navigation, route }) {
     } catch (error) {
       console.log('Error saving grocery item:', error);
     }
-  }, [plan, isPro]);
+  }, [isPro]);
 
   const toggleGrocery = useCallback(async (index) => {
     if (!isPro) { navigation.navigate('Paywall'); return; }
