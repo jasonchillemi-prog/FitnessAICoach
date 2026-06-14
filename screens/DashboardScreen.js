@@ -437,6 +437,8 @@ function DashboardScreenInner({ navigation, route }) {
 
   const addGroceryItem = async (item) => {
     if (!isPro) { navigation.navigate('Paywall'); return; }
+    console.log('addGroceryItem called with:', item);
+    console.log('plan is:', plan ? 'loaded' : 'null');
     if (!plan) return;
     const newList = [...(plan.groceryList || []), item];
     const newPlan = { ...plan, groceryList: newList };
