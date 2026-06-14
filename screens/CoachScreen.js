@@ -109,7 +109,10 @@ function CoachScreenInner() {
       if (parsed.groceryList && currentPlan.groceryList) {
         const existingItems = new Set(parsed.groceryList.map(i => i.toLowerCase().trim()));
         const userAddedItems = currentPlan.groceryList.filter(i => !existingItems.has(i.toLowerCase().trim()));
-        mergedPlan.groceryList = [...parsed.groceryList, ...userAddedItems];
+        const combined = [...parsed.groceryList, ...userAddedItems];
+        mergedPlan.groceryList = combined.filter((item, index) =>
+          combined.findIndex(i => i.toLowerCase().trim() === item.toLowerCase().trim()) === index
+        );
       }
       await setDoc(doc(db, 'users', user.uid), { savedPlan: mergedPlan }, { merge: true });
       await savePlan(mergedPlan);
