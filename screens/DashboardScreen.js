@@ -362,7 +362,7 @@ function DashboardScreenInner({ navigation, route }) {
         const data = docSnap.data();
         setUserData(data);
         setPlan(data.savedPlan || null);
-        if (data.groceryChecked) setGroceryChecked(data.groceryChecked);
+        if (data.groceryChecked && Object.keys(groceryChecked).length === 0) setGroceryChecked(data.groceryChecked);
         if (data.completedWorkouts) {
           const weekKey = getWeekKey();
           setCompletedWorkouts(data.completedWorkouts[weekKey] || {});
@@ -380,7 +380,7 @@ function DashboardScreenInner({ navigation, route }) {
       if (cachedUserData) {
         setUserData(cachedUserData);
         if (cachedPlan) setPlan(cachedPlan);
-        if (cachedUserData.groceryChecked) setGroceryChecked(cachedUserData.groceryChecked);
+        if (cachedUserData.groceryChecked && Object.keys(groceryChecked).length === 0) setGroceryChecked(cachedUserData.groceryChecked);
         if (cachedUserData.completedWorkouts) {
           const weekKey = getWeekKey();
           setCompletedWorkouts(cachedUserData.completedWorkouts[weekKey] || {});
@@ -394,7 +394,7 @@ function DashboardScreenInner({ navigation, route }) {
         setCompletedWorkouts(pendingWorkouts.data);
       }
       const pendingGrocery = await loadPendingGrocery();
-      if (pendingGrocery) setGroceryChecked(pendingGrocery);
+      if (pendingGrocery && Object.keys(groceryChecked).length === 0) setGroceryChecked(pendingGrocery);
       setLoading(false);
     }
   };
