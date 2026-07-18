@@ -1,0 +1,2707 @@
+[
+  {
+    "id": "grilled-chicken-quinoa-avocado-bowl",
+    "name": "Grilled Chicken & Quinoa Avocado Bowl",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 520,
+    "macros": {
+      "protein_g": 45,
+      "carbs_g": 38,
+      "fat_g": 20,
+      "fiber_g": 8
+    },
+    "ingredients": [
+      {
+        "name": "Chicken breast, boneless skinless",
+        "canonical_name": "chicken_breast",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Quinoa, cooked",
+        "canonical_name": "quinoa_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Avocado",
+        "canonical_name": "avocado",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Baby spinach",
+        "canonical_name": "spinach",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Lemon juice",
+        "canonical_name": "lemon_juice",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Season and grill chicken breast until internal temp reaches 165\u00b0F.",
+      "Slice chicken and serve over cooked quinoa and spinach.",
+      "Top with sliced avocado, olive oil, and a squeeze of lemon."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "greek-yogurt-protein-parfait",
+    "name": "Greek Yogurt Protein Parfait",
+    "meal_type": [
+      "breakfast",
+      "snack"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "vegetarian",
+      "gluten_free"
+    ],
+    "calories": 380,
+    "macros": {
+      "protein_g": 32,
+      "carbs_g": 42,
+      "fat_g": 9,
+      "fiber_g": 5
+    },
+    "ingredients": [
+      {
+        "name": "Plain Greek yogurt, nonfat",
+        "canonical_name": "greek_yogurt",
+        "amount": 1,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Mixed berries",
+        "canonical_name": "mixed_berries",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Gluten-free granola",
+        "canonical_name": "granola_gf",
+        "amount": 0.33,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Honey",
+        "canonical_name": "honey",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "prep_time_minutes": 5,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Layer Greek yogurt, berries, and granola in a bowl or jar.",
+      "Drizzle with honey before serving."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "turkey-sweet-potato-skillet",
+    "name": "Turkey & Sweet Potato Skillet",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 38,
+      "carbs_g": 35,
+      "fat_g": 18,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Ground turkey, 93% lean",
+        "canonical_name": "ground_turkey",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Sweet potato, diced",
+        "canonical_name": "sweet_potato",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Red bell pepper",
+        "canonical_name": "bell_pepper_red",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Yellow onion",
+        "canonical_name": "onion_yellow",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Smoked paprika",
+        "canonical_name": "smoked_paprika",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "spices"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Brown ground turkey in a skillet over medium heat.",
+      "Add diced sweet potato, bell pepper, and onion; cook covered until tender, about 15 minutes.",
+      "Season with smoked paprika, salt, and pepper."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "baked-salmon-with-asparagus",
+    "name": "Baked Salmon with Asparagus",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "gluten_free",
+      "dairy_free",
+      "low_carb"
+    ],
+    "calories": 480,
+    "macros": {
+      "protein_g": 42,
+      "carbs_g": 8,
+      "fat_g": 30,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Salmon fillet",
+        "canonical_name": "salmon_fillet",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Asparagus spears",
+        "canonical_name": "asparagus",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1.5,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Lemon",
+        "canonical_name": "lemon",
+        "amount": 0.5,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "fish"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Preheat oven to 400\u00b0F.",
+      "Toss asparagus in olive oil and garlic, arrange on a sheet pan with salmon.",
+      "Bake 15-18 minutes until salmon flakes easily. Finish with fresh lemon juice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "egg-white-veggie-scramble",
+    "name": "Egg White Veggie Scramble",
+    "meal_type": [
+      "breakfast"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "vegetarian",
+      "gluten_free",
+      "low_carb"
+    ],
+    "calories": 320,
+    "macros": {
+      "protein_g": 34,
+      "carbs_g": 12,
+      "fat_g": 14,
+      "fiber_g": 3
+    },
+    "ingredients": [
+      {
+        "name": "Egg whites",
+        "canonical_name": "egg_whites",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "protein"
+      },
+      {
+        "name": "Baby spinach",
+        "canonical_name": "spinach",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Mushrooms, sliced",
+        "canonical_name": "mushrooms",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Cherry tomatoes",
+        "canonical_name": "cherry_tomatoes",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Feta cheese, crumbled",
+        "canonical_name": "feta_cheese",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "dairy"
+      }
+    ],
+    "allergens": [
+      "egg",
+      "dairy"
+    ],
+    "prep_time_minutes": 15,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Saut\u00e9 mushrooms, spinach, and tomatoes in a nonstick pan until softened.",
+      "Add egg whites and scramble until fully cooked.",
+      "Top with crumbled feta."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "protein-power-smoothie-bowl",
+    "name": "Protein Power Smoothie Bowl",
+    "meal_type": [
+      "breakfast",
+      "snack"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "vegetarian",
+      "gluten_free"
+    ],
+    "calories": 410,
+    "macros": {
+      "protein_g": 35,
+      "carbs_g": 44,
+      "fat_g": 11,
+      "fiber_g": 7
+    },
+    "ingredients": [
+      {
+        "name": "Whey protein powder, vanilla",
+        "canonical_name": "whey_protein_powder",
+        "amount": 1,
+        "unit": "scoop",
+        "category": "protein"
+      },
+      {
+        "name": "Banana",
+        "canonical_name": "banana",
+        "amount": 1,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Unsweetened almond milk",
+        "canonical_name": "almond_milk",
+        "amount": 1,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Chia seeds",
+        "canonical_name": "chia_seeds",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Gluten-free granola",
+        "canonical_name": "granola_gf",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "grains"
+      }
+    ],
+    "allergens": [
+      "dairy",
+      "tree_nut"
+    ],
+    "prep_time_minutes": 8,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Blend protein powder, banana, and almond milk until smooth.",
+      "Pour into a bowl and top with chia seeds and granola."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "lean-beef-broccoli-stir-fry",
+    "name": "Lean Beef & Broccoli Stir Fry",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 500,
+    "macros": {
+      "protein_g": 40,
+      "carbs_g": 30,
+      "fat_g": 22,
+      "fiber_g": 5
+    },
+    "ingredients": [
+      {
+        "name": "Flank steak, sliced thin",
+        "canonical_name": "flank_steak",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Broccoli florets",
+        "canonical_name": "broccoli",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Fresh ginger, minced",
+        "canonical_name": "ginger",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "produce"
+      },
+      {
+        "name": "Tamari (gluten-free soy sauce)",
+        "canonical_name": "tamari",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      },
+      {
+        "name": "Sesame oil",
+        "canonical_name": "sesame_oil",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Brown rice, cooked",
+        "canonical_name": "brown_rice_cooked",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "grains"
+      }
+    ],
+    "allergens": [
+      "soy",
+      "sesame"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Sear sliced flank steak in a hot pan or wok until browned.",
+      "Add broccoli, garlic, and ginger; stir-fry 4-5 minutes.",
+      "Stir in tamari and sesame oil, serve over brown rice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "cottage-cheese-pineapple-bowl",
+    "name": "Cottage Cheese & Pineapple Bowl",
+    "meal_type": [
+      "breakfast",
+      "snack"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "vegetarian",
+      "gluten_free"
+    ],
+    "calories": 300,
+    "macros": {
+      "protein_g": 28,
+      "carbs_g": 30,
+      "fat_g": 7,
+      "fiber_g": 2
+    },
+    "ingredients": [
+      {
+        "name": "Cottage cheese, low-fat",
+        "canonical_name": "cottage_cheese",
+        "amount": 1,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Pineapple chunks",
+        "canonical_name": "pineapple",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Almonds, sliced",
+        "canonical_name": "almonds",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Honey",
+        "canonical_name": "honey",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "dairy",
+      "tree_nut"
+    ],
+    "prep_time_minutes": 5,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Combine cottage cheese and pineapple in a bowl.",
+      "Top with sliced almonds and a drizzle of honey."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "shrimp-zucchini-noodles",
+    "name": "Shrimp & Zucchini Noodles",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "gluten_free",
+      "low_carb"
+    ],
+    "calories": 380,
+    "macros": {
+      "protein_g": 36,
+      "carbs_g": 14,
+      "fat_g": 20,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Shrimp, peeled and deveined",
+        "canonical_name": "shrimp",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Zucchini, spiralized",
+        "canonical_name": "zucchini",
+        "amount": 2,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Cherry tomatoes",
+        "canonical_name": "cherry_tomatoes",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1.5,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Parmesan cheese, grated",
+        "canonical_name": "parmesan_cheese",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "dairy"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "shellfish",
+      "dairy"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Saut\u00e9 shrimp and garlic in olive oil until shrimp turns pink.",
+      "Add zucchini noodles and cherry tomatoes, toss 2-3 minutes.",
+      "Finish with grated parmesan."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "chicken-breast-black-bean-bowl",
+    "name": "Chicken Breast & Black Bean Bowl",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "high_protein",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 490,
+    "macros": {
+      "protein_g": 44,
+      "carbs_g": 45,
+      "fat_g": 12,
+      "fiber_g": 11
+    },
+    "ingredients": [
+      {
+        "name": "Chicken breast, boneless skinless",
+        "canonical_name": "chicken_breast",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Black beans, cooked",
+        "canonical_name": "black_beans",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Corn kernels",
+        "canonical_name": "corn",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Lime",
+        "canonical_name": "lime",
+        "amount": 0.5,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Fresh cilantro",
+        "canonical_name": "cilantro",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "produce"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Grill or pan-sear chicken breast, then slice.",
+      "Combine black beans and corn in a bowl, top with chicken.",
+      "Finish with lime juice and chopped cilantro."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "zucchini-lasagna",
+    "name": "Zucchini Lasagna",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 34,
+      "carbs_g": 16,
+      "fat_g": 28,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Zucchini, sliced thin",
+        "canonical_name": "zucchini",
+        "amount": 2,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Ground beef, 90% lean",
+        "canonical_name": "ground_beef",
+        "amount": 5,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Marinara sauce",
+        "canonical_name": "marinara_sauce",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Part-skim mozzarella, shredded",
+        "canonical_name": "mozzarella_cheese",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Ricotta cheese",
+        "canonical_name": "ricotta_cheese",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "dairy"
+      }
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "prep_time_minutes": 40,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Layer sliced zucchini, browned ground beef, marinara, ricotta, and mozzarella in a baking dish.",
+      "Bake at 375\u00b0F for 30 minutes until bubbly and golden."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "cauliflower-fried-rice-with-chicken",
+    "name": "Cauliflower Fried Rice with Chicken",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 420,
+    "macros": {
+      "protein_g": 38,
+      "carbs_g": 20,
+      "fat_g": 18,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Chicken breast, diced",
+        "canonical_name": "chicken_breast",
+        "amount": 5,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Cauliflower rice",
+        "canonical_name": "cauliflower_rice",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Egg",
+        "canonical_name": "egg",
+        "amount": 1,
+        "unit": "unit",
+        "category": "protein"
+      },
+      {
+        "name": "Frozen peas and carrots",
+        "canonical_name": "peas_carrots",
+        "amount": 0.33,
+        "unit": "cup",
+        "category": "frozen"
+      },
+      {
+        "name": "Tamari (gluten-free soy sauce)",
+        "canonical_name": "tamari",
+        "amount": 1.5,
+        "unit": "tbsp",
+        "category": "condiments"
+      },
+      {
+        "name": "Sesame oil",
+        "canonical_name": "sesame_oil",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "egg",
+      "soy",
+      "sesame"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Saut\u00e9 diced chicken until cooked through, push to one side of the pan.",
+      "Scramble egg on the other side, then mix in cauliflower rice and vegetables.",
+      "Stir in tamari and sesame oil."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "bunless-turkey-burger-with-side-salad",
+    "name": "Bunless Turkey Burger with Side Salad",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 440,
+    "macros": {
+      "protein_g": 36,
+      "carbs_g": 14,
+      "fat_g": 26,
+      "fiber_g": 5
+    },
+    "ingredients": [
+      {
+        "name": "Ground turkey, 93% lean",
+        "canonical_name": "ground_turkey",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Romaine lettuce leaves",
+        "canonical_name": "romaine_lettuce",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Tomato, sliced",
+        "canonical_name": "tomato",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Avocado",
+        "canonical_name": "avocado",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Mixed greens",
+        "canonical_name": "mixed_greens",
+        "amount": 2,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil vinaigrette",
+        "canonical_name": "olive_oil_vinaigrette",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Form ground turkey into a patty and grill or pan-sear until cooked through.",
+      "Wrap in romaine leaves with tomato and avocado.",
+      "Serve with a side of mixed greens and vinaigrette."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "baked-cod-with-garlic-butter-green-beans",
+    "name": "Baked Cod with Garlic Butter & Green Beans",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free"
+    ],
+    "calories": 380,
+    "macros": {
+      "protein_g": 36,
+      "carbs_g": 10,
+      "fat_g": 20,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Cod fillet",
+        "canonical_name": "cod_fillet",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Green beans, trimmed",
+        "canonical_name": "green_beans",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Butter",
+        "canonical_name": "butter",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "dairy"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Lemon",
+        "canonical_name": "lemon",
+        "amount": 0.5,
+        "unit": "unit",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "fish",
+      "dairy"
+    ],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Preheat oven to 400\u00b0F. Place cod and green beans on a sheet pan.",
+      "Melt butter with garlic and drizzle over cod and beans.",
+      "Bake 15-18 minutes, finish with fresh lemon juice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "keto-chicken-caesar-salad",
+    "name": "Keto Chicken Caesar Salad",
+    "meal_type": [
+      "lunch"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 38,
+      "carbs_g": 8,
+      "fat_g": 30,
+      "fiber_g": 3
+    },
+    "ingredients": [
+      {
+        "name": "Chicken breast, grilled and sliced",
+        "canonical_name": "chicken_breast",
+        "amount": 5,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Romaine lettuce, chopped",
+        "canonical_name": "romaine_lettuce",
+        "amount": 3,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Parmesan cheese, shaved",
+        "canonical_name": "parmesan_cheese",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "dairy"
+      },
+      {
+        "name": "Caesar dressing (no croutons)",
+        "canonical_name": "caesar_dressing",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [
+      "dairy",
+      "egg"
+    ],
+    "prep_time_minutes": 15,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Toss chopped romaine with Caesar dressing.",
+      "Top with sliced grilled chicken and shaved parmesan."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "steak-roasted-brussels-sprouts",
+    "name": "Steak & Roasted Brussels Sprouts",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 520,
+    "macros": {
+      "protein_g": 40,
+      "carbs_g": 14,
+      "fat_g": 34,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Sirloin steak",
+        "canonical_name": "sirloin_steak",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Brussels sprouts, halved",
+        "canonical_name": "brussels_sprouts",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1.5,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 30,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Toss Brussels sprouts in olive oil and garlic, roast at 425\u00b0F for 20 minutes.",
+      "Season and pan-sear steak to desired doneness.",
+      "Rest steak 5 minutes before slicing and serving."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "egg-avocado-breakfast-bowl",
+    "name": "Egg & Avocado Breakfast Bowl",
+    "meal_type": [
+      "breakfast"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 380,
+    "macros": {
+      "protein_g": 22,
+      "carbs_g": 14,
+      "fat_g": 26,
+      "fiber_g": 8
+    },
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "canonical_name": "egg",
+        "amount": 3,
+        "unit": "unit",
+        "category": "protein"
+      },
+      {
+        "name": "Avocado",
+        "canonical_name": "avocado",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Salsa",
+        "canonical_name": "salsa",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "condiments"
+      },
+      {
+        "name": "Baby spinach",
+        "canonical_name": "spinach",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "egg"
+    ],
+    "prep_time_minutes": 12,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Scramble or fry eggs to preference.",
+      "Serve over a bed of spinach with sliced avocado and salsa."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "pork-tenderloin-with-sauteed-spinach",
+    "name": "Pork Tenderloin with Sauteed Spinach",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "low_carb",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 420,
+    "macros": {
+      "protein_g": 42,
+      "carbs_g": 6,
+      "fat_g": 24,
+      "fiber_g": 3
+    },
+    "ingredients": [
+      {
+        "name": "Pork tenderloin",
+        "canonical_name": "pork_tenderloin",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Baby spinach",
+        "canonical_name": "spinach",
+        "amount": 2,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1.5,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Season pork tenderloin and roast at 400\u00b0F for 20-25 minutes until 145\u00b0F internal.",
+      "Saut\u00e9 spinach and garlic in olive oil until wilted.",
+      "Slice pork and serve over spinach."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "grilled-chicken-with-brown-rice-broccoli",
+    "name": "Grilled Chicken with Brown Rice & Broccoli",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 540,
+    "macros": {
+      "protein_g": 42,
+      "carbs_g": 52,
+      "fat_g": 16,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Chicken breast, boneless skinless",
+        "canonical_name": "chicken_breast",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Brown rice, cooked",
+        "canonical_name": "brown_rice_cooked",
+        "amount": 1,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Broccoli florets",
+        "canonical_name": "broccoli",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Grill chicken breast until cooked through.",
+      "Steam broccoli until tender-crisp.",
+      "Serve chicken over brown rice with broccoli, drizzled with olive oil."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "turkey-chili-with-kidney-beans",
+    "name": "Turkey Chili with Kidney Beans",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 36,
+      "carbs_g": 44,
+      "fat_g": 14,
+      "fiber_g": 12
+    },
+    "ingredients": [
+      {
+        "name": "Ground turkey, 93% lean",
+        "canonical_name": "ground_turkey",
+        "amount": 5,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Kidney beans, cooked",
+        "canonical_name": "kidney_beans",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Diced tomatoes",
+        "canonical_name": "diced_tomatoes",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Yellow onion",
+        "canonical_name": "onion_yellow",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Red bell pepper",
+        "canonical_name": "bell_pepper_red",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Chili powder",
+        "canonical_name": "chili_powder",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "spices"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 35,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Brown ground turkey with onion and bell pepper.",
+      "Add beans, diced tomatoes, and chili powder.",
+      "Simmer 20 minutes, stirring occasionally."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "baked-tilapia-with-quinoa-asparagus",
+    "name": "Baked Tilapia with Quinoa & Asparagus",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 38,
+      "carbs_g": 38,
+      "fat_g": 16,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Tilapia fillet",
+        "canonical_name": "tilapia_fillet",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Quinoa, cooked",
+        "canonical_name": "quinoa_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Asparagus spears",
+        "canonical_name": "asparagus",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Lemon",
+        "canonical_name": "lemon",
+        "amount": 0.5,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "fish"
+    ],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Bake tilapia at 400\u00b0F for 12-15 minutes with lemon.",
+      "Roast asparagus with olive oil alongside.",
+      "Serve over cooked quinoa."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "whole-wheat-pasta-with-turkey-meatballs",
+    "name": "Whole Wheat Pasta with Turkey Meatballs",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced"
+    ],
+    "calories": 560,
+    "macros": {
+      "protein_g": 38,
+      "carbs_g": 60,
+      "fat_g": 16,
+      "fiber_g": 7
+    },
+    "ingredients": [
+      {
+        "name": "Whole wheat pasta, cooked",
+        "canonical_name": "whole_wheat_pasta_cooked",
+        "amount": 1.25,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Ground turkey, 93% lean",
+        "canonical_name": "ground_turkey",
+        "amount": 5,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Marinara sauce",
+        "canonical_name": "marinara_sauce",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Parmesan cheese, grated",
+        "canonical_name": "parmesan_cheese",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "dairy"
+      }
+    ],
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "prep_time_minutes": 30,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Form turkey into meatballs and bake at 400\u00b0F for 18-20 minutes.",
+      "Toss cooked pasta with marinara and meatballs.",
+      "Top with grated parmesan."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "chicken-fajita-bowl",
+    "name": "Chicken Fajita Bowl",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 500,
+    "macros": {
+      "protein_g": 40,
+      "carbs_g": 46,
+      "fat_g": 15,
+      "fiber_g": 8
+    },
+    "ingredients": [
+      {
+        "name": "Chicken breast, sliced",
+        "canonical_name": "chicken_breast",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Red bell pepper",
+        "canonical_name": "bell_pepper_red",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Yellow onion",
+        "canonical_name": "onion_yellow",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Brown rice, cooked",
+        "canonical_name": "brown_rice_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Salsa",
+        "canonical_name": "salsa",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 22,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Saut\u00e9 sliced chicken, bell pepper, and onion with fajita seasoning.",
+      "Serve over brown rice topped with salsa."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "salmon-teriyaki-with-rice-snap-peas",
+    "name": "Salmon Teriyaki with Rice & Snap Peas",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 560,
+    "macros": {
+      "protein_g": 40,
+      "carbs_g": 48,
+      "fat_g": 22,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Salmon fillet",
+        "canonical_name": "salmon_fillet",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Jasmine rice, cooked",
+        "canonical_name": "jasmine_rice_cooked",
+        "amount": 1,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Snap peas",
+        "canonical_name": "snap_peas",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Tamari-based teriyaki sauce",
+        "canonical_name": "teriyaki_sauce",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [
+      "fish",
+      "soy"
+    ],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Bake or pan-sear salmon, brushing with teriyaki sauce.",
+      "Steam snap peas until tender-crisp.",
+      "Serve salmon over jasmine rice with snap peas."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "beef-vegetable-stir-fry-with-rice",
+    "name": "Beef & Vegetable Stir Fry with Rice",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "balanced",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 540,
+    "macros": {
+      "protein_g": 38,
+      "carbs_g": 50,
+      "fat_g": 20,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Flank steak, sliced thin",
+        "canonical_name": "flank_steak",
+        "amount": 5,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Mixed stir-fry vegetables",
+        "canonical_name": "mixed_stirfry_vegetables",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Brown rice, cooked",
+        "canonical_name": "brown_rice_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Tamari (gluten-free soy sauce)",
+        "canonical_name": "tamari",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Sear flank steak in a hot wok, remove and set aside.",
+      "Stir-fry mixed vegetables until tender-crisp.",
+      "Return steak to the pan, toss with tamari, and serve over brown rice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "caprese-quinoa-salad",
+    "name": "Caprese Quinoa Salad",
+    "meal_type": [
+      "lunch"
+    ],
+    "diet_tags": [
+      "vegetarian",
+      "gluten_free",
+      "balanced"
+    ],
+    "calories": 420,
+    "macros": {
+      "protein_g": 18,
+      "carbs_g": 42,
+      "fat_g": 20,
+      "fiber_g": 6
+    },
+    "ingredients": [
+      {
+        "name": "Quinoa, cooked",
+        "canonical_name": "quinoa_cooked",
+        "amount": 1,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Fresh mozzarella, cubed",
+        "canonical_name": "mozzarella_fresh",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Cherry tomatoes, halved",
+        "canonical_name": "cherry_tomatoes",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Fresh basil",
+        "canonical_name": "basil",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Balsamic glaze",
+        "canonical_name": "balsamic_glaze",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "prep_time_minutes": 15,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Combine cooked quinoa, mozzarella, tomatoes, and basil in a bowl.",
+      "Drizzle with balsamic glaze before serving."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "veggie-omelet-with-whole-grain-toast",
+    "name": "Veggie Omelet with Whole Grain Toast",
+    "meal_type": [
+      "breakfast"
+    ],
+    "diet_tags": [
+      "vegetarian",
+      "balanced"
+    ],
+    "calories": 420,
+    "macros": {
+      "protein_g": 26,
+      "carbs_g": 32,
+      "fat_g": 20,
+      "fiber_g": 5
+    },
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "canonical_name": "egg",
+        "amount": 3,
+        "unit": "unit",
+        "category": "protein"
+      },
+      {
+        "name": "Red bell pepper",
+        "canonical_name": "bell_pepper_red",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Yellow onion",
+        "canonical_name": "onion_yellow",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Cheddar cheese, shredded",
+        "canonical_name": "cheddar_cheese",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Whole grain bread",
+        "canonical_name": "whole_grain_bread",
+        "amount": 1,
+        "unit": "slice",
+        "category": "grains"
+      }
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "gluten"
+    ],
+    "prep_time_minutes": 15,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Whisk eggs and pour into a heated nonstick pan.",
+      "Add bell pepper, onion, and cheddar; fold omelet once set.",
+      "Serve with a slice of toasted whole grain bread."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "black-bean-sweet-potato-tacos",
+    "name": "Black Bean & Sweet Potato Tacos",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegetarian",
+      "vegan",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 16,
+      "carbs_g": 78,
+      "fat_g": 10,
+      "fiber_g": 16
+    },
+    "ingredients": [
+      {
+        "name": "Black beans, cooked",
+        "canonical_name": "black_beans",
+        "amount": 1,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Sweet potato, roasted and diced",
+        "canonical_name": "sweet_potato",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Corn tortillas",
+        "canonical_name": "corn_tortillas",
+        "amount": 3,
+        "unit": "unit",
+        "category": "grains"
+      },
+      {
+        "name": "Avocado",
+        "canonical_name": "avocado",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Lime",
+        "canonical_name": "lime",
+        "amount": 0.5,
+        "unit": "unit",
+        "category": "produce"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 30,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Roast diced sweet potato at 425\u00b0F for 20 minutes.",
+      "Warm black beans and tortillas.",
+      "Assemble tacos with sweet potato, black beans, avocado, and lime juice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "margherita-flatbread",
+    "name": "Margherita Flatbread",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegetarian"
+    ],
+    "calories": 480,
+    "macros": {
+      "protein_g": 20,
+      "carbs_g": 54,
+      "fat_g": 20,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Flatbread",
+        "canonical_name": "flatbread",
+        "amount": 1,
+        "unit": "unit",
+        "category": "grains"
+      },
+      {
+        "name": "Fresh mozzarella, sliced",
+        "canonical_name": "mozzarella_fresh",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Tomato, sliced",
+        "canonical_name": "tomato",
+        "amount": 1,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Fresh basil",
+        "canonical_name": "basil",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "prep_time_minutes": 15,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Top flatbread with mozzarella and tomato slices.",
+      "Bake at 425\u00b0F for 10-12 minutes until cheese melts.",
+      "Finish with fresh basil and a drizzle of olive oil."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "lentil-vegetable-curry-with-rice",
+    "name": "Lentil & Vegetable Curry with Rice",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegetarian",
+      "vegan",
+      "gluten_free",
+      "dairy_free",
+      "balanced"
+    ],
+    "calories": 500,
+    "macros": {
+      "protein_g": 20,
+      "carbs_g": 78,
+      "fat_g": 12,
+      "fiber_g": 14
+    },
+    "ingredients": [
+      {
+        "name": "Red lentils, cooked",
+        "canonical_name": "red_lentils",
+        "amount": 1,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Light coconut milk",
+        "canonical_name": "coconut_milk",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Mixed vegetables (carrot, cauliflower, peas)",
+        "canonical_name": "mixed_curry_vegetables",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Curry powder",
+        "canonical_name": "curry_powder",
+        "amount": 1.5,
+        "unit": "tsp",
+        "category": "spices"
+      },
+      {
+        "name": "Jasmine rice, cooked",
+        "canonical_name": "jasmine_rice_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      }
+    ],
+    "allergens": [
+      "tree_nut"
+    ],
+    "prep_time_minutes": 30,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Simmer lentils, coconut milk, and curry powder together.",
+      "Add mixed vegetables and cook until tender, about 15 minutes.",
+      "Serve over jasmine rice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "spinach-feta-stuffed-portobello",
+    "name": "Spinach & Feta Stuffed Portobello",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegetarian",
+      "gluten_free",
+      "low_carb"
+    ],
+    "calories": 320,
+    "macros": {
+      "protein_g": 16,
+      "carbs_g": 16,
+      "fat_g": 22,
+      "fiber_g": 5
+    },
+    "ingredients": [
+      {
+        "name": "Portobello mushroom caps",
+        "canonical_name": "portobello_mushroom",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Baby spinach, chopped",
+        "canonical_name": "spinach",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Feta cheese, crumbled",
+        "canonical_name": "feta_cheese",
+        "amount": 0.33,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 1,
+        "unit": "unit",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Saut\u00e9 spinach and garlic in olive oil until wilted.",
+      "Stuff mushroom caps with spinach mixture and top with feta.",
+      "Bake at 400\u00b0F for 15-18 minutes."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "broccoli-cheddar-baked-potato",
+    "name": "Broccoli Cheddar Baked Potato",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegetarian",
+      "gluten_free",
+      "balanced"
+    ],
+    "calories": 440,
+    "macros": {
+      "protein_g": 18,
+      "carbs_g": 66,
+      "fat_g": 12,
+      "fiber_g": 9
+    },
+    "ingredients": [
+      {
+        "name": "Russet potato, baked",
+        "canonical_name": "russet_potato",
+        "amount": 1,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Broccoli florets, steamed",
+        "canonical_name": "broccoli",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Cheddar cheese, shredded",
+        "canonical_name": "cheddar_cheese",
+        "amount": 0.33,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Plain Greek yogurt, nonfat",
+        "canonical_name": "greek_yogurt",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "dairy"
+      }
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "prep_time_minutes": 45,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Bake potato at 400\u00b0F for 45-50 minutes until tender.",
+      "Split potato and top with steamed broccoli, cheddar, and Greek yogurt."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "chickpea-vegetable-buddha-bowl",
+    "name": "Chickpea & Vegetable Buddha Bowl",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegan",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 480,
+    "macros": {
+      "protein_g": 18,
+      "carbs_g": 62,
+      "fat_g": 18,
+      "fiber_g": 14
+    },
+    "ingredients": [
+      {
+        "name": "Chickpeas, cooked",
+        "canonical_name": "chickpeas",
+        "amount": 1,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Quinoa, cooked",
+        "canonical_name": "quinoa_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Kale, chopped",
+        "canonical_name": "kale",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Avocado",
+        "canonical_name": "avocado",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Tahini dressing",
+        "canonical_name": "tahini_dressing",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [
+      "sesame"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Roast chickpeas at 400\u00b0F for 20 minutes until crisp.",
+      "Assemble quinoa, kale, chickpeas, and avocado in a bowl.",
+      "Drizzle with tahini dressing."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "vegan-lentil-bolognese-with-zucchini-noodles",
+    "name": "Vegan Lentil Bolognese with Zucchini Noodles",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegan",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free",
+      "low_carb"
+    ],
+    "calories": 380,
+    "macros": {
+      "protein_g": 22,
+      "carbs_g": 46,
+      "fat_g": 10,
+      "fiber_g": 13
+    },
+    "ingredients": [
+      {
+        "name": "Brown lentils, cooked",
+        "canonical_name": "brown_lentils",
+        "amount": 1,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Zucchini, spiralized",
+        "canonical_name": "zucchini",
+        "amount": 2,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Marinara sauce",
+        "canonical_name": "marinara_sauce",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Nutritional yeast",
+        "canonical_name": "nutritional_yeast",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 25,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Simmer cooked lentils with marinara sauce for 10 minutes.",
+      "Lightly saut\u00e9 zucchini noodles until just tender.",
+      "Top noodles with lentil bolognese and nutritional yeast."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "tofu-stir-fry-with-brown-rice",
+    "name": "Tofu Stir Fry with Brown Rice",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegan",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 460,
+    "macros": {
+      "protein_g": 24,
+      "carbs_g": 52,
+      "fat_g": 16,
+      "fiber_g": 7
+    },
+    "ingredients": [
+      {
+        "name": "Firm tofu, cubed",
+        "canonical_name": "tofu",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Mixed stir-fry vegetables",
+        "canonical_name": "mixed_stirfry_vegetables",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Brown rice, cooked",
+        "canonical_name": "brown_rice_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Tamari (gluten-free soy sauce)",
+        "canonical_name": "tamari",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      },
+      {
+        "name": "Fresh ginger, minced",
+        "canonical_name": "ginger",
+        "amount": 1,
+        "unit": "tsp",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Pan-sear cubed tofu until golden on all sides.",
+      "Add vegetables and ginger, stir-fry until tender-crisp.",
+      "Toss with tamari and serve over brown rice."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "black-bean-quinoa-stuffed-peppers",
+    "name": "Black Bean & Quinoa Stuffed Peppers",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegan",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free",
+      "balanced"
+    ],
+    "calories": 420,
+    "macros": {
+      "protein_g": 18,
+      "carbs_g": 66,
+      "fat_g": 9,
+      "fiber_g": 14
+    },
+    "ingredients": [
+      {
+        "name": "Bell peppers, halved",
+        "canonical_name": "bell_pepper_mixed",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Black beans, cooked",
+        "canonical_name": "black_beans",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "pantry"
+      },
+      {
+        "name": "Quinoa, cooked",
+        "canonical_name": "quinoa_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Corn kernels",
+        "canonical_name": "corn",
+        "amount": 0.33,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Salsa",
+        "canonical_name": "salsa",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [],
+    "prep_time_minutes": 35,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Mix black beans, quinoa, corn, and salsa in a bowl.",
+      "Stuff bell pepper halves with the mixture.",
+      "Bake at 375\u00b0F for 25 minutes."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "overnight-chia-pudding-with-berries",
+    "name": "Overnight Chia Pudding with Berries",
+    "meal_type": [
+      "breakfast",
+      "snack"
+    ],
+    "diet_tags": [
+      "vegan",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free"
+    ],
+    "calories": 320,
+    "macros": {
+      "protein_g": 10,
+      "carbs_g": 36,
+      "fat_g": 15,
+      "fiber_g": 12
+    },
+    "ingredients": [
+      {
+        "name": "Chia seeds",
+        "canonical_name": "chia_seeds",
+        "amount": 3,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Unsweetened almond milk",
+        "canonical_name": "almond_milk",
+        "amount": 1,
+        "unit": "cup",
+        "category": "dairy"
+      },
+      {
+        "name": "Maple syrup",
+        "canonical_name": "maple_syrup",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Mixed berries",
+        "canonical_name": "mixed_berries",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "produce"
+      }
+    ],
+    "allergens": [
+      "tree_nut"
+    ],
+    "prep_time_minutes": 5,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Whisk chia seeds, almond milk, and maple syrup together.",
+      "Refrigerate overnight until thickened.",
+      "Top with mixed berries before serving."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "vegan-protein-power-bowl",
+    "name": "Vegan Protein Power Bowl",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "vegan",
+      "vegetarian",
+      "gluten_free",
+      "dairy_free",
+      "high_protein"
+    ],
+    "calories": 480,
+    "macros": {
+      "protein_g": 26,
+      "carbs_g": 48,
+      "fat_g": 20,
+      "fiber_g": 12
+    },
+    "ingredients": [
+      {
+        "name": "Shelled edamame",
+        "canonical_name": "edamame",
+        "amount": 1,
+        "unit": "cup",
+        "category": "protein"
+      },
+      {
+        "name": "Quinoa, cooked",
+        "canonical_name": "quinoa_cooked",
+        "amount": 0.75,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Kale, chopped",
+        "canonical_name": "kale",
+        "amount": 1,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Avocado",
+        "canonical_name": "avocado",
+        "amount": 0.33,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Hemp seeds",
+        "canonical_name": "hemp_seeds",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      },
+      {
+        "name": "Lemon tahini dressing",
+        "canonical_name": "lemon_tahini_dressing",
+        "amount": 2,
+        "unit": "tbsp",
+        "category": "condiments"
+      }
+    ],
+    "allergens": [
+      "soy",
+      "sesame"
+    ],
+    "prep_time_minutes": 15,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Steam edamame and let cool slightly.",
+      "Combine quinoa, kale, edamame, and avocado in a bowl.",
+      "Top with hemp seeds and lemon tahini dressing."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "gluten-free-turkey-meatballs-with-zucchini-noodles",
+    "name": "Gluten-Free Turkey Meatballs with Zucchini Noodles",
+    "meal_type": [
+      "dinner"
+    ],
+    "diet_tags": [
+      "gluten_free",
+      "dairy_free",
+      "low_carb"
+    ],
+    "calories": 400,
+    "macros": {
+      "protein_g": 34,
+      "carbs_g": 20,
+      "fat_g": 20,
+      "fiber_g": 4
+    },
+    "ingredients": [
+      {
+        "name": "Ground turkey, 93% lean",
+        "canonical_name": "ground_turkey",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Gluten-free breadcrumbs",
+        "canonical_name": "breadcrumbs_gf",
+        "amount": 0.25,
+        "unit": "cup",
+        "category": "grains"
+      },
+      {
+        "name": "Egg",
+        "canonical_name": "egg",
+        "amount": 1,
+        "unit": "unit",
+        "category": "protein"
+      },
+      {
+        "name": "Zucchini, spiralized",
+        "canonical_name": "zucchini",
+        "amount": 2,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Marinara sauce",
+        "canonical_name": "marinara_sauce",
+        "amount": 0.5,
+        "unit": "cup",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "egg"
+    ],
+    "prep_time_minutes": 30,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Mix ground turkey, gluten-free breadcrumbs, and egg; form into meatballs.",
+      "Bake at 400\u00b0F for 18-20 minutes.",
+      "Serve over zucchini noodles with marinara sauce."
+    ],
+    "image_url": null
+  },
+  {
+    "id": "grilled-shrimp-skewers-with-cauliflower-rice",
+    "name": "Grilled Shrimp Skewers with Cauliflower Rice",
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "diet_tags": [
+      "gluten_free",
+      "dairy_free",
+      "low_carb",
+      "high_protein"
+    ],
+    "calories": 360,
+    "macros": {
+      "protein_g": 34,
+      "carbs_g": 16,
+      "fat_g": 16,
+      "fiber_g": 5
+    },
+    "ingredients": [
+      {
+        "name": "Shrimp, peeled and deveined",
+        "canonical_name": "shrimp",
+        "amount": 6,
+        "unit": "oz",
+        "category": "protein"
+      },
+      {
+        "name": "Cauliflower rice",
+        "canonical_name": "cauliflower_rice",
+        "amount": 1.5,
+        "unit": "cup",
+        "category": "produce"
+      },
+      {
+        "name": "Lemon",
+        "canonical_name": "lemon",
+        "amount": 0.5,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Garlic cloves",
+        "canonical_name": "garlic",
+        "amount": 2,
+        "unit": "unit",
+        "category": "produce"
+      },
+      {
+        "name": "Olive oil",
+        "canonical_name": "olive_oil",
+        "amount": 1,
+        "unit": "tbsp",
+        "category": "pantry"
+      }
+    ],
+    "allergens": [
+      "shellfish"
+    ],
+    "prep_time_minutes": 20,
+    "servings": 1,
+    "active": true,
+    "instructions": [
+      "Marinate shrimp in olive oil, garlic, and lemon; skewer and grill 2-3 minutes per side.",
+      "Saut\u00e9 cauliflower rice until tender.",
+      "Serve shrimp skewers over cauliflower rice."
+    ],
+    "image_url": null
+  }
+]

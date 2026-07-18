@@ -24,6 +24,7 @@ function OnboardingScreenInner({ navigation }) {
     const [firstName, setFirstName] = useState('');
   const [heightFeet, setHeightFeet] = useState('');
   const [heightInches, setHeightInches] = useState('');
+  const [biologicalSex, setBiologicalSex] = useState(null);
   const [age, setAge] = useState('');
   const [birthday, setBirthday] = useState('');
   const [workoutsPerWeek, setWorkoutsPerWeek] = useState('');
@@ -155,6 +156,7 @@ function OnboardingScreenInner({ navigation }) {
       const user = auth.currentUser;
       const userData = {
         weight, height: `${heightFeet}ft ${heightInches}in`, age, smoker, workoutsPerWeek,
+        biologicalSex,
         firstName: firstName.trim(),
         goals, goalDescription, analyzedGoals,
         allergies: allergies.length > 0 ? allergies : ['None'],
@@ -205,6 +207,23 @@ function OnboardingScreenInner({ navigation }) {
             <View style={styles.row}>
               <TextInput style={[styles.input, styles.halfInput]} placeholder="Feet" placeholderTextColor="#4A5A6A" value={heightFeet} onChangeText={setHeightFeet} keyboardType="numeric" />
               <TextInput style={[styles.input, styles.halfInput]} placeholder="Inches" placeholderTextColor="#4A5A6A" value={heightInches} onChangeText={setHeightInches} keyboardType="numeric" />
+            </View>
+            <Text style={styles.label}>BIOLOGICAL SEX</Text>
+            <Text style={styles.helperText}>We use this only to calculate your calorie and macro targets accurately.</Text>
+            <View style={styles.sexRow}>
+              {[
+                { label: 'Male', value: 'male' },
+                { label: 'Female', value: 'female' },
+                { label: 'Prefer not to say', value: 'prefer_not_to_say' },
+              ].map(opt => (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[styles.sexOption, biologicalSex === opt.value && styles.optionActive]}
+                  onPress={() => setBiologicalSex(opt.value)}
+                >
+                  <Text style={[styles.sexOptionText, biologicalSex === opt.value && styles.optionActiveText]}>{opt.label}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
             <Text style={styles.label}>DATE OF BIRTH</Text>
             <TextInput
@@ -494,6 +513,10 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#111820', borderRadius: 10, padding: 14, color: '#F0F4F8', fontSize: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', marginBottom: 16 },
   row: { flexDirection: 'row', gap: 12 },
   halfInput: { flex: 1 },
+  helperText: { fontSize: 12, color: '#8A9BB0', lineHeight: 16, marginTop: -4, marginBottom: 12 },
+  sexRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  sexOption: { flex: 1, backgroundColor: '#111820', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' },
+  sexOptionText: { fontSize: 13, fontWeight: '600', color: '#8A9BB0', textAlign: 'center' },
   workoutGrid: { gap: 10 },
   workoutOption: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#111820', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', gap: 14 },
   workoutOptionValue: { fontSize: 22, fontWeight: '800', color: '#F0F4F8', width: 36, textAlign: 'center' },

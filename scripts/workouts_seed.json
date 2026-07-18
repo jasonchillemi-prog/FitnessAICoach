@@ -1,0 +1,793 @@
+[
+  {
+    "id": "beginner-dumbbell-full-body",
+    "name": "Beginner Dumbbell Full Body",
+    "type": "strength",
+    "difficulty": "beginner",
+    "duration_minutes": 40,
+    "exercises": [
+      {
+        "name": "Goblet Squat",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Dumbbell Bench Press",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Bent-Over Dumbbell Row",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Dumbbell Shoulder Press",
+        "sets": 3,
+        "reps": 10,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Plank",
+        "sets": 3,
+        "reps": "30 sec hold",
+        "rest_seconds": 45,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "dumbbells",
+      "bench"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "full-body-strength-foundations",
+    "name": "Full Body Strength Foundations",
+    "type": "strength",
+    "difficulty": "beginner",
+    "duration_minutes": 45,
+    "exercises": [
+      {
+        "name": "Bodyweight Squat",
+        "sets": 3,
+        "reps": 15,
+        "rest_seconds": 45,
+        "notes": ""
+      },
+      {
+        "name": "Push-Up (knee or standard)",
+        "sets": 3,
+        "reps": 10,
+        "rest_seconds": 45,
+        "notes": ""
+      },
+      {
+        "name": "Dumbbell Deadlift",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Seated Row (band or machine)",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Glute Bridge",
+        "sets": 3,
+        "reps": 15,
+        "rest_seconds": 45,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "dumbbells",
+      "resistance_band"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "upper-body-push-day",
+    "name": "Upper Body Push Day",
+    "type": "strength",
+    "difficulty": "intermediate",
+    "duration_minutes": 50,
+    "exercises": [
+      {
+        "name": "Barbell Bench Press",
+        "sets": 4,
+        "reps": 8,
+        "rest_seconds": 90,
+        "notes": ""
+      },
+      {
+        "name": "Overhead Dumbbell Press",
+        "sets": 3,
+        "reps": 10,
+        "rest_seconds": 75,
+        "notes": ""
+      },
+      {
+        "name": "Incline Dumbbell Press",
+        "sets": 3,
+        "reps": 10,
+        "rest_seconds": 75,
+        "notes": ""
+      },
+      {
+        "name": "Triceps Dips",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Lateral Raise",
+        "sets": 3,
+        "reps": 15,
+        "rest_seconds": 45,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "barbell",
+      "dumbbells",
+      "bench",
+      "dip_station"
+    ],
+    "target_muscle_groups": [
+      "chest",
+      "shoulders",
+      "triceps"
+    ],
+    "active": true
+  },
+  {
+    "id": "lower-body-power",
+    "name": "Lower Body Power",
+    "type": "strength",
+    "difficulty": "intermediate",
+    "duration_minutes": 50,
+    "exercises": [
+      {
+        "name": "Barbell Back Squat",
+        "sets": 4,
+        "reps": 8,
+        "rest_seconds": 90,
+        "notes": ""
+      },
+      {
+        "name": "Romanian Deadlift",
+        "sets": 4,
+        "reps": 10,
+        "rest_seconds": 90,
+        "notes": ""
+      },
+      {
+        "name": "Walking Lunge",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 60,
+        "notes": ""
+      },
+      {
+        "name": "Leg Press",
+        "sets": 3,
+        "reps": 12,
+        "rest_seconds": 75,
+        "notes": ""
+      },
+      {
+        "name": "Standing Calf Raise",
+        "sets": 3,
+        "reps": 15,
+        "rest_seconds": 45,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "barbell",
+      "leg_press_machine"
+    ],
+    "target_muscle_groups": [
+      "quads",
+      "hamstrings",
+      "glutes",
+      "calves"
+    ],
+    "active": true
+  },
+  {
+    "id": "advanced-pull-day",
+    "name": "Advanced Pull Day",
+    "type": "strength",
+    "difficulty": "advanced",
+    "duration_minutes": 55,
+    "exercises": [
+      {
+        "name": "Weighted Pull-Up",
+        "sets": 4,
+        "reps": 6,
+        "rest_seconds": 90,
+        "notes": ""
+      },
+      {
+        "name": "Barbell Deadlift",
+        "sets": 4,
+        "reps": 5,
+        "rest_seconds": 120,
+        "notes": ""
+      },
+      {
+        "name": "Bent-Over Barbell Row",
+        "sets": 4,
+        "reps": 8,
+        "rest_seconds": 90,
+        "notes": ""
+      },
+      {
+        "name": "Face Pull",
+        "sets": 3,
+        "reps": 15,
+        "rest_seconds": 45,
+        "notes": ""
+      },
+      {
+        "name": "Barbell Curl",
+        "sets": 3,
+        "reps": 10,
+        "rest_seconds": 60,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "barbell",
+      "pull_up_bar",
+      "cable_machine"
+    ],
+    "target_muscle_groups": [
+      "back",
+      "hamstrings",
+      "biceps"
+    ],
+    "active": true
+  },
+  {
+    "id": "brisk-walk-cardio",
+    "name": "Brisk Walk Cardio",
+    "type": "cardio",
+    "difficulty": "beginner",
+    "duration_minutes": 30,
+    "exercises": [
+      {
+        "name": "Brisk Walk",
+        "sets": 1,
+        "reps": "30 min steady pace",
+        "rest_seconds": 0,
+        "notes": "Maintain a pace where conversation is possible but slightly breathless."
+      }
+    ],
+    "equipment": [
+      "none"
+    ],
+    "target_muscle_groups": [
+      "cardiovascular"
+    ],
+    "active": true
+  },
+  {
+    "id": "steady-state-treadmill-run",
+    "name": "Steady State Treadmill Run",
+    "type": "cardio",
+    "difficulty": "beginner",
+    "duration_minutes": 30,
+    "exercises": [
+      {
+        "name": "Treadmill Jog",
+        "sets": 1,
+        "reps": "25 min at conversational pace",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Cool-down Walk",
+        "sets": 1,
+        "reps": "5 min",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "treadmill"
+    ],
+    "target_muscle_groups": [
+      "cardiovascular"
+    ],
+    "active": true
+  },
+  {
+    "id": "30-minute-cycling-endurance",
+    "name": "30-Minute Cycling Endurance",
+    "type": "cardio",
+    "difficulty": "intermediate",
+    "duration_minutes": 30,
+    "exercises": [
+      {
+        "name": "Steady Cycling",
+        "sets": 1,
+        "reps": "25 min moderate resistance",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Cool-down Spin",
+        "sets": 1,
+        "reps": "5 min easy pace",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "stationary_bike"
+    ],
+    "target_muscle_groups": [
+      "cardiovascular",
+      "quads"
+    ],
+    "active": true
+  },
+  {
+    "id": "stair-climber-intervals",
+    "name": "Stair Climber Intervals",
+    "type": "cardio",
+    "difficulty": "advanced",
+    "duration_minutes": 35,
+    "exercises": [
+      {
+        "name": "Stair Climber Fast Pace",
+        "sets": 6,
+        "reps": "2 min",
+        "rest_seconds": 60,
+        "notes": "Alternate 2 minutes fast with 1 minute recovery pace."
+      },
+      {
+        "name": "Cool-down",
+        "sets": 1,
+        "reps": "5 min easy pace",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "stair_climber"
+    ],
+    "target_muscle_groups": [
+      "cardiovascular",
+      "glutes",
+      "calves"
+    ],
+    "active": true
+  },
+  {
+    "id": "beginner-hiit-intro",
+    "name": "Beginner HIIT Intro",
+    "type": "hiit",
+    "difficulty": "beginner",
+    "duration_minutes": 20,
+    "exercises": [
+      {
+        "name": "Bodyweight Squat",
+        "sets": 4,
+        "reps": "30 sec work / 30 sec rest",
+        "rest_seconds": 30,
+        "notes": ""
+      },
+      {
+        "name": "Modified Push-Up",
+        "sets": 4,
+        "reps": "30 sec work / 30 sec rest",
+        "rest_seconds": 30,
+        "notes": ""
+      },
+      {
+        "name": "Step-Back Lunge",
+        "sets": 4,
+        "reps": "30 sec work / 30 sec rest",
+        "rest_seconds": 30,
+        "notes": ""
+      },
+      {
+        "name": "March in Place",
+        "sets": 4,
+        "reps": "30 sec work / 30 sec rest",
+        "rest_seconds": 30,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "none"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "20-minute-full-body-hiit",
+    "name": "20-Minute Full Body HIIT",
+    "type": "hiit",
+    "difficulty": "intermediate",
+    "duration_minutes": 20,
+    "exercises": [
+      {
+        "name": "Jump Squat",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      },
+      {
+        "name": "Push-Up",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      },
+      {
+        "name": "Mountain Climbers",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      },
+      {
+        "name": "Burpee",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "none"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "kettlebell-hiit-circuit",
+    "name": "Kettlebell HIIT Circuit",
+    "type": "hiit",
+    "difficulty": "advanced",
+    "duration_minutes": 25,
+    "exercises": [
+      {
+        "name": "Kettlebell Swing",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      },
+      {
+        "name": "Kettlebell Goblet Squat",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      },
+      {
+        "name": "Kettlebell Snatch",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      },
+      {
+        "name": "Renegade Row",
+        "sets": 5,
+        "reps": "40 sec work / 20 sec rest",
+        "rest_seconds": 20,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "kettlebell"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "tabata-bodyweight-blast",
+    "name": "Tabata Bodyweight Blast",
+    "type": "hiit",
+    "difficulty": "advanced",
+    "duration_minutes": 20,
+    "exercises": [
+      {
+        "name": "Burpee",
+        "sets": 8,
+        "reps": "20 sec work / 10 sec rest",
+        "rest_seconds": 10,
+        "notes": ""
+      },
+      {
+        "name": "Jump Lunge",
+        "sets": 8,
+        "reps": "20 sec work / 10 sec rest",
+        "rest_seconds": 10,
+        "notes": ""
+      },
+      {
+        "name": "Plank Shoulder Tap",
+        "sets": 8,
+        "reps": "20 sec work / 10 sec rest",
+        "rest_seconds": 10,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "none"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "morning-mobility-flow",
+    "name": "Morning Mobility Flow",
+    "type": "flexibility",
+    "difficulty": "beginner",
+    "duration_minutes": 15,
+    "exercises": [
+      {
+        "name": "Cat-Cow Stretch",
+        "sets": 1,
+        "reps": "10 reps",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "World's Greatest Stretch",
+        "sets": 1,
+        "reps": "5 reps per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Hip Circles",
+        "sets": 1,
+        "reps": "10 reps per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Shoulder Rolls",
+        "sets": 1,
+        "reps": "10 reps",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "mat"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "full-body-stretch-recovery",
+    "name": "Full Body Stretch & Recovery",
+    "type": "flexibility",
+    "difficulty": "beginner",
+    "duration_minutes": 20,
+    "exercises": [
+      {
+        "name": "Hamstring Stretch",
+        "sets": 1,
+        "reps": "45 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Quad Stretch",
+        "sets": 1,
+        "reps": "45 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Chest Doorway Stretch",
+        "sets": 1,
+        "reps": "45 sec",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Child's Pose",
+        "sets": 1,
+        "reps": "60 sec",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "mat"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "yoga-for-athletes",
+    "name": "Yoga for Athletes",
+    "type": "flexibility",
+    "difficulty": "intermediate",
+    "duration_minutes": 30,
+    "exercises": [
+      {
+        "name": "Sun Salutation Flow",
+        "sets": 3,
+        "reps": "1 min",
+        "rest_seconds": 15,
+        "notes": ""
+      },
+      {
+        "name": "Warrior II",
+        "sets": 1,
+        "reps": "45 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Pigeon Pose",
+        "sets": 1,
+        "reps": "60 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Seated Forward Fold",
+        "sets": 1,
+        "reps": "60 sec",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "mat"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "deep-stretch-foam-rolling",
+    "name": "Deep Stretch & Foam Rolling",
+    "type": "flexibility",
+    "difficulty": "intermediate",
+    "duration_minutes": 25,
+    "exercises": [
+      {
+        "name": "Foam Roll Quads",
+        "sets": 1,
+        "reps": "60 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Foam Roll Upper Back",
+        "sets": 1,
+        "reps": "60 sec",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Couch Stretch",
+        "sets": 1,
+        "reps": "45 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      },
+      {
+        "name": "Standing Calf Stretch",
+        "sets": 1,
+        "reps": "45 sec per side",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "foam_roller",
+      "mat"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  },
+  {
+    "id": "full-rest-day",
+    "name": "Full Rest Day",
+    "type": "rest",
+    "difficulty": "beginner",
+    "duration_minutes": 0,
+    "exercises": [],
+    "equipment": [
+      "none"
+    ],
+    "target_muscle_groups": [],
+    "active": true
+  },
+  {
+    "id": "active-recovery-walk",
+    "name": "Active Recovery Walk",
+    "type": "rest",
+    "difficulty": "beginner",
+    "duration_minutes": 20,
+    "exercises": [
+      {
+        "name": "Easy Walk",
+        "sets": 1,
+        "reps": "20 min relaxed pace",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "none"
+    ],
+    "target_muscle_groups": [
+      "cardiovascular"
+    ],
+    "active": true
+  },
+  {
+    "id": "active-recovery-yoga",
+    "name": "Active Recovery Yoga",
+    "type": "rest",
+    "difficulty": "beginner",
+    "duration_minutes": 15,
+    "exercises": [
+      {
+        "name": "Gentle Yoga Flow",
+        "sets": 1,
+        "reps": "15 min",
+        "rest_seconds": 0,
+        "notes": ""
+      }
+    ],
+    "equipment": [
+      "mat"
+    ],
+    "target_muscle_groups": [
+      "full_body"
+    ],
+    "active": true
+  }
+]

@@ -20,6 +20,7 @@ function EditProfileScreenInner({ navigation }) {
   const [weight, setWeight] = useState('');
   const [heightFeet, setHeightFeet] = useState('');
   const [heightInches, setHeightInches] = useState('');
+  const [biologicalSex, setBiologicalSex] = useState(null);
   const [age, setAge] = useState('');
   const [smoker, setSmoker] = useState(null);
   const [workoutsPerWeek, setWorkoutsPerWeek] = useState('');
@@ -60,6 +61,7 @@ function EditProfileScreenInner({ navigation }) {
         setWeight(data.weight || '');
         setAge(data.age || '');
         setWorkoutsPerWeek(data.workoutsPerWeek || '');
+        setBiologicalSex(data.biologicalSex || null);
         setSmoker(data.smoker || false);
         setGoals(data.goals || []);
         setAllergies(data.allergies || []);
@@ -133,6 +135,7 @@ function EditProfileScreenInner({ navigation }) {
         age,
         smoker,
         workoutsPerWeek,
+        biologicalSex,
         goals,
         allergies: allergies.length > 0 ? allergies : ['None'],
         otherAllergy,
@@ -208,6 +211,24 @@ function EditProfileScreenInner({ navigation }) {
             keyboardType="numeric"
           />
         </View>
+      </View>
+
+      <Text style={styles.label}>Biological sex</Text>
+      <Text style={styles.helperText}>We use this only to calculate your calorie and macro targets accurately.</Text>
+      <View style={styles.row}>
+        {[
+          { label: 'Male', value: 'male' },
+          { label: 'Female', value: 'female' },
+          { label: 'Prefer not to say', value: 'prefer_not_to_say' },
+        ].map(opt => (
+          <TouchableOpacity
+            key={opt.value}
+            style={[styles.optionButton, biologicalSex === opt.value && styles.optionSelected]}
+            onPress={() => setBiologicalSex(opt.value)}
+          >
+            <Text style={styles.optionText}>{opt.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <Text style={styles.label}>Age</Text>
@@ -340,6 +361,7 @@ const styles = StyleSheet.create({
   backButton: { color: '#00ff88', fontSize: 16, marginBottom: 12 },
   title: { fontSize: 32, fontWeight: 'bold', color: '#ffffff' },
   label: { fontSize: 14, color: '#aaaaaa', marginBottom: 8, marginTop: 12 },
+  helperText: { fontSize: 12, color: '#888888', marginBottom: 12, marginTop: -4 },
   input: { width: '100%', backgroundColor: '#1a1a1a', borderRadius: 12, padding: 16, marginBottom: 16, color: '#ffffff', fontSize: 16, borderWidth: 1, borderColor: '#333333' },
   row: { flexDirection: 'row', gap: 12, marginBottom: 4 },
   halfInputContainer: { flex: 1 },

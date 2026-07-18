@@ -43,3 +43,4 @@ yarn-error.*
 jarvis/
 functions/index.js.bak
 *.bak
+scripts/serviceAccountKey.json

@@ -19,6 +19,7 @@ function PrivacyPolicyScreenInner({ navigation }) {
 
         <Text style={styles.section}>2. Information We Collect</Text>
         <Text style={styles.body}>We collect information you provide directly to us during onboarding, including your first name, age, weight, height, fitness goals, dietary preferences, and workout schedule. We also collect data about your use of the app such as completed workouts and grocery list activity.</Text>
+        <Text style={[styles.body, { marginTop: 10 }]}>Biological sex. We ask for your biological sex, which is optional, to calculate your personalized calorie and macronutrient targets more accurately. If you prefer not to share this, we use a standard estimate instead. This information is never shared with third parties and is used solely for in-app nutrition calculations.</Text>
 
         <Text style={styles.section}>3. How We Use Your Information</Text>
         <Text style={styles.body}>We use your information to generate personalized fitness and nutrition plans, provide AI coaching responses, track your progress, and improve our services. Your data is used solely to deliver and improve the KineticIQ experience.</Text>
