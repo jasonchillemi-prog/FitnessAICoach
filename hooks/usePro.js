@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Purchases from 'react-native-purchases';
 
-const BETA_OVERRIDE_PRO = true; // TODO: flip to false before App Store launch
+const BETA_OVERRIDE_PRO = false; // App Store build: RevenueCat is source of truth
 
 export default function usePro() {
   const [isPro, setIsPro] = useState(BETA_OVERRIDE_PRO || false);

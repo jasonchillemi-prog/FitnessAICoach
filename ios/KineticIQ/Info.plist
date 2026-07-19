@@ -47,15 +47,15 @@
 		<true/>
 	</dict>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your calendars</string>
+	<string>KineticIQ adds your scheduled workouts and meal-prep reminders to your calendar. For example, when you plan a Tuesday strength session, KineticIQ adds it to your calendar so you get a reminder before it starts.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>KineticIQ adds your workout and meal schedule to your calendar.</string>
+	<string>KineticIQ adds your scheduled workouts and meal-prep reminders to your calendar. For example, when you plan a Tuesday strength session, KineticIQ adds it to your calendar so you get a reminder before it starts.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to sign in quickly and securely.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>KineticIQ uses your health data to track workouts and provide personalized fitness recommendations.</string>
+	<string>KineticIQ reads your step count from Apple Health to show your daily steps and progress toward your step goal on the Dashboard. For example, if you walk 6,500 steps today, your Dashboard shows 65% of a 10,000-step goal.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>KineticIQ updates your health data to record workouts and activity completed in the app.</string>
+	<string>KineticIQ can save workouts you complete in the app to Apple Health so your activity history stays in one place.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your reminders</string>
 	<key>NSRemindersUsageDescription</key>

@@ -17,11 +17,12 @@
       "bundleIdentifier": "com.kineticiq.app",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Use Face ID to sign in quickly and securely.",
-        "NSCalendarsUsageDescription": "KineticIQ adds your workout and meal schedule to your calendar.",
+        "NSCalendarsUsageDescription": "KineticIQ adds your scheduled workouts and meal-prep reminders to your calendar. For example, when you plan a Tuesday strength session, KineticIQ adds it to your calendar so you get a reminder before it starts.",
+        "NSCalendarsFullAccessUsageDescription": "KineticIQ adds your scheduled workouts and meal-prep reminders to your calendar. For example, when you plan a Tuesday strength session, KineticIQ adds it to your calendar so you get a reminder before it starts.",
         "NSRemindersUsageDescription": "KineticIQ sets reminders for your meals and workouts.",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSHealthShareUsageDescription": "KineticIQ reads your step count to match Apple Fitness.",
-        "NSHealthUpdateUsageDescription": "KineticIQ needs health access to display your steps."
+        "NSHealthShareUsageDescription": "KineticIQ reads your step count from Apple Health to show your daily steps and progress toward your step goal on the Dashboard. For example, if you walk 6,500 steps today, your Dashboard shows 65% of a 10,000-step goal.",
+        "NSHealthUpdateUsageDescription": "KineticIQ can save workouts you complete in the app to Apple Health so your activity history stays in one place."
       },
       "googleServicesFile": "./GoogleService-Info.plist",
       "entitlements": {

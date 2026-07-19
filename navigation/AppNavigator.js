@@ -21,6 +21,7 @@ import PaywallScreen from '../screens/PaywallScreen';
 import StoreScreen from '../screens/StoreScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+import SourcesScreen from '../screens/SourcesScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,7 +45,8 @@ function MainTabs() {
       <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: 'Dashboard', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text> }} />
       <Tab.Screen name="Progress" component={ProgressScreen} options={{ tabBarLabel: 'Progress', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📈</Text> }} />
       <Tab.Screen name="Coach" component={CoachScreen} options={{ tabBarLabel: 'AI Coach', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🤖</Text> }} />
-      <Tab.Screen name="Store" component={StoreScreen} options={{ tabBarLabel: 'Store', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🛒</Text> }} />
+      {/* Store tab hidden for 1.0 — App Review 5.1.1(v) (registration wall before non-account store) + demo checkout. Re-enable in Phase 4 when affiliate store is live. */}
+      {/* <Tab.Screen name="Store" component={StoreScreen} options={{ tabBarLabel: 'Store', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🛒</Text> }} /> */}
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Profile', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text> }} />
     </Tab.Navigator>
   );
@@ -123,6 +125,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Paywall" component={PaywallScreen} options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="Sources" component={SourcesScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

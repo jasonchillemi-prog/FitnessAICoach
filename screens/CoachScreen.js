@@ -172,7 +172,12 @@ function CoachScreenInner() {
             <Text style={styles.subtitle}>Powered by KineticIQ · Can update your plan</Text>
           </View>
         </View>
-        <View style={[styles.onlineDot, isOffline && styles.offlineDot]} />
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.infoButton} onPress={() => navigation.navigate('Sources')}>
+            <Text style={styles.infoButtonText}>ⓘ</Text>
+          </TouchableOpacity>
+          <View style={[styles.onlineDot, isOffline && styles.offlineDot]} />
+        </View>
       </View>
 
       {isOffline && (
@@ -279,6 +284,9 @@ const styles = StyleSheet.create({
   avatarLargeText: { color: '#00E5A0', fontWeight: '800', fontSize: 18 },
   title: { fontSize: 20, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.3 },
   subtitle: { fontSize: 12, color: '#8A9BB0', marginTop: 2 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  infoButton: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  infoButtonText: { color: '#8A9BB0', fontSize: 18 },
   onlineDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#00E5A0' },
   offlineDot: { backgroundColor: '#FF3B30' },
   offlineBanner: { backgroundColor: 'rgba(255,59,48,0.08)', paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,59,48,0.15)', alignItems: 'center' },

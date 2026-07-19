@@ -620,6 +620,7 @@ function DashboardScreenInner({ navigation, route }) {
                 <View style={styles.progressBar}>
                   <View style={[styles.progressFill, { width: `${Math.min((stepCount / STEP_GOAL) * 100, 100)}%` }]} />
                 </View>
+                <Text style={styles.healthAttribution}>❤️ From Apple Health</Text>
               </>
             ) : (
               <Text style={styles.statChange}>Unavailable</Text>
@@ -748,6 +749,7 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 22, fontWeight: '700', color: '#F0F4F8', letterSpacing: -0.5 },
   statUnit: { fontSize: 11, color: '#8A9BB0', fontWeight: '400' },
   statChange: { fontSize: 11, color: '#8A9BB0', marginTop: 4 },
+  healthAttribution: { fontSize: 9, color: '#8A9BB0', marginTop: 6 },
   statChangeGood: { fontSize: 11, color: '#00E5A0', marginTop: 4 },
   generateButton: { backgroundColor: '#00E5A0', borderRadius: 12, padding: 18, alignItems: 'center', marginBottom: 20 },
   generateButtonText: { color: '#040A07', fontSize: 17, fontWeight: '700' },

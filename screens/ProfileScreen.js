@@ -205,6 +205,13 @@ function ProfileScreenInner({ navigation }) {
           </View>
           <Text style={styles.settingArrow}>›</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('Sources')}>
+          <View style={styles.settingLeft}>
+            <Text style={styles.settingIcon}>📚</Text>
+            <Text style={styles.settingText}>Sources & Medical Disclaimer</Text>
+          </View>
+          <Text style={styles.settingArrow}>›</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('PrivacyPolicy')}>
           <View style={styles.settingLeft}>
             <Text style={styles.settingIcon}>🔒</Text>
