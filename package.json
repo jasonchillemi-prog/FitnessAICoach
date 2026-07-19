@@ -10,6 +10,7 @@
     "jarvis": "node jarvis/server.js"
   },
   "dependencies": {
+    "@kingstinct/react-native-healthkit": "^14.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/netinfo": "11.4.1",
     "@react-native-firebase/analytics": "^24.0.0",
@@ -28,7 +29,7 @@
     "firebase": "^12.13.0",
     "react": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-health": "^1.19.0",
+    "react-native-nitro-modules": "^0.36.1",
     "react-native-purchases": "^10.3.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0"

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import AppleHealthKit from 'react-native-health';
+import { isHealthDataAvailable, requestAuthorization, queryStatisticsForQuantity } from '@kingstinct/react-native-healthkit';
 import { logScreenView } from '../src/utils/analytics';
 import { useFocusEffect } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
@@ -310,28 +310,23 @@ function DashboardScreenInner({ navigation, route }) {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       try {
-        const permissions = {
-          permissions: {
-            read: [AppleHealthKit.Constants.Permissions.StepCount],
-            write: [],
-          },
-        };
-        AppleHealthKit.initHealthKit(permissions, (err) => {
-          if (err) {
-            console.log('HealthKit init error:', err);
-            setIsPedometerAvailable(false);
-            return;
-          }
-          setIsPedometerAvailable(true);
-          const start = new Date();
-          start.setHours(0, 0, 0, 0);
-          const options = { startDate: start.toISOString(), endDate: new Date().toISOString() };
-          AppleHealthKit.getStepCount(options, (err, results) => {
-            if (!err && results) setStepCount(results.value || 0);
-          });
-        });
+        if (!isHealthDataAvailable()) {
+          console.log('HealthKit: health data not available on this device');
+          setIsPedometerAvailable(false);
+          return;
+        }
+        await requestAuthorization({ toRead: ['HKQuantityTypeIdentifierStepCount'] });
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const stats = await queryStatisticsForQuantity(
+          'HKQuantityTypeIdentifierStepCount',
+          ['cumulativeSum'],
+          { filter: { date: { startDate: start, endDate: new Date() } }, unit: 'count' }
+        );
+        setIsPedometerAvailable(true);
+        setStepCount(Math.round(stats?.sumQuantity?.quantity ?? 0));
       } catch (e) {
         console.log('HealthKit exception:', e);
         setIsPedometerAvailable(false);

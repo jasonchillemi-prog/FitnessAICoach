@@ -52,8 +52,7 @@
       "expo-local-authentication",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
-      "./plugins/withModularHeaders",
-      "react-native-health"
+      "./plugins/withModularHeaders"
     ],
     "extra": {
       "eas": {
