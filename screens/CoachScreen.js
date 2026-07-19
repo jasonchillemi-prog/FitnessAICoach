@@ -36,11 +36,8 @@ function CoachScreenInner() {
   const navigation = useNavigation();
   const { isPro, loading: proLoading } = usePro();
 
-  useEffect(() => {
-    if (!proLoading && !isPro) {
-      navigation.replace('Paywall');
-    }
-  }, [isPro, proLoading]);
+  // Pro gate is rendered inline below — never navigate away from a tab screen.
+  // replace('Paywall') from inside a tab replaces the root 'Main' route and strands the user.
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -159,6 +156,37 @@ function CoachScreenInner() {
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
+
+  if (!proLoading && !isPro) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.avatarLarge}>
+              <Text style={styles.avatarLargeText}>K</Text>
+            </View>
+            <View>
+              <Text style={styles.title}>AI Coach</Text>
+              <Text style={styles.subtitle}>Powered by KineticIQ · Can update your plan</Text>
+            </View>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.infoButton} onPress={() => navigation.navigate('Sources')}>
+              <Text style={styles.infoButtonText}>ⓘ</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.lockContainer}>
+          <Text style={styles.lockEmoji}>🔒</Text>
+          <Text style={styles.lockTitle}>AI Coach is a Pro feature</Text>
+          <Text style={styles.lockBody}>Upgrade to chat with your coach, get personalized plan updates, and more.</Text>
+          <TouchableOpacity style={styles.lockButton} onPress={() => navigation.navigate('Paywall')}>
+            <Text style={styles.lockButtonText}>Upgrade to Pro</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
@@ -285,6 +313,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: '800', color: '#F0F4F8', letterSpacing: -0.3 },
   subtitle: { fontSize: 12, color: '#8A9BB0', marginTop: 2 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  lockContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  lockEmoji: { fontSize: 48, marginBottom: 16 },
+  lockTitle: { fontSize: 20, fontWeight: '800', color: '#F0F4F8', marginBottom: 8, textAlign: 'center' },
+  lockBody: { fontSize: 14, color: '#8A9BB0', lineHeight: 22, textAlign: 'center', marginBottom: 24 },
+  lockButton: { backgroundColor: '#00E5A0', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32 },
+  lockButtonText: { color: '#040A07', fontSize: 16, fontWeight: '700' },
   infoButton: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   infoButtonText: { color: '#8A9BB0', fontSize: 18 },
   onlineDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#00E5A0' },
