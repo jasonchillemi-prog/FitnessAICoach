@@ -15,6 +15,7 @@ const RATE_LIMITS = {
   applyCoachSuggestion: 5,
   analyzeGoals: 20,
   matchMealPlan: 3,
+  buildGroceryList: 5,
 };
 
 const checkRateLimit = async (uid, functionName) => {
@@ -491,5 +492,79 @@ exports.matchMealPlan = onCall(async (request) => {
     coachMessage,
     mealIdCounts,
     planSource: 'library',
+  };
+});
+
+// ─── buildGroceryList: aggregation helpers ───────────────────────────────────
+// Pure logic — aggregates ingredients across the week's meals, deduplicated by
+// canonical_name + unit. Quantities are summed only when units match exactly.
+const aggregateGroceries = (mealsWithCounts) => {
+  const agg = new Map(); // key: canonicalName|unit
+  for (const { meal, count } of mealsWithCounts) {
+    for (const ing of meal.ingredients || []) {
+      const canonical = normalizeTag(ing.canonical_name || ing.name);
+      const unit = String(ing.unit || '').toLowerCase().trim();
+      const key = `${canonical}|${unit}`;
+      if (!agg.has(key)) {
+        agg.set(key, {
+          name: ing.name,
+          amount: 0,
+          unit: ing.unit || '',
+          category: ing.category || 'other',
+          mealSource: [],
+        });
+      }
+      const entry = agg.get(key);
+      entry.amount += (parseFloat(ing.amount) || 0) * count;
+      if (!entry.mealSource.includes(meal.name)) entry.mealSource.push(meal.name);
+    }
+  }
+  return [...agg.values()]
+    .map((e) => ({ ...e, amount: Math.round(e.amount * 100) / 100 }))
+    .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+};
+
+// ─── buildGroceryList ────────────────────────────────────────────────────────
+// Reads meal docs for the week's selected meal IDs and returns an aggregated,
+// deduplicated grocery list. Never reads or writes groceryUserItems — user-added
+// items live in a separate field and are merged client-side.
+exports.buildGroceryList = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be logged in');
+  await checkRateLimit(request.auth.uid, 'buildGroceryList');
+  const { mealIdCounts, mealIds } = request.data || {};
+
+  // Accept either { mealIdCounts: {id: timesUsed} } (matchMealPlan output)
+  // or { mealIds: [id, id, ...] } (duplicates counted)
+  const counts = {};
+  if (mealIdCounts && typeof mealIdCounts === 'object' && !Array.isArray(mealIdCounts)) {
+    for (const [id, n] of Object.entries(mealIdCounts)) {
+      const c = parseInt(n, 10);
+      if (id && c > 0) counts[id] = Math.min(c, 21);
+    }
+  } else if (Array.isArray(mealIds)) {
+    for (const id of mealIds) {
+      if (typeof id === 'string' && id) counts[id] = (counts[id] || 0) + 1;
+    }
+  }
+  const ids = Object.keys(counts);
+  if (ids.length === 0) throw new HttpsError('invalid-argument', 'Provide mealIdCounts or mealIds.');
+  if (ids.length > 25) throw new HttpsError('invalid-argument', 'Too many meal IDs (max 25 distinct meals per week).');
+
+  const db = admin.firestore();
+  const snaps = await db.getAll(...ids.map((id) => db.collection('meals').doc(id)));
+  const mealsWithCounts = [];
+  const missingMealIds = [];
+  for (const snap of snaps) {
+    if (snap.exists) mealsWithCounts.push({ meal: { id: snap.id, ...snap.data() }, count: counts[snap.id] });
+    else missingMealIds.push(snap.id);
+  }
+  if (mealsWithCounts.length === 0) {
+    throw new HttpsError('not-found', 'None of the provided meal IDs exist in the meal library.');
+  }
+
+  return {
+    groceryList: aggregateGroceries(mealsWithCounts),
+    missingMealIds,
+    listSource: 'library',
   };
 });
