@@ -14,6 +14,7 @@ const RATE_LIMITS = {
   generateRecipe: 10,
   applyCoachSuggestion: 5,
   analyzeGoals: 20,
+  matchMealPlan: 3,
 };
 
 const checkRateLimit = async (uid, functionName) => {
@@ -244,4 +245,251 @@ Respond ONLY with valid JSON:
   if (data_resp.error) throw new HttpsError('internal', data_resp.error.message);
   const t = data_resp.content[0].text;
   return JSON.parse(t.substring(t.indexOf('{'), t.lastIndexOf('}') + 1));
+});
+
+// ─── matchMealPlan: library-based plan helpers ───────────────────────────────
+// Pure deterministic logic — no AI calls. Same inputs always produce the same plan.
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const MEAL_SLOTS = [
+  { slot: 'breakfast', label: 'Breakfast', time: '8:00 AM', budgetShare: 0.25 },
+  { slot: 'lunch', label: 'Lunch', time: '12:00 PM', budgetShare: 0.35 },
+  { slot: 'dinner', label: 'Dinner', time: '6:00 PM', budgetShare: 0.40 },
+];
+const MEAL_REUSE_GAP_DAYS = 3; // a meal used on Monday is eligible again Thursday
+const ALLERGY_KEYWORDS = {
+  dairy: ['dairy', 'milk', 'lactose', 'cheese', 'yogurt'],
+  egg: ['egg'],
+  fish: ['fish', 'salmon', 'tuna', 'cod'],
+  gluten: ['gluten', 'wheat'],
+  sesame: ['sesame'],
+  shellfish: ['shellfish', 'shrimp', 'crab', 'lobster'],
+  soy: ['soy'],
+  tree_nut: ['nut', 'almond', 'cashew', 'walnut', 'pecan', 'peanut'],
+};
+
+const normalizeTag = (s) => String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
+
+// FNV-1a 32-bit hash — deterministic per-user variety without randomness
+const hash32 = (str) => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+};
+
+const parseHeightInches = (height) => {
+  if (typeof height === 'number' && Number.isFinite(height)) return height;
+  const m = String(height || '').match(/(\d+(?:\.\d+)?)\s*ft\.?\s*(\d+(?:\.\d+)?)?\s*(?:in)?/i);
+  if (m) return parseFloat(m[1]) * 12 + (m[2] ? parseFloat(m[2]) : 0);
+  const n = parseFloat(height);
+  return Number.isFinite(n) ? n : 67; // adult average fallback
+};
+
+// Mifflin-St Jeor BMR × activity factor, adjusted for goal direction
+const computeDailyCalories = (userData) => {
+  const weightKg = (parseFloat(userData.weight) || 170) * 0.453592;
+  const heightCm = parseHeightInches(userData.height) * 2.54;
+  const age = parseInt(userData.age, 10) || 30;
+  const isMale = normalizeTag(userData.biologicalSex).startsWith('m');
+  const bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + (isMale ? 5 : -161);
+  const wpw = parseInt(userData.workoutsPerWeek, 10) || 3;
+  const activity = wpw <= 3 ? 1.375 : wpw <= 5 ? 1.55 : 1.725;
+  let target = bmr * activity;
+  const goalsText = (userData.goals || []).join(' ').toLowerCase();
+  if (/lose|loss|lean|cut|slim/.test(goalsText)) target -= 400;
+  else if (/muscle|gain|bulk|strength|build/.test(goalsText)) target += 300;
+  return Math.round(Math.min(4000, Math.max(1400, target)) / 50) * 50;
+};
+
+const buildUserAllergenSet = (userData) => {
+  const raw = [...(userData.allergies || []), userData.otherAllergy]
+    .filter(Boolean).map(normalizeTag).filter((r) => r && r !== 'none');
+  const tags = new Set();
+  for (const r of raw) {
+    for (const [tag, words] of Object.entries(ALLERGY_KEYWORDS)) {
+      if (words.some((w) => r.includes(normalizeTag(w)))) tags.add(tag);
+    }
+    tags.add(r);
+  }
+  return { tags, raw };
+};
+
+// HARD RULE: allergen tag match OR raw allergy word appearing in any ingredient name excludes the meal
+const mealViolatesAllergies = (meal, { tags, raw }) => {
+  if ((meal.allergens || []).some((a) => tags.has(normalizeTag(a)))) return true;
+  const ingredientText = (meal.ingredients || []).map((i) => normalizeTag(i.name)).join(' ');
+  return raw.some((r) => r.length >= 3 && ingredientText.includes(r));
+};
+
+const mealMatchesDiet = (meal, dietKey) => {
+  if (!dietKey || dietKey === 'none' || dietKey === 'balanced' || dietKey === 'no_preference') return true;
+  const tags = (meal.diet_tags || []).map(normalizeTag);
+  if (dietKey === 'vegetarian') return tags.includes('vegetarian') || tags.includes('vegan');
+  return tags.includes(dietKey);
+};
+
+const scoreMeal = (meal, budget, goalsText, uid) => {
+  let score = Math.max(0, 60 - (Math.abs((meal.calories || 0) - budget) / budget) * 100);
+  const protein = (meal.macros && meal.macros.protein_g) || 0;
+  const fiber = (meal.macros && meal.macros.fiber_g) || 0;
+  const tags = (meal.diet_tags || []).map(normalizeTag);
+  if (/muscle|gain|bulk|strength|build/.test(goalsText)) {
+    score += (tags.includes('high_protein') ? 15 : 0) + protein * 0.4;
+  }
+  if (/lose|loss|lean|cut|slim/.test(goalsText)) {
+    score += (tags.includes('low_carb') ? 10 : 0) + fiber + protein * 0.2;
+  }
+  score += ((hash32(`${uid}:${meal.id}`) % 1000) / 1000) * 8;
+  return score;
+};
+
+const buildLibraryMealPlan = (uid, userData, meals) => {
+  const dailyCalories = computeDailyCalories(userData);
+  const goalsText = (userData.goals || []).join(' ').toLowerCase();
+  const dietKey = normalizeTag(userData.diet);
+  const allergens = buildUserAllergenSet(userData);
+
+  const safeMeals = meals.filter((m) => m.active !== false && !mealViolatesAllergies(m, allergens));
+  if (safeMeals.length === 0) {
+    throw new HttpsError('failed-precondition', 'No meals in the library match this allergy profile.');
+  }
+
+  const gaps = {}; // comboId -> { diet, slot, count }
+  const logGap = (slot) => {
+    const comboId = `${dietKey || 'any'}_${slot}`;
+    if (!gaps[comboId]) gaps[comboId] = { diet: dietKey || 'any', slot, count: 0 };
+    gaps[comboId].count += 1;
+  };
+
+  const lastUsedDay = {};
+  const mealIdCounts = {};
+  const dayMeals = {};
+
+  for (let d = 0; d < 7; d++) {
+    const entries = [];
+    for (const { slot, label, time, budgetShare } of MEAL_SLOTS) {
+      const budget = dailyCalories * budgetShare;
+      // Diet is a preference — relax it gradually before failing. Allergies are never relaxed.
+      // Relaxation ladder: exact diet → (vegan falls back to vegetarian) → any diet.
+      const dietIsRestrictive = dietKey && !['none', 'balanced', 'no_preference'].includes(dietKey);
+      const slotMeals = safeMeals.filter((m) => (m.meal_type || []).includes(slot));
+      let pool = slotMeals.filter((m) => mealMatchesDiet(m, dietKey));
+      if (pool.length === 0) {
+        if (dietIsRestrictive) logGap(slot); // library lacks this diet+slot combo entirely
+        if (dietKey === 'vegan') {
+          // Step down to vegetarian without egg/dairy first, then vegetarian, before anything else
+          const veg = slotMeals.filter((m) => mealMatchesDiet(m, 'vegetarian'));
+          pool = veg.filter((m) => !(m.allergens || []).some((a) => ['egg', 'dairy'].includes(normalizeTag(a))));
+          if (pool.length === 0) pool = veg;
+        }
+        if (pool.length === 0) pool = slotMeals;
+      }
+      if (pool.length === 0) {
+        throw new HttpsError('failed-precondition', `No safe ${slot} meals available in the library for this user.`);
+      }
+      const ranked = pool
+        .map((m) => ({ m, s: scoreMeal(m, budget, goalsText, uid) }))
+        .sort((a, b) => b.s - a.s || (a.m.id < b.m.id ? -1 : 1));
+      let pick = ranked.find(({ m }) => lastUsedDay[m.id] === undefined || d - lastUsedDay[m.id] >= MEAL_REUSE_GAP_DAYS);
+      if (!pick) {
+        // 3-day rule must relax: take the least-recently-used, best-scoring meal, and log the gap
+        pick = [...ranked].sort((a, b) => (lastUsedDay[a.m.id] - lastUsedDay[b.m.id]) || (b.s - a.s))[0];
+        logGap(slot);
+      }
+      const meal = pick.m;
+      lastUsedDay[meal.id] = d;
+      mealIdCounts[meal.id] = (mealIdCounts[meal.id] || 0) + 1;
+      entries.push({ meal: label, time, food: meal.name, calories: meal.calories || 0, mealId: meal.id });
+    }
+    dayMeals[`${DAY_NAMES[d].toLowerCase()}Meals`] = entries;
+  }
+
+  return { dayMeals, dailyCalories, gaps, mealIdCounts };
+};
+
+const buildLibraryWorkoutPlan = (uid, userData, busyDays, workouts) => {
+  const wpw = parseInt(userData.workoutsPerWeek, 10) || 3;
+  const level = wpw <= 3 ? 'beginner' : wpw <= 5 ? 'intermediate' : 'advanced';
+  const workoutDayCount = wpw <= 3 ? 3 : wpw <= 5 ? 4 : 5;
+
+  const busyList = Array.isArray(busyDays) ? busyDays : String(busyDays || '').split(',');
+  const busy = new Set(busyList.map(normalizeTag).filter((x) => x && x !== 'none'));
+  const available = DAY_NAMES.filter((day) => !busy.has(normalizeTag(day)));
+  const count = Math.min(workoutDayCount, available.length);
+  const chosenDays = [];
+  for (let i = 0; i < count; i++) chosenDays.push(available[Math.floor((i * available.length) / count)]);
+
+  let pool = workouts.filter((w) => w.active !== false && normalizeTag(w.difficulty) === level);
+  if (pool.length === 0) pool = workouts.filter((w) => w.active !== false);
+  if (pool.length === 0) throw new HttpsError('failed-precondition', 'No workouts available in the library.');
+
+  const ranked = [...pool].sort((a, b) => (hash32(`${uid}:${b.id}`) - hash32(`${uid}:${a.id}`)) || (a.id < b.id ? -1 : 1));
+  const picks = chosenDays.map((_, i) => ranked[i % ranked.length]);
+  // Avoid same workout type on consecutive workout days where possible
+  for (let i = 1; i < picks.length; i++) {
+    if (picks[i].type === picks[i - 1].type) {
+      const j = picks.findIndex((p, k) => k > i && p.type !== picks[i - 1].type);
+      if (j > i) [picks[i], picks[j]] = [picks[j], picks[i]];
+    }
+  }
+  return chosenDays.map((day, i) => ({
+    day,
+    workout: picks[i].name,
+    duration: `${picks[i].duration_minutes} mins`,
+    workoutId: picks[i].id,
+    type: picks[i].type,
+    difficulty: picks[i].difficulty,
+  }));
+};
+
+// ─── matchMealPlan ───────────────────────────────────────────────────────────
+exports.matchMealPlan = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be logged in');
+  await checkRateLimit(request.auth.uid, 'matchMealPlan');
+  const uid = request.auth.uid;
+  const { userData = {}, busyDays } = request.data || {};
+
+  const db = admin.firestore();
+  const [mealsSnap, workoutsSnap] = await Promise.all([
+    db.collection('meals').get(),
+    db.collection('workouts').get(),
+  ]);
+  const meals = mealsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const workouts = workoutsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  const { dayMeals, dailyCalories, gaps, mealIdCounts } = buildLibraryMealPlan(uid, userData, meals);
+  const weeklyWorkouts = buildLibraryWorkoutPlan(uid, userData, busyDays !== undefined ? busyDays : userData.busyDays, workouts);
+
+  // Log library coverage gaps — best-effort, never blocks the plan
+  const gapEntries = Object.entries(gaps);
+  if (gapEntries.length > 0) {
+    try {
+      const batch = db.batch();
+      for (const [comboId, g] of gapEntries) {
+        batch.set(db.collection('mealLibraryGaps').doc(comboId), {
+          diet: g.diet,
+          slot: g.slot,
+          count: admin.firestore.FieldValue.increment(g.count),
+          lastLoggedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
+      await batch.commit();
+    } catch (e) {
+      console.error('mealLibraryGaps logging failed:', e.message);
+    }
+  }
+
+  const firstName = userData.firstName ? String(userData.firstName).trim() : '';
+  const coachMessage = `${firstName ? firstName + ', your' : 'Your'} new plan is built from KineticIQ's curated library — dialed in at about ${dailyCalories} calories a day for your goals. Let's get after it!`;
+
+  return {
+    ...dayMeals,
+    weeklyWorkouts,
+    dailyCalories,
+    coachMessage,
+    mealIdCounts,
+    planSource: 'library',
+  };
 });
