@@ -18,7 +18,7 @@ import {
   Platform
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteField } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData, savePendingWorkouts, loadPendingWorkouts, clearPendingWorkouts, savePendingGrocery, loadPendingGrocery, clearPendingGrocery } from '../src/utils/offlineCache';
@@ -533,7 +533,14 @@ function DashboardScreenInner({ navigation, route }) {
             setCompletedWorkouts({});
             setGroceryChecked({});
             const user = auth.currentUser;
-            await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
+            // deleteField: merge with {} would deep-merge and leave the old checked map intact
+            await setDoc(doc(db, 'users', user.uid), {
+              savedPlan: parsed,
+              groceryChecked: deleteField(),
+              completedWorkouts: { [getWeekKey()]: deleteField() },
+            }, { merge: true });
+            await clearPendingGrocery();
+            await clearPendingWorkouts();
             await savePlan(parsed);
             Alert.alert('Plan Updated!', 'Your plan has been adapted.');
           } catch (error) {
@@ -568,7 +575,14 @@ function DashboardScreenInner({ navigation, route }) {
       setCompletedWorkouts({});
       setGroceryChecked({});
       const user = auth.currentUser;
-      await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
+      // deleteField: merge with {} would deep-merge and leave the old checked map intact
+      await setDoc(doc(db, 'users', user.uid), {
+        savedPlan: parsed,
+        groceryChecked: deleteField(),
+        completedWorkouts: { [getWeekKey()]: deleteField() },
+      }, { merge: true });
+      await clearPendingGrocery();
+      await clearPendingWorkouts();
       await savePlan(parsed);
       setFromCache(false);
     } catch (error) {
