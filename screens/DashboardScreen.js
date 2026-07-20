@@ -34,6 +34,10 @@ const isRateLimited = (e) =>
 const formatGroceryItems = (items) =>
   (items || []).map((i) => [i.amount, i.unit, i.name].filter(Boolean).join(' '));
 
+// Rest days render in the weekly list but are excluded from workout stats.
+// Library plans tag them type:'rest'; AI plans only have the name to go by.
+const isRestEntry = (w) => w?.type === 'rest' || /^rest day/i.test(w?.workout || '');
+
 const attachGroceryList = async (parsed, previousPlan) => {
   const userItems = previousPlan?.groceryUserItems || [];
   let libraryItems = [];
@@ -483,7 +487,10 @@ function DashboardScreenInner({ navigation, route }) {
     }
   }, [groceryChecked, isOffline, isPro]);
 
-  const getWorkoutsCompleted = () => Object.values(completedWorkouts).filter(Boolean).length;
+  const getWorkoutsCompleted = () =>
+    (plan?.weeklyWorkouts || []).filter((w, i) => !isRestEntry(w) && completedWorkouts[i]).length;
+
+  const getTotalWorkouts = () => (plan?.weeklyWorkouts || []).filter((w) => !isRestEntry(w)).length;
 
   const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
@@ -509,7 +516,7 @@ function DashboardScreenInner({ navigation, route }) {
       return;
     }
     const completed = getWorkoutsCompleted();
-    const total = plan.weeklyWorkouts.length;
+    const total = getTotalWorkouts();
     const rate = total > 0 ? (completed / total) * 100 : 0;
     let adaptMessage = '';
     let intensity = '';
@@ -660,7 +667,7 @@ function DashboardScreenInner({ navigation, route }) {
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>WORKOUTS</Text>
-            <Text style={styles.statValue}>{getWorkoutsCompleted()}<Text style={styles.statUnit}>/{plan.weeklyWorkouts.length}</Text></Text>
+            <Text style={styles.statValue}>{getWorkoutsCompleted()}<Text style={styles.statUnit}>/{getTotalWorkouts()}</Text></Text>
             <Text style={styles.statChangeGood}>This week</Text>
           </View>
           <View style={styles.statCard}>
@@ -701,7 +708,7 @@ function DashboardScreenInner({ navigation, route }) {
               <Text style={styles.cardTitle}>Weekly Workouts 💪</Text>
               <View style={styles.workoutHeaderRight}>
                 <View style={styles.progressPill}>
-                  <Text style={styles.progressPillText}>{getWorkoutsCompleted()}/{plan.weeklyWorkouts.length} done</Text>
+                  <Text style={styles.progressPillText}>{getWorkoutsCompleted()}/{getTotalWorkouts()} done</Text>
                 </View>
                 <Text style={styles.collapseArrow}>{workoutsExpanded ? '▲' : '▼'}</Text>
               </View>

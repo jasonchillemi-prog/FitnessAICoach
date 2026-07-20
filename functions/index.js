@@ -435,14 +435,26 @@ const buildLibraryWorkoutPlan = (uid, userData, busyDays, workouts) => {
       if (j > i) [picks[i], picks[j]] = [picks[j], picks[i]];
     }
   }
-  return chosenDays.map((day, i) => ({
-    day,
-    workout: picks[i].name,
-    duration: `${picks[i].duration_minutes} mins`,
-    workoutId: picks[i].id,
-    type: picks[i].type,
-    difficulty: picks[i].difficulty,
-  }));
+  // Full 7-day week: workout days plus deterministic rest-day entries, so the
+  // client renders Mon–Sun like AI-generated plans. Rest entries carry
+  // type 'rest' and no workoutId so stats can exclude them.
+  const REST_DAYS = [
+    { workout: 'Rest Day - Light stretching', duration: '15 mins' },
+    { workout: 'Rest Day - Easy walk', duration: '20 mins' },
+    { workout: 'Rest Day - Yoga or stretching', duration: '20 mins' },
+  ];
+  const byDay = {};
+  chosenDays.forEach((day, i) => {
+    byDay[day] = {
+      day,
+      workout: picks[i].name,
+      duration: `${picks[i].duration_minutes} mins`,
+      workoutId: picks[i].id,
+      type: picks[i].type,
+      difficulty: picks[i].difficulty,
+    };
+  });
+  return DAY_NAMES.map((day, d) => byDay[day] || { day, ...REST_DAYS[d % REST_DAYS.length], type: 'rest' });
 };
 
 // ─── matchMealPlan ───────────────────────────────────────────────────────────
