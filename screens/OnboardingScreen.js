@@ -165,9 +165,16 @@ function OnboardingScreenInner({ navigation }) {
       };
       await setDoc(doc(db, 'users', user.uid), userData);
 
-      const generatePlanFn = httpsCallable(functions, 'generatePlan');
+      const generatePlanFn = httpsCallable(functions, 'matchMealPlan');
       const result = await generatePlanFn({ userData, busyDays: busyDays.join(', ') });
-      await setDoc(doc(db, 'users', user.uid), { savedPlan: result.data }, { merge: true });
+      const parsed = result.data;
+      parsed.groceryList = [];
+      if (parsed.mealIdCounts && Object.keys(parsed.mealIdCounts).length > 0) {
+        const buildGroceryListFn = httpsCallable(functions, 'buildGroceryList');
+        const groceryResult = await buildGroceryListFn({ mealIdCounts: parsed.mealIdCounts });
+        parsed.groceryList = (groceryResult.data.groceryList || []).map((i) => [i.amount, i.unit, i.name].filter(Boolean).join(' '));
+      }
+      await setDoc(doc(db, 'users', user.uid), { savedPlan: parsed }, { merge: true });
       navigation.navigate('Main', { planGenerated: true });
     } catch (error) {
       Alert.alert('Error saving data', error.message);

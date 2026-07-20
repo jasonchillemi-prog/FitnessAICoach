@@ -29,6 +29,23 @@ const isRateLimited = (e) =>
   e?.code === 'resource-exhausted' ||
   /resource|limit/i.test(e?.message);
 
+// buildGroceryList returns {name, amount, unit, ...} objects; format to the
+// legacy string shape ("2 lbs chicken breast") so the grocery UI is unchanged
+const formatGroceryItems = (items) =>
+  (items || []).map((i) => [i.amount, i.unit, i.name].filter(Boolean).join(' '));
+
+const attachGroceryList = async (parsed, previousPlan) => {
+  const userItems = previousPlan?.groceryUserItems || [];
+  let libraryItems = [];
+  if (parsed.mealIdCounts && Object.keys(parsed.mealIdCounts).length > 0) {
+    const buildGroceryListFn = httpsCallable(functions, 'buildGroceryList');
+    const groceryResult = await buildGroceryListFn({ mealIdCounts: parsed.mealIdCounts });
+    libraryItems = formatGroceryItems(groceryResult.data.groceryList);
+  }
+  parsed.groceryList = [...libraryItems, ...userItems];
+  parsed.groceryUserItems = userItems;
+};
+
 function CoachBanner({ message }) {
   const [expanded, setExpanded] = useState(false);
   const preview = message.length > 80 ? message.substring(0, 80) + '...' : message;
@@ -118,12 +135,16 @@ function GroceryListSection({ groceryList, groceryChecked, toggleGrocery, addGro
 
   const prevGroceryListRef = useRef([]);
 
-  // Reset only when a new plan replaces the list (not when items are appended)
+  // Reset only when a new plan replaces the list (not when items are appended).
+  // Compare by reference: plans are deterministic, so a regenerated list can be
+  // content-identical to the old one but must still clear dismissed items.
   useEffect(() => {
     const prev = prevGroceryListRef.current;
-    const isNewPlan = groceryList.length < prev.length ||
-      (prev.length > 0 && groceryList[0] !== prev[0]);
-    if (isNewPlan) {
+    if (groceryList === prev) return;
+    const isAppend = groceryList.length > prev.length && prev.every((v, i) => v === groceryList[i]);
+    if (!isAppend) {
+      Object.values(timeoutRefs.current).forEach(clearTimeout);
+      timeoutRefs.current = {};
       setDismissed({});
       scheduledRef.current = {};
       fadeAnims.current = {};
@@ -436,7 +457,7 @@ function DashboardScreenInner({ navigation, route }) {
     console.log('plan is:', plan ? 'loaded' : 'null');
     if (!plan) return;
     const newList = [...(plan.groceryList || []), item];
-    const newPlan = { ...plan, groceryList: newList };
+    const newPlan = { ...plan, groceryList: newList, groceryUserItems: [...(plan.groceryUserItems || []), item] };
     setPlan(newPlan);
     await savePlan(newPlan);
     try {
@@ -504,9 +525,10 @@ function DashboardScreenInner({ navigation, route }) {
           setGeneratingPlan(true);
           try {
             const busyDays = userData.busyDays && userData.busyDays.length > 0 ? userData.busyDays.join(', ') : 'None';
-            const generatePlanFn = httpsCallable(functions, 'generatePlan');
+            const generatePlanFn = httpsCallable(functions, 'matchMealPlan');
             const result = await generatePlanFn({ userData: { ...userData, busyDays: userData.busyDays }, busyDays });
             const parsed = result.data;
+            await attachGroceryList(parsed, plan);
             setPlan(parsed);
             setCompletedWorkouts({});
             setGroceryChecked({});
@@ -538,9 +560,10 @@ function DashboardScreenInner({ navigation, route }) {
     setGeneratingPlan(true);
     try {
       const busyDays = userData.busyDays && userData.busyDays.length > 0 ? userData.busyDays.join(', ') : 'None';
-      const generatePlanFn = httpsCallable(functions, 'generatePlan');
+      const generatePlanFn = httpsCallable(functions, 'matchMealPlan');
       const result = await generatePlanFn({ userData, busyDays });
       const parsed = result.data;
+      await attachGroceryList(parsed, plan);
       setPlan(parsed);
       setCompletedWorkouts({});
       setGroceryChecked({});
