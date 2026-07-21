@@ -43,3 +43,4 @@ jarvis/
 functions/index.js.bak
 *.bak
 scripts/serviceAccountKey.json
+SESSION_SUMMARY*.md
