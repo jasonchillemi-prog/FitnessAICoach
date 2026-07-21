@@ -410,30 +410,137 @@ const buildLibraryMealPlan = (uid, userData, meals) => {
   return { dayMeals, dailyCalories, gaps, mealIdCounts };
 };
 
+const DIFFICULTY_ORDER = { beginner: 0, intermediate: 1, advanced: 2 };
+const WORKOUT_TYPES = ['strength', 'cardio', 'hiit', 'flexibility'];
+
+// Goal-derived affinity for a workout type; 0 when no goal speaks for it
+const goalAffinity = (goalsText, type) => {
+  let a = 0;
+  if (/muscle|strength|build|tone/.test(goalsText)) {
+    if (type === 'strength') a += 30;
+    if (type === 'hiit') a += 8;
+  }
+  if (/lose|loss|lean|cut|slim|weight/.test(goalsText)) {
+    if (type === 'hiit') a += 20;
+    if (type === 'cardio') a += 15;
+    if (type === 'strength') a += 12;
+  }
+  if (/endurance|stamina|fit|run/.test(goalsText)) {
+    if (type === 'cardio') a += 20;
+    if (type === 'hiit') a += 12;
+  }
+  if (/flexib|stress|mobility/.test(goalsText)) {
+    if (type === 'flexibility') a += 18;
+  }
+  return a;
+};
+
+// Goal-aware workout scoring — the analogue of scoreMeal. Difficulty is a soft
+// target (exact +20, one step away +8), never a hard filter, so training
+// frequency no longer locks users out of the rest of the library.
+const scoreWorkout = (workout, goalsText, targetDifficulty, uid, nudgeEnabled = true) => {
+  const type = normalizeTag(workout.type);
+  let score = goalAffinity(goalsText, type);
+  // No goal spoke for this type — baseline keeps real training ahead of stretching
+  if (score === 0) score = { strength: 12, cardio: 10, hiit: 10, flexibility: 4 }[type] || 0;
+  const tier = DIFFICULTY_ORDER[normalizeTag(workout.difficulty)] || 0;
+  const dist = Math.abs(tier - DIFFICULTY_ORDER[targetDifficulty]);
+  score += dist === 0 ? 20 : dist === 1 ? 8 : 0;
+  // Goal-primary difficulty nudge: for the user's strongest goal-matched
+  // type(s), one tier above target scores level with the exact tier (+12
+  // offsets the 20-vs-8 gap) so frequency doesn't cap intensity in practice.
+  // Disabled for the wpw=0 on-ramp cohort, which stays strictly beginner.
+  if (nudgeEnabled) {
+    const maxAffinity = Math.max(...WORKOUT_TYPES.map((t) => goalAffinity(goalsText, t)));
+    if (maxAffinity > 0 && goalAffinity(goalsText, type) === maxAffinity && tier === DIFFICULTY_ORDER[targetDifficulty] + 1) {
+      score += 12;
+    }
+  }
+  score += Math.min(workout.duration_minutes || 0, 60) * 0.15;
+  score += ((hash32(`${uid}:${workout.id}`) % 1000) / 1000) * 8;
+  return score;
+};
+
 const buildLibraryWorkoutPlan = (uid, userData, busyDays, workouts) => {
-  const wpw = parseInt(userData.workoutsPerWeek, 10) || 3;
-  const level = wpw <= 3 ? 'beginner' : wpw <= 5 ? 'intermediate' : 'advanced';
-  const workoutDayCount = wpw <= 3 ? 3 : wpw <= 5 ? 4 : 5;
+  const wpwRaw = parseInt(userData.workoutsPerWeek, 10);
+  const wpw = Number.isFinite(wpwRaw) ? wpwRaw : 3;
+  // Frequency drives day count directly; 0/week gets a 2-day on-ramp, and the
+  // cap of 6 guarantees at least one rest day.
+  const workoutDayCount = wpw === 0 ? 2 : Math.min(Math.max(wpw, 1), 6);
+  const targetDifficulty = wpw <= 2 ? 'beginner' : wpw <= 5 ? 'intermediate' : 'advanced';
 
   const busyList = Array.isArray(busyDays) ? busyDays : String(busyDays || '').split(',');
-  const busy = new Set(busyList.map(normalizeTag).filter((x) => x && x !== 'none'));
-  const available = DAY_NAMES.filter((day) => !busy.has(normalizeTag(day)));
+  // Client sends abbreviated day names ('Mon, Wed') — match on 3-letter prefix
+  const busy = new Set(busyList.map(normalizeTag).filter((x) => x && x !== 'none').map((x) => x.slice(0, 3)));
+  const available = DAY_NAMES.filter((day) => !busy.has(normalizeTag(day).slice(0, 3)));
   const count = Math.min(workoutDayCount, available.length);
   const chosenDays = [];
   for (let i = 0; i < count; i++) chosenDays.push(available[Math.floor((i * available.length) / count)]);
 
-  let pool = workouts.filter((w) => w.active !== false && normalizeTag(w.difficulty) === level);
-  if (pool.length === 0) pool = workouts.filter((w) => w.active !== false);
+  // Rest-type docs are never selectable — rest-day entries are generated below
+  const pool = workouts.filter((w) => w.active !== false && normalizeTag(w.type) !== 'rest');
   if (pool.length === 0) throw new HttpsError('failed-precondition', 'No workouts available in the library.');
 
-  const ranked = [...pool].sort((a, b) => (hash32(`${uid}:${b.id}`) - hash32(`${uid}:${a.id}`)) || (a.id < b.id ? -1 : 1));
-  const picks = chosenDays.map((_, i) => ranked[i % ranked.length]);
-  // Avoid same workout type on consecutive workout days where possible
-  for (let i = 1; i < picks.length; i++) {
-    if (picks[i].type === picks[i - 1].type) {
-      const j = picks.findIndex((p, k) => k > i && p.type !== picks[i - 1].type);
-      if (j > i) [picks[i], picks[j]] = [picks[j], picks[i]];
+  const goalsText = (userData.goals || []).join(' ').toLowerCase();
+  const flexCap = /flexib|stress|mobility/.test(goalsText) ? 2 : 1;
+
+  const gaps = {}; // docId -> { difficulty, type, reason, count }
+  const logGap = (type, reason) => {
+    const docId = `${targetDifficulty}_${type}_${reason}`;
+    if (!gaps[docId]) gaps[docId] = { difficulty: targetDifficulty, type, reason, count: 0 };
+    gaps[docId].count += 1;
+  };
+
+  // Greedy day-by-day selection: best score wins after variety penalties —
+  // repeat within the week −25 per use, same type as the previous workout day
+  // −15, flexibility beyond the weekly cap −20.
+  const useCount = {};
+  let flexUsed = 0;
+  let prevType = null;
+  let prevId = null;
+  // Goal-focus exception: alternation permits at most ceil(count/2) days of
+  // one type, so at count <= 2 variety and goal focus are mutually exclusive —
+  // there, the user's primary goal type may repeat (distinct docs only).
+  // Keyed on actual day count, not wpw, so busy-day-compressed weeks qualify.
+  const maxAff = Math.max(...WORKOUT_TYPES.map((t) => goalAffinity(goalsText, t)));
+  const primaryTypes = new Set(WORKOUT_TYPES.filter((t) => maxAff > 0 && goalAffinity(goalsText, t) === maxAff));
+  const goalFocusMode = count <= 2;
+  const picks = [];
+  for (let i = 0; i < count; i++) {
+    const ranked = pool
+      .map((w) => {
+        const type = normalizeTag(w.type);
+        let s = scoreWorkout(w, goalsText, targetDifficulty, uid, wpw !== 0);
+        s -= (useCount[w.id] || 0) * 25;
+        if (prevType && type === prevType) s -= 15;
+        if (type === 'flexibility' && flexUsed >= flexCap) s -= 20;
+        return { w, s };
+      })
+      .sort((a, b) => b.s - a.s || (a.w.id < b.w.id ? -1 : 1));
+    // Back-to-back type is a hard rule, not just the −15: take the best
+    // different-type candidate, same type only when no alternative exists —
+    // except in goal-focus mode, where the primary type may repeat
+    const best = ranked.find(({ w }) => {
+      const t = normalizeTag(w.type);
+      if (t !== prevType) return true;
+      return goalFocusMode && primaryTypes.has(t) && w.id !== prevId;
+    }) || ranked[0];
+    const pick = best.w;
+    const pickType = normalizeTag(pick.type);
+    if (useCount[pick.id]) logGap(pickType, 'repeat_forced');
+    if (normalizeTag(pick.difficulty) !== targetDifficulty &&
+        !pool.some((w) => normalizeTag(w.type) === pickType && normalizeTag(w.difficulty) === targetDifficulty && !useCount[w.id])) {
+      logGap(pickType, 'difficulty_relaxed');
     }
+    useCount[pick.id] = (useCount[pick.id] || 0) + 1;
+    if (pickType === 'flexibility') flexUsed += 1;
+    prevType = pickType;
+    prevId = pick.id;
+    picks.push(pick);
+  }
+  if (/muscle|strength|build|tone/.test(goalsText) && count >= 3 &&
+      picks.filter((p) => normalizeTag(p.type) === 'strength').length < 2) {
+    logGap('strength', 'goal_type_unmet');
   }
   // Full 7-day week: workout days plus deterministic rest-day entries, so the
   // client renders Mon–Sun like AI-generated plans. Rest entries carry
@@ -454,7 +561,10 @@ const buildLibraryWorkoutPlan = (uid, userData, busyDays, workouts) => {
       difficulty: picks[i].difficulty,
     };
   });
-  return DAY_NAMES.map((day, d) => byDay[day] || { day, ...REST_DAYS[d % REST_DAYS.length], type: 'rest' });
+  return {
+    week: DAY_NAMES.map((day, d) => byDay[day] || { day, ...REST_DAYS[d % REST_DAYS.length], type: 'rest' }),
+    gaps,
+  };
 };
 
 // ─── matchMealPlan ───────────────────────────────────────────────────────────
@@ -473,11 +583,13 @@ exports.matchMealPlan = onCall(async (request) => {
   const workouts = workoutsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
   const { dayMeals, dailyCalories, gaps, mealIdCounts } = buildLibraryMealPlan(uid, userData, meals);
-  const weeklyWorkouts = buildLibraryWorkoutPlan(uid, userData, busyDays !== undefined ? busyDays : userData.busyDays, workouts);
+  const { week: weeklyWorkouts, gaps: workoutGaps } =
+    buildLibraryWorkoutPlan(uid, userData, busyDays !== undefined ? busyDays : userData.busyDays, workouts);
 
-  // Log library coverage gaps — best-effort, never blocks the plan
+  // Log library coverage gaps (meals + workouts) — best-effort, never blocks the plan
   const gapEntries = Object.entries(gaps);
-  if (gapEntries.length > 0) {
+  const workoutGapEntries = Object.entries(workoutGaps);
+  if (gapEntries.length > 0 || workoutGapEntries.length > 0) {
     try {
       const batch = db.batch();
       for (const [comboId, g] of gapEntries) {
@@ -488,9 +600,18 @@ exports.matchMealPlan = onCall(async (request) => {
           lastLoggedAt: admin.firestore.FieldValue.serverTimestamp(),
         }, { merge: true });
       }
+      for (const [docId, g] of workoutGapEntries) {
+        batch.set(db.collection('workoutLibraryGaps').doc(docId), {
+          difficulty: g.difficulty,
+          type: g.type,
+          reason: g.reason,
+          count: admin.firestore.FieldValue.increment(g.count),
+          lastLoggedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
       await batch.commit();
     } catch (e) {
-      console.error('mealLibraryGaps logging failed:', e.message);
+      console.error('library gap logging failed:', e.message);
     }
   }
 
