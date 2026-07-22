@@ -9,9 +9,10 @@ import {
   Alert,
   ActivityIndicator
 } from 'react-native';
-import { auth, db } from '../firebaseConfig';
+import { auth, db, functions, httpsCallable } from '../firebaseConfig';
 import { doc, getDoc, setDoc, collection, query, getDocs, deleteDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { clearAll as clearOfflineCache } from '../src/utils/offlineCache';
 import ErrorBoundary from './ErrorBoundary';
 
 function ProfileScreenInner({ navigation }) {
@@ -46,6 +47,24 @@ function ProfileScreenInner({ navigation }) {
           navigation.replace('Login');
         } catch (error) {
           Alert.alert('Error', error.message);
+        }
+      }}
+    ]);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert('Delete Account', 'Are you sure? This will permanently delete your account and all your data. This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          const deleteAccountFn = httpsCallable(functions, 'deleteAccount');
+          await deleteAccountFn();
+          await clearOfflineCache();
+          await signOut(auth); // AppNavigator's onAuthStateChanged handles Purchases.logOut()
+          navigation.replace('Login');
+        } catch (error) {
+          console.log('deleteAccount error:', error);
+          Alert.alert('Something went wrong', 'Please try again or contact support.');
         }
       }}
     ]);
@@ -227,6 +246,10 @@ function ProfileScreenInner({ navigation }) {
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Log Out</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.logoutButton} onPress={handleDeleteAccount}>
+        <Text style={styles.logoutText}>Delete Account</Text>
       </TouchableOpacity>
 
       <Text style={styles.version}>KineticIQ v1.0.0</Text>

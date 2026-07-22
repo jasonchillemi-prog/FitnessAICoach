@@ -701,3 +701,37 @@ exports.buildGroceryList = onCall(async (request) => {
     listSource: 'library',
   };
 });
+
+// ─── deleteAccount ───────────────────────────────────────────────────────────
+// Server-side deletion avoids the client's requires-recent-login re-auth and
+// guarantees no orphaned data: user doc + all subcollections, uid-prefixed
+// checkins, then the Auth account itself.
+exports.deleteAccount = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in to delete account.');
+  const uid = request.auth.uid;
+  const db = admin.firestore();
+
+  try {
+    // Removes users/{uid} and every subcollection under it (rateLimits, coach, any future ones)
+    await db.recursiveDelete(db.collection('users').doc(uid));
+
+    // checkins is a top-level collection with doc IDs formatted {uid}_{date}
+    const checkinsSnap = await db.collection('checkins')
+      .where(admin.firestore.FieldPath.documentId(), '>=', `${uid}_`)
+      .where(admin.firestore.FieldPath.documentId(), '<=', `${uid}_\uf8ff`)
+      .get();
+    for (let i = 0; i < checkinsSnap.docs.length; i += 500) {
+      const batch = db.batch();
+      checkinsSnap.docs.slice(i, i + 500).forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+    }
+
+    // Auth account last, only after all data is gone
+    await admin.auth().deleteUser(uid);
+
+    return { success: true };
+  } catch (err) {
+    console.error('deleteAccount failed for uid', uid, err);
+    throw new HttpsError('internal', 'Account deletion failed. Please try again.');
+  }
+});

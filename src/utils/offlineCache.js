@@ -94,3 +94,11 @@ export async function clearPendingGrocery() {
     console.log('offlineCache: failed to clear pending grocery', e);
   }
 }
+
+export async function clearAll() {
+  try {
+    await AsyncStorage.multiRemove(Object.values(KEYS));
+  } catch (e) {
+    console.log('offlineCache: failed to clear all', e);
+  }
+}
