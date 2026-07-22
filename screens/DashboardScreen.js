@@ -18,7 +18,7 @@ import {
   Platform
 } from 'react-native';
 import { auth, db, functions, httpsCallable } from '../firebaseConfig';
-import { doc, getDoc, setDoc, deleteField } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { requestPermissions, getOrCreateCalendar, addMealsToCalendar, addWorkoutsToCalendar } from '../services/calendarService';
 import ErrorBoundary from './ErrorBoundary';
 import { savePlan, loadPlan, saveUserData, loadUserData as loadCachedUserData, savePendingWorkouts, loadPendingWorkouts, clearPendingWorkouts, savePendingGrocery, loadPendingGrocery, clearPendingGrocery } from '../src/utils/offlineCache';
@@ -472,8 +472,42 @@ function DashboardScreenInner({ navigation, route }) {
     }
   };
 
+  const removeGroceryItem = async (index) => {
+    if (!isPro) { navigation.navigate('Paywall'); return; }
+    if (!plan) return;
+    const list = plan.groceryList || [];
+    const userItems = plan.groceryUserItems || [];
+    const libraryCount = list.length - userItems.length;
+    if (index < libraryCount) return;
+    const newPlan = {
+      ...plan,
+      groceryList: list.filter((_, i) => i !== index),
+      groceryUserItems: userItems.filter((_, i) => i !== index - libraryCount),
+    };
+    // Removing a row shifts every index after it; re-key checked state to match
+    const newChecked = {};
+    Object.entries(groceryChecked).forEach(([k, v]) => {
+      const i = Number(k);
+      if (i < index) newChecked[i] = v;
+      else if (i > index) newChecked[i - 1] = v;
+    });
+    setPlan(newPlan);
+    setGroceryChecked(newChecked);
+    await savePlan(newPlan);
+    try {
+      const user = auth.currentUser;
+      // updateDoc: top-level fields replace wholesale, so dropped checked keys don't linger
+      await updateDoc(doc(db, 'users', user.uid), { savedPlan: newPlan, groceryChecked: newChecked });
+    } catch (error) {
+      console.log('Error removing grocery item:', error);
+    }
+  };
+
   const toggleGrocery = useCallback(async (index) => {
     if (!isPro) { navigation.navigate('Paywall'); return; }
+    // Checking off a user-added item removes it outright; only library items keep checked state
+    const libraryCount = (plan?.groceryList?.length || 0) - (plan?.groceryUserItems?.length || 0);
+    if (index >= libraryCount) { await removeGroceryItem(index); return; }
     const newChecked = { ...groceryChecked, [index]: !groceryChecked[index] };
     setGroceryChecked(newChecked);
     await savePendingGrocery(newChecked);
@@ -485,7 +519,7 @@ function DashboardScreenInner({ navigation, route }) {
     } catch (error) {
       console.log('Error saving grocery:', error);
     }
-  }, [groceryChecked, isOffline, isPro]);
+  }, [groceryChecked, isOffline, isPro, plan, removeGroceryItem]);
 
   const getWorkoutsCompleted = () =>
     (plan?.weeklyWorkouts || []).filter((w, i) => !isRestEntry(w) && completedWorkouts[i]).length;
@@ -506,6 +540,15 @@ function DashboardScreenInner({ navigation, route }) {
       'Sunday': plan.sundayMeals,
     };
     return dayMap[todayName] || plan.mondayMeals || plan.dailyMeals || [];
+  };
+
+  // Mirror the regen's Firestore deletes into the AsyncStorage snapshot; otherwise an
+  // offline fallback in loadUserData can resurrect the pre-regen week's completions.
+  const cacheUserDataAfterRegen = async (parsed) => {
+    const cached = { ...userData, savedPlan: parsed, completedWorkouts: { ...(userData?.completedWorkouts || {}) } };
+    delete cached.groceryChecked;
+    delete cached.completedWorkouts[getWeekKey()];
+    await saveUserData(cached);
   };
 
   const analyzeAndAdaptPlan = async () => {
@@ -549,6 +592,7 @@ function DashboardScreenInner({ navigation, route }) {
             await clearPendingGrocery();
             await clearPendingWorkouts();
             await savePlan(parsed);
+            await cacheUserDataAfterRegen(parsed);
             Alert.alert('Plan Updated!', 'Your plan has been adapted.');
           } catch (error) {
             Alert.alert(
@@ -591,6 +635,7 @@ function DashboardScreenInner({ navigation, route }) {
       await clearPendingGrocery();
       await clearPendingWorkouts();
       await savePlan(parsed);
+      await cacheUserDataAfterRegen(parsed);
       setFromCache(false);
     } catch (error) {
       console.log('Generate plan error:', error.code, error.message);
@@ -636,9 +681,7 @@ function DashboardScreenInner({ navigation, route }) {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView ref={scrollRef} style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps='handled'>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>{getGreeting()}, <Text style={styles.greetingName}>{getFirstName()}</Text></Text>
-        </View>
+        <Text style={styles.greeting}>{getGreeting()} <Text style={styles.greetingName}>{getFirstName()}</Text></Text>
         <Text style={styles.dateText}>{today}</Text>
       </View>
 
@@ -770,10 +813,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#080C10' },
   content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
   centered: { flex: 1, backgroundColor: '#080C10', alignItems: 'center', justifyContent: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
+  header: { marginBottom: 24 },
   greeting: { fontSize: 22, fontWeight: '700', color: '#F0F4F8', marginBottom: 4 },
   greetingName: { color: '#00E5A0' },
-  dateText: { fontSize: 12, color: '#4A5A6A', textAlign: 'right' },
+  dateText: { fontSize: 12, color: '#4A5A6A' },
   cacheBanner: { backgroundColor: 'rgba(255,179,0,0.08)', borderRadius: 10, padding: 10, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,179,0,0.2)', alignItems: 'center' },
   cacheBannerText: { color: '#FFB300', fontSize: 13, fontWeight: '600' },
   offlineCard: { backgroundColor: '#111820', borderRadius: 14, padding: 24, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', alignItems: 'center' },
